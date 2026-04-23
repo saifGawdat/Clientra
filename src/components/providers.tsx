@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { AppLoader } from "@/components/app-loader"
-import { ConfirmProvider } from "@/components/ui/confirm-modal"
+import { AppLoader } from "@/components/app-loader";
+import { ConfirmProvider } from "@/components/ui/confirm-modal";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -9,5 +9,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <AppLoader />
       {children}
     </ConfirmProvider>
-  )
+  );
 }

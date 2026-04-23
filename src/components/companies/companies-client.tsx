@@ -1,71 +1,91 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Plus, Search, Building2, Trash2, Pencil, Globe, Users, TrendingUp } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { CompanyFormDialog } from "@/components/companies/company-form-dialog"
-import { useConfirm } from "@/components/ui/confirm-modal"
-import { formatDate } from "@/lib/utils"
+import { useState } from "react";
+import Link from "next/link";
+import {
+  Plus,
+  Search,
+  Building2,
+  Trash2,
+  Pencil,
+  Globe,
+  Users,
+  TrendingUp,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { CompanyFormDialog } from "@/components/companies/company-form-dialog";
+import { useConfirm } from "@/components/ui/confirm-modal";
+import { formatDate } from "@/lib/utils";
 
 type Company = {
-  id: string
-  name: string
-  website: string | null
-  industry: string | null
-  size: string | null
-  email: string | null
-  phone: string | null
-  city: string | null
-  country: string | null
-  createdAt: Date
-  _count: { contacts: number; deals: number }
-}
+  id: string;
+  name: string;
+  website: string | null;
+  industry: string | null;
+  size: string | null;
+  email: string | null;
+  phone: string | null;
+  city: string | null;
+  country: string | null;
+  createdAt: Date;
+  _count: { contacts: number; deals: number };
+};
 
-export function CompaniesClient({ initialCompanies }: { initialCompanies: Company[] }) {
-  const confirm = useConfirm()
-  const [companies, setCompanies] = useState(initialCompanies)
-  const [search, setSearch] = useState("")
-  const [showForm, setShowForm] = useState(false)
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null)
+export function CompaniesClient({
+  initialCompanies,
+}: {
+  initialCompanies: Company[];
+}) {
+  const confirm = useConfirm();
+  const [companies, setCompanies] = useState(initialCompanies);
+  const [search, setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
 
   const filtered = companies.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.industry?.toLowerCase().includes(search.toLowerCase())
-  )
+      c.industry?.toLowerCase().includes(search.toLowerCase()),
+  );
 
   const handleDelete = async (id: string) => {
-    if (!(await confirm({ 
-      title: "Delete Company?", 
-      description: "This action cannot be undone.",
-      variant: "destructive" 
-    }))) return
-    await fetch(`/api/companies/${id}`, { method: "DELETE" })
-    setCompanies((prev) => prev.filter((c) => c.id !== id))
-  }
+    if (
+      !(await confirm({
+        title: "Delete Company?",
+        description: "This action cannot be undone.",
+        variant: "destructive",
+      }))
+    )
+      return;
+    await fetch(`/api/companies/${id}`, { method: "DELETE" });
+    setCompanies((prev) => prev.filter((c) => c.id !== id));
+  };
 
   const handleSave = (company: any) => {
     setCompanies((prev) => {
-      const idx = prev.findIndex((c) => c.id === company.id)
+      const idx = prev.findIndex((c) => c.id === company.id);
       if (idx >= 0) {
-        const next = [...prev]
-        next[idx] = { ...next[idx], ...company }
-        return next
+        const next = [...prev];
+        next[idx] = { ...next[idx], ...company };
+        return next;
       }
-      return [{ ...company, _count: { contacts: 0, deals: 0 } }, ...prev]
-    })
-    setShowForm(false)
-    setEditingCompany(null)
-  }
+      return [{ ...company, _count: { contacts: 0, deals: 0 } }, ...prev];
+    });
+    setShowForm(false);
+    setEditingCompany(null);
+  };
 
   return (
     <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Companies</h1>
-          <p className="text-[#52525b] text-sm mt-1">{companies.length} total companies</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            Companies
+          </h1>
+          <p className="text-[#52525b] text-sm mt-1">
+            {companies.length} total companies
+          </p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="h-4 w-4" />
@@ -85,17 +105,19 @@ export function CompaniesClient({ initialCompanies }: { initialCompanies: Compan
 
       {filtered.length === 0 ? (
         <div className="text-center py-12 text-[#52525b]">
-          {search ? "No companies match your search" : "No companies yet. Add your first one!"}
+          {search
+            ? "No companies match your search"
+            : "No companies yet. Add your first one!"}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((company) => (
-            <div
-              key={company.id}
-              className="oled-card group relative"
-            >
+            <div key={company.id} className="oled-card group relative">
               <div className="flex items-start justify-between mb-3">
-                <Link href={`/companies/${company.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                <Link
+                  href={`/companies/${company.id}`}
+                  className="flex items-center gap-3 flex-1 min-w-0"
+                >
                   <div className="h-10 w-10 rounded-xl bg-[#7c3aed]/20 border border-[#7c3aed]/30 flex items-center justify-center shrink-0">
                     <Building2 className="h-5 w-5 text-[#7c3aed]" />
                   </div>
@@ -104,7 +126,9 @@ export function CompaniesClient({ initialCompanies }: { initialCompanies: Compan
                       {company.name}
                     </p>
                     {company.industry && (
-                      <p className="text-xs text-[#52525b] truncate">{company.industry}</p>
+                      <p className="text-xs text-[#52525b] truncate">
+                        {company.industry}
+                      </p>
                     )}
                   </div>
                 </Link>
@@ -113,7 +137,10 @@ export function CompaniesClient({ initialCompanies }: { initialCompanies: Compan
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
-                    onClick={() => { setEditingCompany(company); setShowForm(true) }}
+                    onClick={() => {
+                      setEditingCompany(company);
+                      setShowForm(true);
+                    }}
                   >
                     <Pencil className="h-3 w-3" />
                   </Button>
@@ -158,7 +185,9 @@ export function CompaniesClient({ initialCompanies }: { initialCompanies: Compan
                   <TrendingUp className="h-3.5 w-3.5" />
                   <span>{company._count.deals} deals</span>
                 </div>
-                <span className="ml-auto text-xs text-[#52525b]">{formatDate(company.createdAt)}</span>
+                <span className="ml-auto text-xs text-[#52525b]">
+                  {formatDate(company.createdAt)}
+                </span>
               </div>
             </div>
           ))}
@@ -167,10 +196,13 @@ export function CompaniesClient({ initialCompanies }: { initialCompanies: Compan
 
       <CompanyFormDialog
         open={showForm}
-        onClose={() => { setShowForm(false); setEditingCompany(null) }}
+        onClose={() => {
+          setShowForm(false);
+          setEditingCompany(null);
+        }}
         onSave={handleSave}
         company={editingCompany}
       />
     </div>
-  )
+  );
 }

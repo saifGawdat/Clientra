@@ -1,73 +1,93 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Search } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { formatCurrency, formatDate } from "@/lib/utils"
+import { useState } from "react";
+import Link from "next/link";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 const STAGE_COLORS: Record<string, string> = {
   LEAD: "bg-[#27272a] text-[#a1a1aa] border-[#3f3f46]",
   QUALIFIED: "bg-blue-950/50 text-blue-300 border-blue-800/50",
   PROPOSAL: "bg-amber-950/50 text-amber-300 border-amber-800/50",
   NEGOTIATION: "bg-[#7c3aed]/20 text-[#a78bfa] border-[#7c3aed]/40",
-}
+};
 
 type Opportunity = {
-  id: string
-  title: string
-  value: number | null
-  currency: string
-  stage: string
-  probability: number | null
-  closeDate: Date | null
-  contact: { id: string; firstName: string; lastName: string } | null
-  company: { id: string; name: string } | null
-  updatedAt: Date
-}
+  id: string;
+  title: string;
+  value: number | null;
+  currency: string;
+  stage: string;
+  probability: number | null;
+  closeDate: Date | null;
+  contact: { id: string; firstName: string; lastName: string } | null;
+  company: { id: string; name: string } | null;
+  updatedAt: Date;
+};
 
 interface OpportunitiesClientProps {
-  initialOpportunities: Opportunity[]
+  initialOpportunities: Opportunity[];
 }
 
-export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClientProps) {
-  const [opportunities] = useState(initialOpportunities)
-  const [search, setSearch] = useState("")
+export function OpportunitiesClient({
+  initialOpportunities,
+}: OpportunitiesClientProps) {
+  const [opportunities] = useState(initialOpportunities);
+  const [search, setSearch] = useState("");
 
   const filtered = opportunities.filter((o) => {
-    const q = search.toLowerCase()
+    const q = search.toLowerCase();
     return (
       o.title.toLowerCase().includes(q) ||
       o.company?.name.toLowerCase().includes(q) ||
-      `${o.contact?.firstName ?? ""} ${o.contact?.lastName ?? ""}`.toLowerCase().includes(q)
-    )
-  })
+      `${o.contact?.firstName ?? ""} ${o.contact?.lastName ?? ""}`
+        .toLowerCase()
+        .includes(q)
+    );
+  });
 
-  const totalValue = opportunities.reduce((sum, o) => sum + (o.value ?? 0), 0)
+  const totalValue = opportunities.reduce((sum, o) => sum + (o.value ?? 0), 0);
   const weightedValue = opportunities.reduce(
     (sum, o) => sum + (o.value ?? 0) * ((o.probability ?? 50) / 100),
     0,
-  )
+  );
 
   return (
     <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Opportunities</h1>
-        <p className="text-[#52525b] text-sm mt-1">Active deals in your pipeline</p>
+        <h1 className="text-2xl font-bold text-white tracking-tight">
+          Opportunities
+        </h1>
+        <p className="text-[#52525b] text-sm mt-1">
+          Active deals in your pipeline
+        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="oled-card">
-          <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">Pipeline Value</p>
-          <p className="text-2xl font-bold font-mono text-white">{formatCurrency(totalValue)}</p>
+          <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">
+            Pipeline Value
+          </p>
+          <p className="text-2xl font-bold font-mono text-white">
+            {formatCurrency(totalValue)}
+          </p>
         </div>
         <div className="oled-card">
-          <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">Weighted Value</p>
-          <p className="text-2xl font-bold font-mono text-[#7c3aed]">{formatCurrency(weightedValue)}</p>
+          <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">
+            Weighted Value
+          </p>
+          <p className="text-2xl font-bold font-mono text-[#7c3aed]">
+            {formatCurrency(weightedValue)}
+          </p>
         </div>
         <div className="oled-card">
-          <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">Open Deals</p>
-          <p className="text-3xl font-bold font-mono text-white">{opportunities.length}</p>
+          <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">
+            Open Deals
+          </p>
+          <p className="text-3xl font-bold font-mono text-white">
+            {opportunities.length}
+          </p>
         </div>
       </div>
 
@@ -85,18 +105,33 @@ export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClien
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#1e1e24] bg-[#18181b]">
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">Opportunity</th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">Contact / Company</th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">Stage</th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">Value</th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">Probability</th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">Close Date</th>
+              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
+                Opportunity
+              </th>
+              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
+                Contact / Company
+              </th>
+              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
+                Stage
+              </th>
+              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
+                Value
+              </th>
+              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
+                Probability
+              </th>
+              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
+                Close Date
+              </th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-[#52525b]">
+                <td
+                  colSpan={6}
+                  className="px-4 py-12 text-center text-[#52525b]"
+                >
                   {search
                     ? "No opportunities match your search"
                     : "No open opportunities. Create deals to see them here."}
@@ -104,7 +139,10 @@ export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClien
               </tr>
             )}
             {filtered.map((opp) => (
-              <tr key={opp.id} className="border-b border-[#1e1e24] hover:bg-[#18181b] transition-colors">
+              <tr
+                key={opp.id}
+                className="border-b border-[#1e1e24] hover:bg-[#18181b] transition-colors"
+              >
                 <td className="px-4 py-3">
                   <Link
                     href={`/deals/${opp.id}`}
@@ -131,7 +169,9 @@ export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClien
                         {opp.company.name}
                       </Link>
                     )}
-                    {!opp.contact && !opp.company && <span className="text-[#52525b]">—</span>}
+                    {!opp.contact && !opp.company && (
+                      <span className="text-[#52525b]">—</span>
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">
@@ -142,7 +182,9 @@ export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClien
                   </span>
                 </td>
                 <td className="px-4 py-3 font-mono text-white">
-                  {opp.value != null ? formatCurrency(opp.value, opp.currency) : "—"}
+                  {opp.value != null
+                    ? formatCurrency(opp.value, opp.currency)
+                    : "—"}
                 </td>
                 <td className="px-4 py-3">
                   {opp.probability != null ? (
@@ -153,7 +195,9 @@ export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClien
                           style={{ width: `${opp.probability}%` }}
                         />
                       </div>
-                      <span className="text-[#a1a1aa] text-xs">{opp.probability}%</span>
+                      <span className="text-[#a1a1aa] text-xs">
+                        {opp.probability}%
+                      </span>
                     </div>
                   ) : (
                     "—"
@@ -168,5 +212,5 @@ export function OpportunitiesClient({ initialOpportunities }: OpportunitiesClien
         </table>
       </div>
     </div>
-  )
+  );
 }
