@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { formatDate } from "@/lib/utils"
 
 type Lead = {
@@ -42,6 +43,7 @@ interface LeadsClientProps {
 
 export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
   const router = useRouter()
+  const confirm = useConfirm()
   const [leads, setLeads] = useState(initialLeads)
   const [search, setSearch] = useState("")
   const [showForm, setShowForm] = useState(false)
@@ -61,7 +63,11 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
   const totalProspects = leads.filter((l) => l.status === "PROSPECT").length
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this lead?")) return
+    if (!(await confirm({ 
+      title: "Delete Lead?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/contacts/${id}`, { method: "DELETE" })
     setLeads((prev) => prev.filter((l) => l.id !== id))
   }

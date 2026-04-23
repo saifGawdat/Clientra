@@ -6,6 +6,7 @@ import { Plus, Search, Trash2, Pencil, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { formatDate } from "@/lib/utils"
 
 type Target = {
@@ -50,6 +51,7 @@ interface TargetsClientProps {
 }
 
 export function TargetsClient({ initialTargets, companies }: TargetsClientProps) {
+  const confirm = useConfirm()
   const [targets, setTargets] = useState(initialTargets)
   const [search, setSearch] = useState("")
   const [showForm, setShowForm] = useState(false)
@@ -67,7 +69,11 @@ export function TargetsClient({ initialTargets, companies }: TargetsClientProps)
   })
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this target?")) return
+    if (!(await confirm({ 
+      title: "Delete Target?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/contacts/${id}`, { method: "DELETE" })
     setTargets((prev) => prev.filter((t) => t.id !== id))
   }

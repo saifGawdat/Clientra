@@ -6,6 +6,7 @@ import { Plus, Search, Building2, Trash2, Pencil, Globe, Users, TrendingUp } fro
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CompanyFormDialog } from "@/components/companies/company-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { formatDate } from "@/lib/utils"
 
 type Company = {
@@ -23,6 +24,7 @@ type Company = {
 }
 
 export function CompaniesClient({ initialCompanies }: { initialCompanies: Company[] }) {
+  const confirm = useConfirm()
   const [companies, setCompanies] = useState(initialCompanies)
   const [search, setSearch] = useState("")
   const [showForm, setShowForm] = useState(false)
@@ -35,7 +37,11 @@ export function CompaniesClient({ initialCompanies }: { initialCompanies: Compan
   )
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this company?")) return
+    if (!(await confirm({ 
+      title: "Delete Company?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/companies/${id}`, { method: "DELETE" })
     setCompanies((prev) => prev.filter((c) => c.id !== id))
   }

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CompanyFormDialog } from "@/components/companies/company-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { Textarea } from "@/components/ui/textarea"
 import { formatCurrency, formatDate } from "@/lib/utils"
 
@@ -23,6 +24,7 @@ const contactStatusVariant: Record<string, any> = {
 
 export function CompanyDetail({ company: initialCompany }: { company: any }) {
   const router = useRouter()
+  const confirm = useConfirm()
   const [company, setCompany] = useState(initialCompany)
   const [showEdit, setShowEdit] = useState(false)
   const [noteContent, setNoteContent] = useState("")
@@ -50,7 +52,11 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
   }
 
   const handleDelete = async () => {
-    if (!confirm("Delete this company? This cannot be undone.")) return
+    if (!(await confirm({ 
+      title: "Delete Company?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/companies/${company.id}`, { method: "DELETE" })
     router.push("/companies")
   }

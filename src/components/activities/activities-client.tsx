@@ -5,6 +5,7 @@ import { Plus, Phone, Mail, Users, FileText, Calendar, Trash2, CheckCircle2, Pen
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ActivityFormDialog } from "@/components/activities/activity-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { SquareCheck } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
@@ -54,6 +55,7 @@ interface ActivitiesClientProps {
 }
 
 export function ActivitiesClient({ initialActivities, contacts, deals }: ActivitiesClientProps) {
+  const confirm = useConfirm()
   const [activities, setActivities] = useState(initialActivities)
   const [showForm, setShowForm] = useState(false)
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
@@ -80,7 +82,11 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this activity?")) return
+    if (!(await confirm({ 
+      title: "Delete Activity?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/activities/${id}`, { method: "DELETE" })
     setActivities((prev) => prev.filter((a) => a.id !== id))
   }

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { Textarea } from "@/components/ui/textarea"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
@@ -43,6 +44,7 @@ const ACTIVITY_TYPE_COLORS: Record<string, string> = {
 
 export function ContactDetail({ contact: initialContact, companies }: { contact: any; companies: any[] }) {
   const router = useRouter()
+  const confirm = useConfirm()
   const [contact, setContact] = useState(initialContact)
   const [showEdit, setShowEdit] = useState(false)
   const [noteContent, setNoteContent] = useState("")
@@ -70,7 +72,11 @@ export function ContactDetail({ contact: initialContact, companies }: { contact:
   }
 
   const handleDelete = async () => {
-    if (!confirm("Delete this contact? This cannot be undone.")) return
+    if (!(await confirm({ 
+      title: "Delete Contact?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/contacts/${contact.id}`, { method: "DELETE" })
     router.push("/contacts")
   }

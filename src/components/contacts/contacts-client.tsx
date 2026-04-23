@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
 
@@ -44,6 +45,7 @@ interface ContactsClientProps {
 }
 
 export function ContactsClient({ initialContacts, companies }: ContactsClientProps) {
+  const confirm = useConfirm()
   const [contacts, setContacts] = useState(initialContacts)
   const [search, setSearch] = useState("")
   const [filterStatus, setFilterStatus] = useState("")
@@ -69,7 +71,11 @@ export function ContactsClient({ initialContacts, companies }: ContactsClientPro
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this contact?")) return
+    if (!(await confirm({ 
+      title: "Delete Contact?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/contacts/${id}`, { method: "DELETE" })
     setContacts((prev) => prev.filter((c) => c.id !== id))
   }

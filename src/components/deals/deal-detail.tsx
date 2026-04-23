@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { DealFormDialog } from "@/components/deals/deal-form-dialog"
+import { useConfirm } from "@/components/ui/confirm-modal"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
 
@@ -65,13 +66,18 @@ export function DealDetail({
   companies: { id: string; name: string }[]
 }) {
   const router = useRouter()
+  const confirm = useConfirm()
   const [deal, setDeal] = useState(initialDeal)
   const [showEdit, setShowEdit] = useState(false)
   const [noteContent, setNoteContent] = useState("")
   const [savingNote, setSavingNote] = useState(false)
 
   const handleDelete = async () => {
-    if (!confirm("Delete this deal? This cannot be undone.")) return
+    if (!(await confirm({ 
+      title: "Delete Deal?", 
+      description: "This action cannot be undone.",
+      variant: "destructive" 
+    }))) return
     await fetch(`/api/deals/${deal.id}`, { method: "DELETE" })
     router.push("/deals")
   }

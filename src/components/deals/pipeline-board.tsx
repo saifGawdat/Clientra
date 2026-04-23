@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { formatCurrency } from "@/lib/utils"
 import { cn } from "@/lib/utils"
+import { useConfirm } from "@/components/ui/confirm-modal"
 
 const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"] as const
 type Stage = typeof STAGES[number]
@@ -52,6 +53,7 @@ interface PipelineBoardProps {
 }
 
 export function PipelineBoard({ deals, onStageChange, onEdit, onDelete }: PipelineBoardProps) {
+  const confirm = useConfirm()
   const [dragging, setDragging] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState<Stage | null>(null)
 
@@ -170,7 +172,11 @@ export function PipelineBoard({ deals, onStageChange, onEdit, onDelete }: Pipeli
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-red-400 focus:text-red-400 focus:bg-red-950/40"
-                          onClick={() => { if (confirm("Delete this deal?")) onDelete(deal.id) }}
+                          onClick={async () => {
+                            if (await confirm({ title: "Delete Deal?", description: "This action cannot be undone.", variant: "destructive" })) {
+                              onDelete(deal.id)
+                            }
+                          }}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                           Delete
