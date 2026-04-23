@@ -15,6 +15,7 @@ import {
   Briefcase,
   Target,
   Calendar,
+  Kanban,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
@@ -36,6 +37,7 @@ const sections = [
       { href: "/leads", label: "Leads", icon: Briefcase },
       { href: "/targets", label: "Targets", icon: Target },
       { href: "/opportunities", label: "Opportunities", icon: TrendingUp },
+      { href: "/pipeline", label: "Pipeline", icon: Kanban },
     ],
   },
   {

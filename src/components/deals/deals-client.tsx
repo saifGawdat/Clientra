@@ -5,6 +5,7 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DealFormDialog } from "@/components/deals/deal-form-dialog"
 import { PipelineBoard } from "@/components/deals/pipeline-board"
+import { formatCurrency } from "@/lib/utils"
 
 const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"] as const
 type Stage = typeof STAGES[number]
@@ -68,23 +69,46 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
     setDeals((prev) => prev.filter((d) => d.id !== id))
   }
 
-  const totalPipeline = deals
-    .filter((d) => !["WON", "LOST"].includes(d.stage))
-    .reduce((sum, d) => sum + (d.value ?? 0), 0)
+  const openDeals = deals.filter((d) => !["WON", "LOST"].includes(d.stage))
+  const wonDeals = deals.filter((d) => d.stage === "WON")
+  const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
+  const wonValue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
+  const weightedValue = openDeals.reduce(
+    (sum, d) => sum + (d.value ?? 0) * ((d.probability ?? 50) / 100),
+    0
+  )
 
   return (
-    <div className="p-6 space-y-5 h-full flex flex-col">
-      <div className="flex items-center justify-between shrink-0">
+    <div className="p-6 flex flex-col h-full gap-5 bg-[#09090b]">
+      {/* Header */}
+      <div className="flex items-start justify-between shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Deals Pipeline</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{deals.length} total deals</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Pipeline</h1>
+          <p className="text-[#52525b] text-sm mt-1">{deals.length} total deals</p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => { setEditingDeal(null); setShowForm(true) }}>
           <Plus className="h-4 w-4" />
           Add Deal
         </Button>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
+        {[
+          { label: "Pipeline",  value: formatCurrency(pipelineValue), sub: `${openDeals.length} open`,   color: "text-white" },
+          { label: "Weighted",  value: formatCurrency(weightedValue),  sub: "by probability",            color: "text-[#7c3aed]" },
+          { label: "Won",       value: formatCurrency(wonValue),       sub: `${wonDeals.length} closed`, color: "text-emerald-400" },
+          { label: "Lost",      value: deals.filter(d => d.stage === "LOST").length.toString(), sub: "deals lost", color: "text-red-400" },
+        ].map((s) => (
+          <div key={s.label} className="bg-[#0d0d11] border border-[#1e1e24] rounded-xl p-4">
+            <p className="text-[#52525b] text-xs uppercase tracking-widest mb-1">{s.label}</p>
+            <p className={`text-xl font-bold font-mono ${s.color}`}>{s.value}</p>
+            <p className="text-[#3f3f46] text-xs mt-0.5">{s.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Board */}
       <PipelineBoard
         deals={deals}
         onStageChange={handleStageChange}
