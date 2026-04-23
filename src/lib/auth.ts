@@ -42,3 +42,5 @@ export async function updateSession(request: NextRequest) {
   })
   return res
 }
+
+export const auth = getSession

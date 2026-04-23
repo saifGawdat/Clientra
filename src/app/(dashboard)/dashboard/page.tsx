@@ -1,12 +1,19 @@
-import { getSession } from "@/lib/auth-utils"
-import { prisma } from "@/lib/prisma"
-import { Header } from "@/components/layout/header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Users, Building2, TrendingUp, Calendar, ArrowUpRight, ArrowDownRight } from "lucide-react"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { DashboardChart } from "@/components/dashboard/dashboard-chart"
-import Link from "next/link"
+import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { Header } from "@/components/layout/header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Users,
+  Building2,
+  TrendingUp,
+  Calendar,
+  ArrowUpRight,
+  ArrowDownRight,
+} from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { DashboardChart } from "@/components/dashboard/dashboard-chart";
+import Link from "next/link";
 
 async function getDashboardData(userId: string) {
   const [
@@ -59,7 +66,7 @@ async function getDashboardData(userId: string) {
       _count: true,
       _sum: { value: true },
     }),
-  ])
+  ]);
 
   return {
     totalContacts,
@@ -71,7 +78,7 @@ async function getDashboardData(userId: string) {
     recentDeals,
     activitiesThisWeek,
     dealsByStage,
-  }
+  };
 }
 
 const stageColors: Record<string, string> = {
@@ -81,12 +88,12 @@ const stageColors: Record<string, string> = {
   NEGOTIATION: "purple",
   WON: "success",
   LOST: "destructive",
-}
+};
 
 export default async function DashboardPage() {
-  const session = await getSession()
-  if (!session) return null
-  const data = await getDashboardData(session.user.id)
+  const session = await getSession();
+  if (!session) return null;
+  const data = await getDashboardData(session.user.id);
 
   const stats = [
     {
@@ -119,19 +126,21 @@ export default async function DashboardPage() {
       color: "text-green-600",
       bg: "bg-green-50",
     },
-  ]
+  ];
 
   const chartData = data.dealsByStage.map((s) => ({
     stage: s.stage,
     count: s._count,
     value: s._sum.value ?? 0,
-  }))
+  }));
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Welcome back! Here&apos;s what&apos;s happening.</p>
+        <p className="text-gray-500 text-sm mt-1">
+          Welcome back! Here&apos;s what&apos;s happening.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -141,10 +150,16 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                  {stat.sub && <p className="text-xs text-gray-400 mt-0.5">{stat.sub}</p>}
+                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                    {stat.value}
+                  </p>
+                  {stat.sub && (
+                    <p className="text-xs text-gray-400 mt-0.5">{stat.sub}</p>
+                  )}
                 </div>
-                <div className={`h-10 w-10 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                <div
+                  className={`h-10 w-10 rounded-xl ${stat.bg} flex items-center justify-center`}
+                >
                   <stat.icon className={`h-5 w-5 ${stat.color}`} />
                 </div>
               </div>
@@ -174,28 +189,40 @@ export default async function DashboardPage() {
               <p className="text-sm text-gray-400">No deals yet</p>
             )}
             {data.recentDeals.map((deal) => (
-              <Link key={deal.id} href={`/deals/${deal.id}`} className="block group">
+              <Link
+                key={deal.id}
+                href={`/deals/${deal.id}`}
+                className="block group"
+              >
                 <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
                       {deal.title}
                     </p>
                     <p className="text-xs text-gray-400">
-                      {deal.contact ? `${deal.contact.firstName} ${deal.contact.lastName}` : "No contact"}
+                      {deal.contact
+                        ? `${deal.contact.firstName} ${deal.contact.lastName}`
+                        : "No contact"}
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1 ml-3 shrink-0">
                     <span className="text-sm font-medium text-gray-900">
                       {deal.value ? formatCurrency(deal.value) : "—"}
                     </span>
-                    <Badge variant={stageColors[deal.stage] as "default"} className="text-xs">
+                    <Badge
+                      variant={stageColors[deal.stage] as "default"}
+                      className="text-xs"
+                    >
                       {deal.stage}
                     </Badge>
                   </div>
                 </div>
               </Link>
             ))}
-            <Link href="/deals" className="text-xs text-blue-600 hover:underline mt-2 block">
+            <Link
+              href="/deals"
+              className="text-xs text-blue-600 hover:underline mt-2 block"
+            >
               View all deals →
             </Link>
           </CardContent>
@@ -212,28 +239,41 @@ export default async function DashboardPage() {
               <p className="text-sm text-gray-400">No contacts yet</p>
             )}
             {data.recentContacts.map((contact) => (
-              <Link key={contact.id} href={`/contacts/${contact.id}`} className="block group">
+              <Link
+                key={contact.id}
+                href={`/contacts/${contact.id}`}
+                className="block group"
+              >
                 <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
                       <span className="text-xs font-medium text-blue-700">
-                        {contact.firstName[0]}{contact.lastName[0]}
+                        {contact.firstName[0]}
+                        {contact.lastName[0]}
                       </span>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                         {contact.firstName} {contact.lastName}
                       </p>
-                      <p className="text-xs text-gray-400">{contact.company?.name ?? contact.email ?? "—"}</p>
+                      <p className="text-xs text-gray-400">
+                        {contact.company?.name ?? contact.email ?? "—"}
+                      </p>
                     </div>
                   </div>
-                  <Badge variant={stageColors[contact.status] as "default"} className="text-xs">
+                  <Badge
+                    variant={stageColors[contact.status] as "default"}
+                    className="text-xs"
+                  >
                     {contact.status}
                   </Badge>
                 </div>
               </Link>
             ))}
-            <Link href="/contacts" className="text-xs text-blue-600 hover:underline mt-2 block">
+            <Link
+              href="/contacts"
+              className="text-xs text-blue-600 hover:underline mt-2 block"
+            >
               View all contacts →
             </Link>
           </CardContent>
@@ -248,23 +288,31 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">Activities this week</span>
+                  <span className="text-sm text-gray-600">
+                    Activities this week
+                  </span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{data.activitiesThisWeek}</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {data.activitiesThisWeek}
+                </span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-gray-400" />
                   <span className="text-sm text-gray-600">Total deals</span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{data.totalDeals}</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {data.totalDeals}
+                </span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-green-50">
                 <div className="flex items-center gap-2">
                   <ArrowUpRight className="h-4 w-4 text-green-500" />
                   <span className="text-sm text-green-700">Deals won</span>
                 </div>
-                <span className="text-sm font-semibold text-green-700">{data.wonDeals._count}</span>
+                <span className="text-sm font-semibold text-green-700">
+                  {data.wonDeals._count}
+                </span>
               </div>
               <div className="flex items-center justify-between p-3 rounded-lg bg-red-50">
                 <div className="flex items-center gap-2">
@@ -272,7 +320,8 @@ export default async function DashboardPage() {
                   <span className="text-sm text-red-600">Deals lost</span>
                 </div>
                 <span className="text-sm font-semibold text-red-600">
-                  {data.dealsByStage.find((s) => s.stage === "LOST")?._count ?? 0}
+                  {data.dealsByStage.find((s) => s.stage === "LOST")?._count ??
+                    0}
                 </span>
               </div>
             </div>
@@ -280,5 +329,5 @@ export default async function DashboardPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
