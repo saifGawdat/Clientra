@@ -1,0 +1,183 @@
+generator client {
+  provider        = "prisma-client-js"
+
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          UserRole  @default(MEMBER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  contacts   Contact[]
+  companies  Company[]
+  deals      Deal[]
+  activities Activity[]
+  notes      Note[]
+}
+
+model Contact {
+  id        String        @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?
+  phone     String?
+  title     String?
+  status    ContactStatus @default(LEAD)
+  source    ContactSource @default(OTHER)
+  tags      String[]
+  avatar    String?
+  companyId String?
+  ownerId   String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  company    Company?   @relation(fields: [companyId], references: [id])
+  owner      User       @relation(fields: [ownerId], references: [id])
+  deals      Deal[]
+  activities Activity[]
+  notes      Note[]
+}
+
+model Company {
+  id        String      @id @default(cuid())
+  name      String
+  website   String?
+  industry  String?
+  size      CompanySize?
+  phone     String?
+  email     String?
+  address   String?
+  city      String?
+  country   String?
+  logo      String?
+  ownerId   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  owner    User      @relation(fields: [ownerId], references: [id])
+  contacts Contact[]
+  deals    Deal[]
+  notes    Note[]
+}
+
+model Deal {
+  id          String    @id @default(cuid())
+  title       String
+  value       Float?
+  currency    String    @default("USD")
+  stage       DealStage @default(LEAD)
+  probability Int?
+  closeDate   DateTime?
+  description String?
+  contactId   String?
+  companyId   String?
+  ownerId     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  contact    Contact?   @relation(fields: [contactId], references: [id])
+  company    Company?   @relation(fields: [companyId], references: [id])
+  owner      User       @relation(fields: [ownerId], references: [id])
+  activities Activity[]
+  notes      Note[]
+}
+
+model Activity {
+  id          String         @id @default(cuid())
+  type        ActivityType
+  subject     String
+  description String?
+  status      ActivityStatus @default(PLANNED)
+  scheduledAt DateTime?
+  completedAt DateTime?
+  contactId   String?
+  dealId      String?
+  userId      String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  contact Contact? @relation(fields: [contactId], references: [id])
+  deal    Deal?    @relation(fields: [dealId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  contactId String?
+  dealId    String?
+  companyId String?
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contact Contact? @relation(fields: [contactId], references: [id])
+  deal    Deal?    @relation(fields: [dealId], references: [id])
+  company Company? @relation(fields: [companyId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum ContactStatus {
+  LEAD
+  PROSPECT
+  CUSTOMER
+  CHURNED
+  INACTIVE
+}
+
+enum ContactSource {
+  WEBSITE
+  REFERRAL
+  SOCIAL
+  EMAIL
+  COLD_CALL
+  EVENT
+  OTHER
+}
+
+enum CompanySize {
+  SOLO
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum DealStage {
+  LEAD
+  QUALIFIED
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  TASK
+  NOTE
+}
+
+enum ActivityStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
