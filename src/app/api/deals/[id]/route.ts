@@ -23,22 +23,23 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const session = await auth()
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
-  const { id } = await params
   try {
+    const session = await auth()
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+    const { id } = await params
     const body = await req.json()
     const data = dealSchema.partial().parse(body)
 
+    // Construct update data carefully to avoid overwriting with null
+    const updateData: any = { ...data }
+    if ("contactId" in body) updateData.contactId = body.contactId || null
+    if ("companyId" in body) updateData.companyId = body.companyId || null
+    if ("closeDate" in body) updateData.closeDate = body.closeDate ? new Date(body.closeDate) : null
+
     const result = await prisma.deal.updateMany({
       where: { id, ownerId: session.user.id },
-      data: {
-        ...data,
-        contactId: data.contactId || null,
-        companyId: data.companyId || null,
-        closeDate: data.closeDate ? new Date(data.closeDate) : undefined,
-      },
+      data: updateData,
     })
 
     if (result.count === 0) return NextResponse.json({ error: "Not found" }, { status: 404 })

@@ -1,25 +1,62 @@
-"use client"
-
-import { Search, Bell } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { 
+  Search, 
+  MessageSquare, 
+  Moon, 
+  HelpCircle, 
+  ChevronDown,
+  LayoutGrid
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface HeaderProps {
-  title: string
-}
-
-export function Header({ title }: HeaderProps) {
+export function Header() {
   return (
-    <header className="flex items-center justify-between h-14 px-6 border-b border-gray-200 bg-white shrink-0">
-      <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
-      <div className="flex items-center gap-3">
-        <div className="relative w-64">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input placeholder="Search..." className="pl-8 h-8 text-sm" />
-        </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8 relative">
-          <Bell className="h-4 w-4" />
+    <header className="flex items-center justify-between h-16 px-6 border-b border-[#1e1e24] bg-[#09090b] shrink-0">
+      <div className="flex items-center gap-6 flex-1">
+        <Button variant="ghost" size="icon" className="text-[#52525b] hover:text-white">
+          <LayoutGrid className="h-5 w-5" />
         </Button>
+        
+        <div className="flex items-center gap-0 max-w-md flex-1">
+          <div className="relative flex-1 group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#52525b] group-focus-within:text-[#7c3aed] transition-colors" />
+            <input 
+              placeholder="Search something ..." 
+              className="w-full bg-[#18181b] border border-[#1e1e24] border-r-0 rounded-l-md pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#7c3aed] transition-all"
+            />
+          </div>
+          <button className="bg-[#7c3aed] text-white px-5 py-2 rounded-r-md text-sm font-semibold hover:bg-[#6d28d9] transition-all flex items-center gap-2">
+            Search <Search className="h-3 w-3" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#1e1e24] hover:bg-[#18181b] transition-colors cursor-pointer group">
+          <div className="h-5 w-5 rounded-full overflow-hidden border border-white/10 flex items-center justify-center bg-gray-800">
+            <span className="text-[10px]">🇬🇧</span>
+          </div>
+          <span className="text-sm font-medium text-white">English</span>
+          <ChevronDown className="h-4 w-4 text-[#52525b] group-hover:text-white transition-colors" />
+        </div>
+
+        <Button variant="outline" className="bg-[#18181b] border-[#1e1e24] text-[#a1a1aa] hover:bg-[#27272a] hover:text-white flex items-center gap-2 px-4">
+          <MessageSquare className="h-4 w-4" />
+          Feedback
+        </Button>
+
+        <div className="flex items-center gap-3 border-l border-[#1e1e24] ml-3 pl-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-[#18181b] transition-colors cursor-pointer group">
+            <span className="text-sm font-bold text-white">$ USD</span>
+          </div>
+          
+          <Button variant="ghost" size="icon" className="text-[#52525b] hover:text-white">
+            <Moon className="h-5 w-5" />
+          </Button>
+          
+          <Button variant="ghost" size="icon" className="text-[#52525b] hover:text-white">
+            <HelpCircle className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </header>
   )

@@ -96,7 +96,7 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
               <Select value={watch("status")} onValueChange={(v) => setValue("status", v as ContactInput["status"])}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {["LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"].map((s) => (
+                  {["TARGET", "LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"].map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>

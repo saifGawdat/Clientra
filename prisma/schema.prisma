@@ -133,6 +133,7 @@ enum UserRole {
 }
 
 enum ContactStatus {
+  TARGET
   LEAD
   PROSPECT
   CUSTOMER

@@ -17,7 +17,7 @@ export const contactSchema = z.object({
   email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
   title: z.string().optional(),
-  status: z.enum(["LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"]),
+  status: z.enum(["TARGET", "LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"]),
   source: z.enum(["WEBSITE", "REFERRAL", "SOCIAL", "EMAIL", "COLD_CALL", "EVENT", "OTHER"]),
   companyId: z.string().optional(),
   tags: z.array(z.string()).optional(),
