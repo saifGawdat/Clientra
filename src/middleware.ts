@@ -15,7 +15,7 @@ export default async function middleware(request: NextRequest) {
   if (sessionCookie) {
     try {
       session = await decrypt(sessionCookie);
-    } catch (e) {
+    } catch {
       // Invalid session
     }
   }
@@ -34,5 +34,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)).*)"],
 };

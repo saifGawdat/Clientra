@@ -6,8 +6,11 @@ import { Providers } from "@/components/providers"
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" })
 
 export const metadata: Metadata = {
-  title: "NextCRM",
+  title: "Clientra",
   description: "Modern CRM built with Next.js",
+  icons: {
+    icon: "/clientra-icon-dark.svg",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

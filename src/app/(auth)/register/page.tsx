@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import Image from "next/image"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,6 +21,16 @@ function GoogleIcon() {
       <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
     </svg>
   )
+}
+
+const item = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const } },
+}
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
 }
 
 export default function RegisterPage() {
@@ -56,7 +68,12 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex bg-[#09090b]">
       {/* Left branding panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden border-r border-border">
+      <motion.div
+        className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden border-r border-border"
+        initial={{ opacity: 0, x: -24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -65,10 +82,8 @@ export default function RegisterPage() {
           }}
         />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-[#7c3aed] flex items-center justify-center shadow-lg shadow-violet-900/40">
-            <span className="text-white font-bold text-base">C</span>
-          </div>
-          <span className="font-bold text-xl text-white">NextCRM</span>
+          <Image src="/clientra-icon-dark.svg" alt="Clientra" width={36} height={36} />
+          <span className="font-bold text-xl text-white">Clientra</span>
         </div>
 
         <div className="relative z-10 space-y-8">
@@ -86,15 +101,21 @@ export default function RegisterPage() {
               "Visual deals pipeline",
               "Activity tracking & notes",
               "Team collaboration",
-            ].map((feature) => (
-              <li key={feature} className="flex items-center gap-3 text-sm text-[#a1a1aa]">
-                <div className="h-5 w-5 rounded-full bg-[#7c3aed]/20 border border-[#7c3aed]/40 flex items-center justify-center flex-shrink-0">
+            ].map((feature, i) => (
+              <motion.li
+                key={feature}
+                className="flex items-center gap-3 text-sm text-[#a1a1aa]"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + i * 0.08, duration: 0.4, ease: "easeOut" }}
+              >
+                <div className="h-5 w-5 rounded-full bg-[#7c3aed]/20 border border-[#7c3aed]/40 flex items-center justify-center shrink-0">
                   <svg className="h-2.5 w-2.5 text-[#7c3aed]" fill="none" viewBox="0 0 12 10" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M1 5l3 3 7-7" />
                   </svg>
                 </div>
                 {feature}
-              </li>
+              </motion.li>
             ))}
           </ul>
         </div>
@@ -102,46 +123,52 @@ export default function RegisterPage() {
         <p className="relative z-10 text-xs text-[#52525b]">
           Free to get started · No credit card required
         </p>
-      </div>
+      </motion.div>
 
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-sm space-y-6">
-          <div className="lg:hidden flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-[#7c3aed] flex items-center justify-center shadow-lg shadow-violet-900/40">
-              <span className="text-white font-bold text-base">C</span>
-            </div>
-            <span className="font-bold text-xl text-white">NextCRM</span>
-          </div>
+        <motion.div
+          className="w-full max-w-sm space-y-6"
+          variants={container}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.div variants={item} className="lg:hidden flex items-center gap-3">
+            <Image src="/clientra-icon-dark.svg" alt="Clientra" width={36} height={36} />
+            <span className="font-bold text-xl text-white">Clientra</span>
+          </motion.div>
 
-          <div>
+          <motion.div variants={item}>
             <h1 className="text-2xl font-bold text-white">Create an account</h1>
             <p className="text-[#71717a] text-sm mt-1">Get started for free, no card required</p>
-          </div>
+          </motion.div>
 
           {error && (
-            <div className="p-3 rounded-lg bg-red-950/60 border border-red-800/50 text-red-400 text-sm">
+            <motion.div variants={item} className="p-3 rounded-lg bg-red-950/60 border border-red-800/50 text-red-400 text-sm">
               {error}
-            </div>
+            </motion.div>
           )}
 
-          <button
+          <motion.button
+            variants={item}
             type="button"
             onClick={() => { setGoogleLoading(true); window.location.href = "/api/auth/google" }}
             disabled={googleLoading || loading}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-sidebar-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#27272a] hover:border-[#3f3f46] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <GoogleIcon />
             {googleLoading ? "Redirecting..." : "Sign up with Google"}
-          </button>
+          </motion.button>
 
-          <div className="flex items-center gap-3">
+          <motion.div variants={item} className="flex items-center gap-3">
             <div className="flex-1 h-px bg-[#1e1e24]" />
             <span className="text-xs text-[#52525b]">or continue with email</span>
             <div className="flex-1 h-px bg-[#1e1e24]" />
-          </div>
+          </motion.div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <motion.form variants={item} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="name" className="text-[#a1a1aa] text-sm font-medium">Full name</Label>
               <Input
@@ -184,15 +211,15 @@ export default function RegisterPage() {
             >
               {loading ? "Creating account..." : "Create account"}
             </Button>
-          </form>
+          </motion.form>
 
-          <p className="text-center text-sm text-[#71717a]">
+          <motion.p variants={item} className="text-center text-sm text-[#71717a]">
             Already have an account?{" "}
             <Link href="/login" className="text-[#7c3aed] hover:text-[#8b5cf6] font-medium transition-colors">
               Sign in
             </Link>
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   )

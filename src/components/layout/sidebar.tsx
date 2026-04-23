@@ -73,11 +73,11 @@ export function Sidebar({ user }: SidebarProps) {
       )}
     >
       <div className="flex items-center gap-3 px-5 py-6">
-        <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-          <span className="text-white font-bold text-sm">N</span>
+        <div className="h-8 w-8 shrink-0 flex items-center justify-center">
+          <img src="/clientra-icon-dark.svg" alt="Clientra" className="h-8 w-8" />
         </div>
         {!collapsed && (
-          <span className="font-bold text-xl tracking-tight text-white">NextCRM</span>
+          <span className="font-bold text-xl tracking-tight text-white">Clientra</span>
         )}
       </div>
 
