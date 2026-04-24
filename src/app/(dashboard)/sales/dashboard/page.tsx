@@ -33,7 +33,7 @@ export default async function SalesDashboardPage() {
 
   const wonDeals = deals.filter((d) => d.stage === "WON")
   const lostDeals = deals.filter((d) => d.stage === "LOST")
-  const openDeals = deals.filter((d) => !["WON", "LOST"].includes(d.stage))
+  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
 
   const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
   const wonRevenue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)

@@ -42,7 +42,7 @@ export default async function MyDashboardPage() {
     prisma.contact.count({ where: { ownerId: userId } }),
   ])
 
-  const openDeals = deals.filter((d) => !["WON", "LOST"].includes(d.stage))
+  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
   const wonDeals = deals.filter((d) => d.stage === "WON")
   const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
   const wonRevenue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)

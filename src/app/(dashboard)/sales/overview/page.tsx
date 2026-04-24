@@ -47,7 +47,7 @@ export default async function SalesOverviewPage() {
 
   const wonDeals = deals.filter((d) => d.stage === "WON")
   const lostDeals = deals.filter((d) => d.stage === "LOST")
-  const openDeals = deals.filter((d) => !["WON", "LOST"].includes(d.stage))
+  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
   const closedCount = wonDeals.length + lostDeals.length
   const winRate = closedCount > 0 ? Math.round((wonDeals.length / closedCount) * 100) : 0
   const conversionRate =
