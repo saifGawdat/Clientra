@@ -1,5 +1,19 @@
 import { z } from "zod"
 
+const optionalString = z.string().optional()
+const optionalUrl = z.preprocess(
+  (v) => (v === "" ? undefined : v),
+  z.string().url("Invalid URL").optional(),
+)
+const optionalEmail = z.preprocess(
+  (v) => (v === "" ? undefined : v),
+  z.string().email("Invalid email").optional(),
+)
+const optionalId = z.preprocess(
+  (v) => (v === "" ? undefined : v),
+  z.string().optional(),
+)
+
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -14,25 +28,28 @@ export const registerSchema = z.object({
 export const contactSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  title: z.string().optional(),
+  email: optionalEmail,
+  phone: optionalString,
+  title: optionalString,
   status: z.enum(["TARGET", "LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"]),
   source: z.enum(["WEBSITE", "REFERRAL", "SOCIAL", "EMAIL", "COLD_CALL", "EVENT", "OTHER"]),
-  companyId: z.string().optional(),
+  companyId: optionalId,
   tags: z.array(z.string()).optional(),
 })
 
 export const companySchema = z.object({
   name: z.string().min(1, "Company name is required"),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
-  industry: z.string().optional(),
-  size: z.enum(["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]).optional(),
-  phone: z.string().optional(),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  country: z.string().optional(),
+  website: optionalUrl,
+  industry: optionalString,
+  size: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.enum(["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]).optional(),
+  ),
+  phone: optionalString,
+  email: optionalEmail,
+  address: optionalString,
+  city: optionalString,
+  country: optionalString,
 })
 
 export const dealSchema = z.object({
@@ -41,27 +58,27 @@ export const dealSchema = z.object({
   currency: z.string(),
   stage: z.enum(["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"]),
   probability: z.number().min(0).max(100).optional(),
-  closeDate: z.string().optional(),
-  description: z.string().optional(),
-  contactId: z.string().optional(),
-  companyId: z.string().optional(),
+  closeDate: optionalString,
+  description: optionalString,
+  contactId: optionalId,
+  companyId: optionalId,
 })
 
 export const activitySchema = z.object({
   type: z.enum(["CALL", "EMAIL", "MEETING", "TASK", "NOTE"]),
   subject: z.string().min(1, "Subject is required"),
-  description: z.string().optional(),
+  description: optionalString,
   status: z.enum(["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
-  scheduledAt: z.string().optional(),
-  contactId: z.string().optional(),
-  dealId: z.string().optional(),
+  scheduledAt: optionalString,
+  contactId: optionalId,
+  dealId: optionalId,
 })
 
 export const noteSchema = z.object({
   content: z.string().min(1, "Note cannot be empty"),
-  contactId: z.string().optional(),
-  dealId: z.string().optional(),
-  companyId: z.string().optional(),
+  contactId: optionalId,
+  dealId: optionalId,
+  companyId: optionalId,
 })
 
 export type LoginInput = z.infer<typeof loginSchema>

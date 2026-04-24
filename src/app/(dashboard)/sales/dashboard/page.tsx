@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { DashboardChart } from "@/components/dashboard/dashboard-chart"
+import { ActivityTypeIcon } from "@/components/activities/activity-type-icon"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
 
@@ -54,14 +55,6 @@ export default async function SalesDashboardPage() {
 
   const recentDeals = deals.slice(0, 6)
 
-  const activityTypeIcon: Record<string, string> = {
-    CALL: "📞",
-    EMAIL: "✉️",
-    MEETING: "🤝",
-    TASK: "✅",
-    NOTE: "📝",
-  }
-
   return (
     <div className="p-8 space-y-8 bg-background min-h-full">
       <div>
@@ -98,7 +91,7 @@ export default async function SalesDashboardPage() {
             <div className="space-y-2">
               {recentActivities.map((a) => (
                 <div key={a.id} className="flex items-start gap-2.5 py-2 border-b border-border last:border-0">
-                  <span className="text-base leading-none mt-0.5">{activityTypeIcon[a.type] ?? "•"}</span>
+                  <ActivityTypeIcon type={a.type} className="mt-0.5" />
                   <div className="min-w-0">
                     <p className="text-sm text-foreground truncate">{a.subject}</p>
                     <p className="text-xs text-subtle mt-0.5">{formatDate(a.createdAt)}</p>
