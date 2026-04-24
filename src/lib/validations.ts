@@ -27,10 +27,7 @@ export const companySchema = z.object({
   name: z.string().min(1, "Company name is required"),
   website: z.union([z.string().url("Invalid URL"), z.literal("")]).optional(),
   industry: z.string().optional(),
-  size: z.union([
-    z.enum(["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]),
-    z.literal(""),
-  ]).optional().transform((v) => (v === "" ? undefined : v)),
+  size: z.enum(["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]).or(z.literal("")).optional(),
   phone: z.string().optional(),
   email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
   address: z.string().optional(),

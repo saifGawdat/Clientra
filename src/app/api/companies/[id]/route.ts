@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { companySchema } from "@/lib/validations"
+import { CompanySize } from "@/types/crm-types"
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -33,6 +34,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const updateData: Record<string, unknown> = { ...data }
     if ("website" in body) updateData.website = body.website || null
     if ("email" in body) updateData.email = body.email || null
+    if ("size" in body) updateData.size = (body.size as CompanySize) || null
 
     const result = await prisma.company.updateMany({
       where: { id, ownerId: session.user.id },

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { companySchema } from "@/lib/validations"
+import { CompanySize } from "@/types/crm-types"
 
 export async function GET(req: Request) {
   const session = await auth()
@@ -41,11 +42,13 @@ export async function POST(req: Request) {
     const body = await req.json()
     const data = companySchema.parse(body)
 
+    const { size, website, email, ...rest } = data
     const company = await prisma.company.create({
       data: {
-        ...data,
-        website: data.website || null,
-        email: data.email || null,
+        ...rest,
+        website: website || null,
+        email: email || null,
+        size: (size as CompanySize) || null,
         ownerId: session.user.id,
       },
     })
