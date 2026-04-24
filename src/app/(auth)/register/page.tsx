@@ -86,8 +86,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#09090b]">
-      {/* Left branding panel */}
+    <div className="min-h-screen flex bg-background">
       <motion.div
         className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden border-r border-border"
         initial={{ opacity: 0, x: -24 }}
@@ -108,17 +107,17 @@ export default function RegisterPage() {
             width={36}
             height={36}
           />
-          <span className="font-bold text-xl text-white">Clientra</span>
+          <span className="font-bold text-xl text-foreground">Clientra</span>
         </div>
 
         <div className="relative z-10 space-y-8">
           <div>
-            <h2 className="text-3xl font-bold text-white leading-tight">
+            <h2 className="text-3xl font-bold text-foreground leading-tight">
               Your contacts,
               <br />
               organized for you.
             </h2>
-            <p className="text-[#71717a] mt-3 text-sm leading-relaxed">
+            <p className="text-subtle mt-3 text-sm leading-relaxed">
               Track deals, manage contacts, and close more business — all in one
               clean workspace.
             </p>
@@ -132,7 +131,7 @@ export default function RegisterPage() {
             ].map((feature, i) => (
               <motion.li
                 key={feature}
-                className="flex items-center gap-3 text-sm text-[#a1a1aa]"
+                className="flex items-center gap-3 text-sm text-muted"
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
@@ -141,9 +140,9 @@ export default function RegisterPage() {
                   ease: "easeOut",
                 }}
               >
-                <div className="h-5 w-5 rounded-full bg-[#7c3aed]/20 border border-[#7c3aed]/40 flex items-center justify-center shrink-0">
+                <div className="h-5 w-5 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center shrink-0">
                   <svg
-                    className="h-2.5 w-2.5 text-[#7c3aed]"
+                    className="h-2.5 w-2.5 text-accent"
                     fill="none"
                     viewBox="0 0 12 10"
                     stroke="currentColor"
@@ -162,12 +161,11 @@ export default function RegisterPage() {
           </ul>
         </div>
 
-        <p className="relative z-10 text-xs text-[#52525b]">
+        <p className="relative z-10 text-xs text-subtle">
           Free to get started · No credit card required
         </p>
       </motion.div>
 
-      {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <motion.div
           className="w-full max-w-sm space-y-6"
@@ -185,12 +183,12 @@ export default function RegisterPage() {
               width={36}
               height={36}
             />
-            <span className="font-bold text-xl text-white">Clientra</span>
+            <span className="font-bold text-xl text-foreground">Clientra</span>
           </motion.div>
 
           <motion.div variants={item}>
-            <h1 className="text-2xl font-bold text-white">Create an account</h1>
-            <p className="text-[#71717a] text-sm mt-1">
+            <h1 className="text-2xl font-bold text-foreground">Create an account</h1>
+            <p className="text-subtle text-sm mt-1">
               Get started for free, no card required
             </p>
           </motion.div>
@@ -214,18 +212,16 @@ export default function RegisterPage() {
             disabled={googleLoading || loading}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-sidebar-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#27272a] hover:border-[#3f3f46] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-raised hover:border-border-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <GoogleIcon />
             {googleLoading ? "Redirecting..." : "Sign up with Google"}
           </motion.button>
 
           <motion.div variants={item} className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#1e1e24]" />
-            <span className="text-xs text-[#52525b]">
-              or continue with email
-            </span>
-            <div className="flex-1 h-px bg-[#1e1e24]" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-subtle">or continue with email</span>
+            <div className="flex-1 h-px bg-border" />
           </motion.div>
 
           <motion.form
@@ -234,36 +230,20 @@ export default function RegisterPage() {
             className="space-y-4"
           >
             <div className="space-y-1.5">
-              <Label
-                htmlFor="name"
-                className="text-[#a1a1aa] text-sm font-medium"
-              >
-                Full name
-              </Label>
-              <Input
-                id="name"
-                placeholder="John Doe"
-                {...register("name")}
-                className="bg-sidebar-accent border-border text-white placeholder:text-[#52525b] focus-visible:ring-accent focus-visible:border-accent"
-              />
+              <Label htmlFor="name">Full name</Label>
+              <Input id="name" placeholder="John Doe" {...register("name")} />
               {errors.name && (
                 <p className="text-xs text-red-400">{errors.name.message}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <Label
-                htmlFor="email"
-                className="text-[#a1a1aa] text-sm font-medium"
-              >
-                Email
-              </Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
                 {...register("email")}
-                className="bg-sidebar-accent border-border text-white placeholder:text-[#52525b] focus-visible:ring-accent focus-visible:border-accent"
               />
               {errors.email && (
                 <p className="text-xs text-red-400">{errors.email.message}</p>
@@ -271,18 +251,12 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label
-                htmlFor="password"
-                className="text-[#a1a1aa] text-sm font-medium"
-              >
-                Password
-              </Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
                 {...register("password")}
-                className="bg-sidebar-accent border-border text-white placeholder:text-[#52525b] focus-visible:ring-accent focus-visible:border-accent"
               />
               {errors.password && (
                 <p className="text-xs text-red-400">
@@ -294,7 +268,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-medium shadow-lg shadow-violet-900/20"
+              className="w-full shadow-lg shadow-violet-900/20"
             >
               {loading ? "Creating account..." : "Create account"}
             </Button>
@@ -302,12 +276,12 @@ export default function RegisterPage() {
 
           <motion.p
             variants={item}
-            className="text-center text-sm text-[#71717a]"
+            className="text-center text-sm text-subtle"
           >
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-[#7c3aed] hover:text-[#8b5cf6] font-medium transition-colors"
+              className="text-accent hover:text-accent-light font-medium transition-colors"
             >
               Sign in
             </Link>

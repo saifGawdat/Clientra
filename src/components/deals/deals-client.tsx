@@ -8,10 +8,6 @@ import { PipelineBoard } from "@/components/deals/pipeline-board"
 import { formatCurrency } from "@/lib/utils"
 import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
 
-
-
-
-
 interface DealsClientProps {
   initialDeals: CRMDeal[]
   contacts: { id: string; firstName: string; lastName: string }[]
@@ -64,12 +60,11 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
   )
 
   return (
-    <div className="p-6 flex flex-col h-full gap-5 bg-[#09090b]">
-      {/* Header */}
+    <div className="p-6 flex flex-col h-full gap-5 bg-background">
       <div className="flex items-start justify-between shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Pipeline</h1>
-          <p className="text-[#52525b] text-sm mt-1">{deals.length} total deals</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Pipeline</h1>
+          <p className="text-subtle text-sm mt-1">{deals.length} total deals</p>
         </div>
         <Button onClick={() => { setEditingDeal(null); setShowForm(true) }}>
           <Plus className="h-4 w-4" />
@@ -77,23 +72,21 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 shrink-0">
         {[
-          { label: "Pipeline",  value: formatCurrency(pipelineValue), sub: `${openDeals.length} open`,   color: "text-white" },
-          { label: "Weighted",  value: formatCurrency(weightedValue),  sub: "by probability",            color: "text-[#7c3aed]" },
+          { label: "Pipeline",  value: formatCurrency(pipelineValue), sub: `${openDeals.length} open`,   color: "text-foreground" },
+          { label: "Weighted",  value: formatCurrency(weightedValue),  sub: "by probability",            color: "text-accent" },
           { label: "Won",       value: formatCurrency(wonValue),       sub: `${wonDeals.length} closed`, color: "text-emerald-400" },
           { label: "Lost",      value: deals.filter(d => d.stage === "LOST").length.toString(), sub: "deals lost", color: "text-red-400" },
         ].map((s) => (
-          <div key={s.label} className="bg-[#0d0d11] border border-[#1e1e24] rounded-xl p-4">
-            <p className="text-[#52525b] text-xs uppercase tracking-widest mb-1">{s.label}</p>
+          <div key={s.label} className="bg-overlay border border-border rounded-xl p-4">
+            <p className="text-subtle text-xs uppercase tracking-widest mb-1">{s.label}</p>
             <p className={`text-xl font-bold font-mono ${s.color}`}>{s.value}</p>
-            <p className="text-[#3f3f46] text-xs mt-0.5">{s.sub}</p>
+            <p className="text-border-hover text-xs mt-0.5">{s.sub}</p>
           </div>
         ))}
       </div>
 
-      {/* Board */}
       <PipelineBoard
         deals={deals}
         onStageChange={handleStageChange}

@@ -19,8 +19,6 @@ import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
 import { Company as CRMCompany } from "@/types/crm-types";
 
-
-
 export function CompaniesClient({
   initialCompanies,
 }: {
@@ -66,13 +64,13 @@ export function CompaniesClient({
   };
 
   return (
-    <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
+    <div className="p-8 space-y-6 bg-background min-h-full">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Companies
           </h1>
-          <p className="text-[#52525b] text-sm mt-1">
+          <p className="text-subtle text-sm mt-1">
             {companies.length} total companies
           </p>
         </div>
@@ -83,7 +81,7 @@ export function CompaniesClient({
       </div>
 
       <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#52525b]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle" />
         <Input
           placeholder="Search companies..."
           value={search}
@@ -93,7 +91,7 @@ export function CompaniesClient({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 text-[#52525b]">
+        <div className="text-center py-12 text-subtle">
           {search
             ? "No companies match your search"
             : "No companies yet. Add your first one!"}
@@ -107,15 +105,15 @@ export function CompaniesClient({
                   href={`/companies/${company.id}`}
                   className="flex items-center gap-3 flex-1 min-w-0"
                 >
-                  <div className="h-10 w-10 rounded-xl bg-[#7c3aed]/20 border border-[#7c3aed]/30 flex items-center justify-center shrink-0">
-                    <Building2 className="h-5 w-5 text-[#7c3aed]" />
+                  <div className="h-10 w-10 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center shrink-0">
+                    <Building2 className="h-5 w-5 text-accent" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-white group-hover:text-[#7c3aed] transition-colors truncate">
+                    <p className="font-semibold text-foreground group-hover:text-accent transition-colors truncate">
                       {company.name}
                     </p>
                     {company.industry && (
-                      <p className="text-xs text-[#52525b] truncate">
+                      <p className="text-xs text-subtle truncate">
                         {company.industry}
                       </p>
                     )}
@@ -146,35 +144,35 @@ export function CompaniesClient({
 
               <div className="space-y-1.5">
                 {company.website && (
-                  <div className="flex items-center gap-2 text-xs text-[#52525b]">
+                  <div className="flex items-center gap-2 text-xs text-subtle">
                     <Globe className="h-3 w-3 shrink-0" />
                     <a
                       href={company.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hover:text-[#a1a1aa] truncate transition-colors"
+                      className="hover:text-muted truncate transition-colors"
                     >
                       {company.website.replace(/^https?:\/\//, "")}
                     </a>
                   </div>
                 )}
                 {(company.city || company.country) && (
-                  <p className="text-xs text-[#52525b]">
+                  <p className="text-xs text-subtle">
                     {[company.city, company.country].filter(Boolean).join(", ")}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-[#1e1e24]">
-                <div className="flex items-center gap-1 text-xs text-[#52525b]">
+              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
+                <div className="flex items-center gap-1 text-xs text-subtle">
                   <Users className="h-3.5 w-3.5" />
                   <span>{company._count?.contacts ?? 0} contacts</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-[#52525b]">
+                <div className="flex items-center gap-1 text-xs text-subtle">
                   <TrendingUp className="h-3.5 w-3.5" />
                   <span>{company._count?.deals ?? 0} deals</span>
                 </div>
-                <span className="ml-auto text-xs text-[#52525b]">
+                <span className="ml-auto text-xs text-subtle">
                   {formatDate(company.createdAt)}
                 </span>
               </div>

@@ -65,7 +65,7 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "relative flex flex-col bg-[#09090b] text-[#a1a1aa] transition-all duration-200 shrink-0 border-r border-[#1e1e24]",
+        "relative flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-200 shrink-0 border-r border-border",
         collapsed ? "w-16" : "w-64",
       )}
     >
@@ -80,7 +80,7 @@ export function Sidebar({ user }: SidebarProps) {
           />
         </div>
         {!collapsed && (
-          <span className="font-bold text-xl tracking-tight text-white">
+          <span className="font-bold text-xl tracking-tight text-foreground">
             Clientra
           </span>
         )}
@@ -98,7 +98,7 @@ export function Sidebar({ user }: SidebarProps) {
                   !alwaysOpen.includes(section.title) &&
                   toggleSection(section.title)
                 }
-                className="w-full flex items-center justify-between px-2 py-2 text-[10px] font-bold uppercase tracking-widest text-[#52525b] hover:text-[#a1a1aa] transition-colors"
+                className="w-full flex items-center justify-between px-2 py-2 text-[10px] font-bold uppercase tracking-widest text-subtle hover:text-muted transition-colors"
               >
                 <span>{section.title}</span>
                 {!alwaysOpen.includes(section.title) && (
@@ -126,8 +126,8 @@ export function Sidebar({ user }: SidebarProps) {
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-all group",
                         active
-                          ? "bg-[#18181b] text-white border-l-2 border-[#7c3aed]"
-                          : "hover:bg-[#18181b] hover:text-white",
+                          ? "bg-sidebar-accent text-foreground border-l-2 border-accent"
+                          : "hover:bg-sidebar-accent hover:text-foreground",
                       )}
                       title={collapsed ? label : undefined}
                     >
@@ -135,8 +135,8 @@ export function Sidebar({ user }: SidebarProps) {
                         className={cn(
                           "h-4 w-4 shrink-0 transition-colors",
                           active
-                            ? "text-[#7c3aed]"
-                            : "text-[#52525b] group-hover:text-[#a1a1aa]",
+                            ? "text-accent"
+                            : "text-subtle group-hover:text-muted",
                         )}
                       />
                       {!collapsed && <span>{label}</span>}
@@ -149,24 +149,24 @@ export function Sidebar({ user }: SidebarProps) {
         ))}
       </div>
 
-      <div className="p-3 border-t border-[#1e1e24] bg-[#09090b]">
+      <div className="p-3 border-t border-border bg-sidebar">
         {!collapsed && (
           <div className="flex items-center gap-3 px-2 py-3 mb-2">
-            <Avatar className="h-8 w-8 border border-white/10">
+            <Avatar className="h-8 w-8 border border-foreground/10">
               <AvatarImage src={user.image ?? ""} />
               <AvatarFallback className="bg-red-900/50 text-red-200 text-xs font-bold">
                 {getInitials(user.name ?? user.email ?? "U")}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white truncate leading-none mb-1">
+              <p className="text-sm font-semibold text-foreground truncate leading-none mb-1">
                 {user.name ?? "User"}
               </p>
-              <p className="text-[11px] text-[#52525b] truncate">
+              <p className="text-[11px] text-subtle truncate">
                 {user.email ?? ""}
               </p>
             </div>
-            <ChevronDown className="h-4 w-4 text-[#52525b]" />
+            <ChevronDown className="h-4 w-4 text-subtle" />
           </div>
         )}
 
@@ -174,12 +174,12 @@ export function Sidebar({ user }: SidebarProps) {
           <Link
             href="/settings"
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium hover:bg-[#18181b] hover:text-white transition-colors",
-              pathname === "/settings" && "bg-[#18181b] text-white",
+              "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium hover:bg-sidebar-accent hover:text-foreground transition-colors",
+              pathname === "/settings" && "bg-sidebar-accent text-foreground",
             )}
             title={collapsed ? "Settings" : undefined}
           >
-            <Settings className="h-4 w-4 shrink-0 text-[#52525b]" />
+            <Settings className="h-4 w-4 shrink-0 text-subtle" />
             {!collapsed && <span>Settings</span>}
           </Link>
 
@@ -192,10 +192,10 @@ export function Sidebar({ user }: SidebarProps) {
                 console.error("Logout error:", e);
               }
             }}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium hover:bg-[#18181b] hover:text-white transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium hover:bg-sidebar-accent hover:text-foreground transition-colors"
             title={collapsed ? "Sign out" : undefined}
           >
-            <LogOut className="h-4 w-4 shrink-0 text-[#52525b]" />
+            <LogOut className="h-4 w-4 shrink-0 text-subtle" />
             {!collapsed && <span>Sign out</span>}
           </button>
         </div>
@@ -203,12 +203,12 @@ export function Sidebar({ user }: SidebarProps) {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-[#18181b] border border-[#1e1e24] flex items-center justify-center hover:bg-[#27272a] transition-colors z-20"
+        className="absolute -right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-surface-raised transition-colors z-20"
       >
         {collapsed ? (
-          <ChevronRight className="h-3 w-3 text-[#a1a1aa]" />
+          <ChevronRight className="h-3 w-3 text-muted" />
         ) : (
-          <ChevronLeft className="h-3 w-3 text-[#a1a1aa]" />
+          <ChevronLeft className="h-3 w-3 text-muted" />
         )}
       </button>
     </aside>

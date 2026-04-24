@@ -1,19 +1,65 @@
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
-@theme {
+/* Dark (default) */
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --surface: #18181b;
+  --surface-raised: #27272a;
+  --overlay: #0d0d10;
+  --border: #1e1e24;
+  --border-hover: #3f3f46;
+  --muted: #a1a1aa;
+  --subtle: #52525b;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-light: #a78bfa;
+  --sidebar: #09090b;
+  --sidebar-foreground: #a1a1aa;
+  --sidebar-accent: #18181b;
+}
+
+/* Light */
+[data-theme="light"] {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --surface: #f4f4f5;
+  --surface-raised: #e4e4e7;
+  --overlay: #fafafa;
+  --border: #e4e4e7;
+  --border-hover: #d4d4d8;
+  --muted: #71717a;
+  --subtle: #a1a1aa;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --accent-light: #7c3aed;
+  --sidebar: #f8f8fa;
+  --sidebar-foreground: #52525b;
+  --sidebar-accent: #ededf0;
+}
+
+@theme inline {
   --font-sans: "Fira Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono:
     "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
 
-  --color-background: #09090b;
-  --color-foreground: #fafafa;
-  --color-sidebar: #09090b;
-  --color-sidebar-foreground: #a1a1aa;
-  --color-sidebar-accent: #18181b;
-  --color-border: #1e1e24;
-  --color-accent: #7c3aed;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-overlay: var(--overlay);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-light: var(--accent-light);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
 }
 
 body {
@@ -21,7 +67,7 @@ body {
 }
 
 .oled-card {
-  @apply bg-[#09090b] border border-border p-6 hover:border-[#3f3f46] transition-all duration-300;
+  @apply bg-background border border-border p-6 hover:border-border-hover transition-all duration-300;
 }
 
 .dashboard-grid {

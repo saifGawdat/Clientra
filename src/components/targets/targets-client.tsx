@@ -10,8 +10,6 @@ import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
 import { Contact as CRMContact } from "@/types/crm-types";
 
-
-
 const ALL_STATUSES = [
   "LEAD",
   "PROSPECT",
@@ -22,11 +20,11 @@ const ALL_STATUSES = [
 type ConvertStatus = (typeof ALL_STATUSES)[number];
 
 const statusColors: Record<ConvertStatus, string> = {
-  LEAD: "text-[#a1a1aa] hover:bg-[#27272a]",
+  LEAD: "text-muted hover:bg-surface-raised",
   PROSPECT: "text-blue-400 hover:bg-blue-950/40",
   CUSTOMER: "text-emerald-400 hover:bg-emerald-950/40",
   CHURNED: "text-red-400 hover:bg-red-950/40",
-  INACTIVE: "text-[#52525b] hover:bg-[#27272a]",
+  INACTIVE: "text-subtle hover:bg-surface-raised",
 };
 
 const sourceLabels: Record<string, string> = {
@@ -107,70 +105,56 @@ export function TargetsClient({
   };
 
   return (
-    <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
+    <div className="p-8 space-y-6 bg-background min-h-full">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Targets
           </h1>
-          <p className="text-[#52525b] text-sm mt-1">
+          <p className="text-subtle text-sm mt-1">
             People you are actively targeting — convert them when ready
           </p>
         </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white"
-        >
+        <Button onClick={() => setShowForm(true)}>
           <Plus className="h-4 w-4" />
           Add Target
         </Button>
       </div>
 
       <div className="oled-card inline-block">
-        <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">
+        <p className="text-subtle text-xs uppercase tracking-widest mb-2">
           Total Targets
         </p>
-        <p className="text-3xl font-bold font-mono text-white">
+        <p className="text-3xl font-bold font-mono text-foreground">
           {targets.length}
         </p>
       </div>
 
       <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#52525b]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle" />
         <Input
           placeholder="Search targets..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 bg-[#18181b] border-[#1e1e24] text-white placeholder:text-[#52525b]"
+          className="pl-9"
         />
       </div>
 
-      <div className="border border-[#1e1e24] rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#1e1e24] bg-[#18181b]">
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
-                Name
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
-                Company
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
-                Source
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
-                Added
-              </th>
+            <tr className="border-b border-border bg-surface">
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Name</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Company</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Source</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Added</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-12 text-center text-[#52525b]"
-                >
+                <td colSpan={5} className="px-4 py-12 text-center text-subtle">
                   {search
                     ? "No targets match your search"
                     : "No targets yet. Add your first one!"}
@@ -180,7 +164,7 @@ export function TargetsClient({
             {filtered.map((target: CRMContact) => (
               <tr
                 key={target.id}
-                className="border-b border-[#1e1e24] hover:bg-[#18181b] transition-colors"
+                className="border-b border-border hover:bg-surface transition-colors"
               >
                 <td className="px-4 py-3">
                   <Link
@@ -194,20 +178,20 @@ export function TargetsClient({
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-white group-hover:text-[#7c3aed] transition-colors">
+                      <p className="font-medium text-foreground group-hover:text-accent transition-colors">
                         {target.firstName} {target.lastName}
                       </p>
                       {target.email && (
-                        <p className="text-xs text-[#52525b]">{target.email}</p>
+                        <p className="text-xs text-subtle">{target.email}</p>
                       )}
                     </div>
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-[#a1a1aa]">
+                <td className="px-4 py-3 text-muted">
                   {target.company ? (
                     <Link
                       href={`/companies/${target.company!.id}`}
-                      className="hover:text-white transition-colors"
+                      className="hover:text-foreground transition-colors"
                     >
                       {target.company.name}
                     </Link>
@@ -215,15 +199,14 @@ export function TargetsClient({
                     "—"
                   )}
                 </td>
-                <td className="px-4 py-3 text-[#a1a1aa]">
+                <td className="px-4 py-3 text-muted">
                   {sourceLabels[target.source] ?? target.source}
                 </td>
-                <td className="px-4 py-3 text-[#52525b]">
+                <td className="px-4 py-3 text-subtle">
                   {formatDate(target.createdAt)}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1 justify-end">
-                    {/* Convert dropdown */}
                     <div className="relative">
                       <Button
                         variant="ghost"
@@ -239,7 +222,7 @@ export function TargetsClient({
                         Convert
                       </Button>
                       {convertingId === target.id && (
-                        <div className="absolute right-0 top-full mt-1 z-20 bg-[#18181b] border border-[#1e1e24] rounded-md shadow-xl min-w-[130px] py-1">
+                        <div className="absolute right-0 top-full mt-1 z-20 bg-surface border border-border rounded-md shadow-xl min-w-[130px] py-1">
                           {ALL_STATUSES.map((s) => (
                             <button
                               key={s}
@@ -256,7 +239,7 @@ export function TargetsClient({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-[#52525b] hover:text-white hover:bg-[#27272a]"
+                      className="h-7 w-7 text-subtle hover:text-foreground hover:bg-surface-raised"
                       onClick={() => {
                         setEditingTarget(target);
                         setShowForm(true);
@@ -267,7 +250,7 @@ export function TargetsClient({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-[#52525b] hover:text-red-400 hover:bg-red-950/30"
+                      className="h-7 w-7 text-subtle hover:text-red-400 hover:bg-red-950/30"
                       onClick={() => handleDelete(target.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -280,7 +263,6 @@ export function TargetsClient({
         </table>
       </div>
 
-      {/* Close convert dropdown when clicking outside */}
       {convertingId && (
         <div
           className="fixed inset-0 z-10"

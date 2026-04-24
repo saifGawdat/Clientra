@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma"
 import { formatCurrency } from "@/lib/utils"
 
 const STAGES = [
-  { key: "LEAD", label: "Lead", color: "bg-[#3f3f46]" },
+  { key: "LEAD", label: "Lead", color: "bg-border-hover" },
   { key: "QUALIFIED", label: "Qualified", color: "bg-blue-700" },
   { key: "PROPOSAL", label: "Proposal", color: "bg-amber-600" },
-  { key: "NEGOTIATION", label: "Negotiation", color: "bg-[#7c3aed]" },
+  { key: "NEGOTIATION", label: "Negotiation", color: "bg-accent" },
   { key: "WON", label: "Won", color: "bg-emerald-600" },
   { key: "LOST", label: "Lost", color: "bg-red-700" },
 ] as const
@@ -67,13 +67,12 @@ export default async function SalesOverviewPage() {
   const maxSourceCount = Math.max(...sourceBreakdown.map(([, count]) => count), 1)
 
   return (
-    <div className="p-8 space-y-8 bg-[#09090b] min-h-full">
+    <div className="p-8 space-y-8 bg-background min-h-full">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Sales Overview</h1>
-        <p className="text-[#52525b] text-sm mt-1">Pipeline health and conversion analysis</p>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Sales Overview</h1>
+        <p className="text-subtle text-sm mt-1">Pipeline health and conversion analysis</p>
       </div>
 
-      {/* Summary stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total Deals", value: totalDeals.toString() },
@@ -82,30 +81,29 @@ export default async function SalesOverviewPage() {
           { label: "Contact Conversion", value: `${conversionRate}%` },
         ].map((s) => (
           <div key={s.label} className="oled-card">
-            <p className="text-[#52525b] text-xs uppercase tracking-widest mb-2">{s.label}</p>
-            <p className="text-2xl font-bold font-mono text-white">{s.value}</p>
+            <p className="text-subtle text-xs uppercase tracking-widest mb-2">{s.label}</p>
+            <p className="text-2xl font-bold font-mono text-foreground">{s.value}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Pipeline funnel */}
         <div className="oled-card space-y-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#52525b]">Pipeline Funnel</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-subtle">Pipeline Funnel</p>
           <div className="space-y-3">
             {stageStats.map((stage) => (
               <div key={stage.key} className="space-y-1.5">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#a1a1aa] font-medium">{stage.label}</span>
+                  <span className="text-muted font-medium">{stage.label}</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-[#52525b] text-xs">{stage.pct}%</span>
-                    <span className="font-mono text-white text-xs w-16 text-right">
+                    <span className="text-subtle text-xs">{stage.pct}%</span>
+                    <span className="font-mono text-foreground text-xs w-16 text-right">
                       {formatCurrency(stage.value)}
                     </span>
-                    <span className="text-[#52525b] text-xs w-12 text-right">{stage.count} deals</span>
+                    <span className="text-subtle text-xs w-12 text-right">{stage.count} deals</span>
                   </div>
                 </div>
-                <div className="h-2 rounded-full bg-[#18181b] overflow-hidden">
+                <div className="h-2 rounded-full bg-surface overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${stage.color}`}
                     style={{ width: `${stage.barPct}%` }}
@@ -116,27 +114,26 @@ export default async function SalesOverviewPage() {
           </div>
         </div>
 
-        {/* Lead source breakdown */}
         <div className="oled-card space-y-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#52525b]">Contacts by Source</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-subtle">Contacts by Source</p>
           {sourceBreakdown.length === 0 ? (
-            <p className="text-[#52525b] text-sm py-4 text-center">No contacts yet</p>
+            <p className="text-subtle text-sm py-4 text-center">No contacts yet</p>
           ) : (
             <div className="space-y-3">
               {sourceBreakdown.map(([source, count]) => (
                 <div key={source} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#a1a1aa]">{SOURCE_LABELS[source] ?? source}</span>
+                    <span className="text-muted">{SOURCE_LABELS[source] ?? source}</span>
                     <div className="flex items-center gap-3">
-                      <span className="text-[#52525b] text-xs">
+                      <span className="text-subtle text-xs">
                         {contacts.length > 0 ? Math.round((count / contacts.length) * 100) : 0}%
                       </span>
-                      <span className="text-white text-xs w-8 text-right">{count}</span>
+                      <span className="text-foreground text-xs w-8 text-right">{count}</span>
                     </div>
                   </div>
-                  <div className="h-2 rounded-full bg-[#18181b] overflow-hidden">
+                  <div className="h-2 rounded-full bg-surface overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#7c3aed] transition-all"
+                      className="h-full rounded-full bg-accent transition-all"
                       style={{ width: `${Math.round((count / maxSourceCount) * 100)}%` }}
                     />
                   </div>
@@ -147,15 +144,14 @@ export default async function SalesOverviewPage() {
         </div>
       </div>
 
-      {/* Stage value breakdown table */}
       <div className="oled-card space-y-4">
-        <p className="text-xs font-bold uppercase tracking-widest text-[#52525b]">Stage Breakdown</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-subtle">Stage Breakdown</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#1e1e24]">
+              <tr className="border-b border-border">
                 {["Stage", "Deals", "Total Value", "Avg Value", "% of Pipeline"].map((h) => (
-                  <th key={h} className="text-left pb-2 font-medium text-[#52525b] text-xs uppercase tracking-wider pr-6">
+                  <th key={h} className="text-left pb-2 font-medium text-subtle text-xs uppercase tracking-wider pr-6">
                     {h}
                   </th>
                 ))}
@@ -163,19 +159,19 @@ export default async function SalesOverviewPage() {
             </thead>
             <tbody>
               {stageStats.map((s) => (
-                <tr key={s.key} className="border-b border-[#1e1e24] last:border-0">
+                <tr key={s.key} className="border-b border-border last:border-0">
                   <td className="py-2.5 pr-6">
                     <div className="flex items-center gap-2">
                       <span className={`h-2 w-2 rounded-full ${s.color}`} />
-                      <span className="text-white font-medium">{s.label}</span>
+                      <span className="text-foreground font-medium">{s.label}</span>
                     </div>
                   </td>
-                  <td className="py-2.5 pr-6 text-[#a1a1aa]">{s.count}</td>
-                  <td className="py-2.5 pr-6 font-mono text-white">{formatCurrency(s.value)}</td>
-                  <td className="py-2.5 pr-6 font-mono text-[#a1a1aa]">
+                  <td className="py-2.5 pr-6 text-muted">{s.count}</td>
+                  <td className="py-2.5 pr-6 font-mono text-foreground">{formatCurrency(s.value)}</td>
+                  <td className="py-2.5 pr-6 font-mono text-muted">
                     {s.count > 0 ? formatCurrency(s.value / s.count) : "—"}
                   </td>
-                  <td className="py-2.5 text-[#52525b]">{s.pct}%</td>
+                  <td className="py-2.5 text-subtle">{s.pct}%</td>
                 </tr>
               ))}
             </tbody>

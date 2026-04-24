@@ -11,8 +11,6 @@ import { formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
 import { CRMActivity } from "@/types/crm-types"
 
-
-
 const typeIcon: Record<string, React.ElementType> = {
   CALL: Phone,
   EMAIL: Mail,
@@ -23,10 +21,10 @@ const typeIcon: Record<string, React.ElementType> = {
 
 const typeColor: Record<string, string> = {
   CALL: "text-blue-400 bg-blue-950/40 border border-blue-800/30",
-  EMAIL: "text-[#a78bfa] bg-[#7c3aed]/20 border border-[#7c3aed]/30",
+  EMAIL: "text-accent-light bg-accent/20 border border-accent/30",
   MEETING: "text-emerald-400 bg-emerald-950/40 border border-emerald-800/30",
   TASK: "text-amber-400 bg-amber-950/40 border border-amber-800/30",
-  NOTE: "text-[#a1a1aa] bg-[#18181b] border border-[#1e1e24]",
+  NOTE: "text-muted bg-surface border border-border",
 }
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"> = {
@@ -70,10 +68,10 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   }
 
   const handleDelete = async (id: string) => {
-    if (!(await confirm({ 
-      title: "Delete Activity?", 
+    if (!(await confirm({
+      title: "Delete Activity?",
       description: "This action cannot be undone.",
-      variant: "destructive" 
+      variant: "destructive"
     }))) return
     await fetch(`/api/activities/${id}`, { method: "DELETE" })
     setActivities((prev) => prev.filter((a) => a.id !== id))
@@ -95,11 +93,11 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   const statuses = ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
 
   return (
-    <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
+    <div className="p-8 space-y-6 bg-background min-h-full">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Activities</h1>
-          <p className="text-[#52525b] text-sm mt-1">{activities.length} total activities</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Activities</h1>
+          <p className="text-subtle text-sm mt-1">{activities.length} total activities</p>
         </div>
         <Button onClick={() => { setEditingActivity(null); setShowForm(true) }}>
           <Plus className="h-4 w-4" />
@@ -107,13 +105,12 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
         </Button>
       </div>
 
-      {/* Filters */}
       <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => setFilterType("")}
           className={cn(
             "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-            !filterType ? "bg-[#7c3aed] text-white" : "bg-[#18181b] border border-[#1e1e24] text-[#52525b] hover:text-[#a1a1aa]"
+            !filterType ? "bg-accent text-white" : "bg-surface border border-border text-subtle hover:text-muted"
           )}
         >
           All types
@@ -127,15 +124,15 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors",
                 filterType === t
-                  ? "bg-[#7c3aed] text-white"
-                  : "bg-[#18181b] border border-[#1e1e24] text-[#52525b] hover:text-[#a1a1aa]"
+                  ? "bg-accent text-white"
+                  : "bg-surface border border-border text-subtle hover:text-muted"
               )}
             >
               <Icon className="h-3 w-3" />{t}
             </button>
           )
         })}
-        <div className="w-px h-5 bg-[#1e1e24] mx-1" />
+        <div className="w-px h-5 bg-border mx-1" />
         {statuses.map((s) => (
           <button
             key={s}
@@ -143,8 +140,8 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
               filterStatus === s
-                ? "bg-[#7c3aed] text-white"
-                : "bg-[#18181b] border border-[#1e1e24] text-[#52525b] hover:text-[#a1a1aa]"
+                ? "bg-accent text-white"
+                : "bg-surface border border-border text-subtle hover:text-muted"
             )}
           >
             {s}
@@ -152,10 +149,9 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
         ))}
       </div>
 
-      {/* List */}
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-[#52525b] text-sm">
+          <div className="text-center py-12 text-subtle text-sm">
             No activities yet. Log your first one!
           </div>
         )}
@@ -177,23 +173,23 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className={cn("font-medium text-sm text-white", activity.status === "COMPLETED" && "line-through")}>
+                    <p className={cn("font-medium text-sm text-foreground", activity.status === "COMPLETED" && "line-through")}>
                       {activity.subject}
                     </p>
                     {activity.description && (
-                      <p className="text-xs text-[#52525b] mt-0.5">{activity.description}</p>
+                      <p className="text-xs text-subtle mt-0.5">{activity.description}</p>
                     )}
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
                       {activity.contact && (
-                        <span className="text-xs text-[#7c3aed]">
+                        <span className="text-xs text-accent">
                           {activity.contact.firstName} {activity.contact.lastName}
                         </span>
                       )}
                       {activity.deal && (
-                        <span className="text-xs text-[#a1a1aa]">{activity.deal.title}</span>
+                        <span className="text-xs text-muted">{activity.deal.title}</span>
                       )}
                       {activity.scheduledAt && (
-                        <span className="flex items-center gap-1 text-xs text-[#52525b]">
+                        <span className="flex items-center gap-1 text-xs text-subtle">
                           <Calendar className="h-3 w-3" />
                           {formatDate(activity.scheduledAt)}
                         </span>

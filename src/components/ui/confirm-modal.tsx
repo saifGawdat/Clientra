@@ -41,11 +41,8 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     resolver?.resolve(false)
   }
 
-  // Also handle closing by clicking outside or pressing Escape
   const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      handleCancel()
-    }
+    if (!open) handleCancel()
   }
 
   return (
@@ -63,7 +60,6 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             <Button
               variant="outline"
               onClick={handleCancel}
-              className="bg-transparent border-[#1e1e24] text-[#a1a1aa] hover:bg-[#1e1e24] hover:text-white transition-colors"
             >
               {options?.cancelText || "Cancel"}
             </Button>
@@ -73,7 +69,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
               className={
                 options?.variant === "destructive"
                   ? "bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] transition-all"
-                  : "bg-[#7c3aed] text-white hover:bg-[#6d28d9] shadow-[0_0_15px_rgba(124,58,237,0.2)] transition-all"
+                  : "shadow-[0_0_15px_rgba(124,58,237,0.2)] transition-all"
               }
             >
               {options?.confirmText || "Confirm"}

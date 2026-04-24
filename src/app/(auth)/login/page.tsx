@@ -115,12 +115,12 @@ function LoginForm() {
           width={36}
           height={36}
         />
-        <span className="font-bold text-xl text-white">Clientra</span>
+        <span className="font-bold text-xl text-foreground">Clientra</span>
       </motion.div>
 
       <motion.div variants={item}>
-        <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-        <p className="text-[#71717a] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
+        <p className="text-subtle text-sm mt-1">
           Sign in to your account to continue
         </p>
       </motion.div>
@@ -153,16 +153,16 @@ function LoginForm() {
         disabled={googleLoading || loading}
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-sidebar-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#27272a] hover:border-[#3f3f46] disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-3 rounded-lg border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-raised hover:border-border-hover disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <GoogleIcon />
         {googleLoading ? "Redirecting..." : "Continue with Google"}
       </motion.button>
 
       <motion.div variants={item} className="flex items-center gap-3">
-        <div className="flex-1 h-px bg-[#1e1e24]" />
-        <span className="text-xs text-[#52525b]">or continue with email</span>
-        <div className="flex-1 h-px bg-[#1e1e24]" />
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-subtle">or continue with email</span>
+        <div className="flex-1 h-px bg-border" />
       </motion.div>
 
       <motion.form
@@ -171,15 +171,12 @@ function LoginForm() {
         className="space-y-4"
       >
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-[#a1a1aa] text-sm font-medium">
-            Email
-          </Label>
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
             placeholder="you@example.com"
             {...register("email")}
-            className="bg-sidebar-accent border-border text-white placeholder:text-[#52525b] focus-visible:ring-accent focus-visible:border-accent"
           />
           {errors.email && (
             <p className="text-xs text-red-400">{errors.email.message}</p>
@@ -187,18 +184,12 @@ function LoginForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label
-            htmlFor="password"
-            className="text-[#a1a1aa] text-sm font-medium"
-          >
-            Password
-          </Label>
+          <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
             placeholder="••••••••"
             {...register("password")}
-            className="bg-sidebar-accent border-border text-white placeholder:text-[#52525b] focus-visible:ring-accent focus-visible:border-accent"
           />
           {errors.password && (
             <p className="text-xs text-red-400">{errors.password.message}</p>
@@ -208,17 +199,17 @@ function LoginForm() {
         <Button
           type="submit"
           disabled={loading || googleLoading}
-          className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white font-medium shadow-lg shadow-violet-900/20"
+          className="w-full shadow-lg shadow-violet-900/20"
         >
           {loading ? "Signing in..." : "Sign in"}
         </Button>
       </motion.form>
 
-      <motion.p variants={item} className="text-center text-sm text-[#71717a]">
+      <motion.p variants={item} className="text-center text-sm text-subtle">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className="text-[#7c3aed] hover:text-[#8b5cf6] font-medium transition-colors"
+          className="text-accent hover:text-accent-light font-medium transition-colors"
         >
           Sign up free
         </Link>
@@ -229,8 +220,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex bg-[#09090b]">
-      {/* Left branding panel */}
+    <div className="min-h-screen flex bg-background">
       <motion.div
         className="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 overflow-hidden border-r border-border"
         initial={{ opacity: 0, x: -24 }}
@@ -251,11 +241,11 @@ export default function LoginPage() {
             width={36}
             height={36}
           />
-          <span className="font-bold text-xl text-white">Clientra</span>
+          <span className="font-bold text-xl text-foreground">Clientra</span>
         </div>
 
         <div className="relative z-10 space-y-6">
-          <p className="text-2xl font-medium text-white leading-snug">
+          <p className="text-2xl font-medium text-foreground leading-snug">
             &quot;The simplest CRM we&apos;ve ever used. Everything is exactly
             where you expect it.&quot;
           </p>
@@ -264,7 +254,7 @@ export default function LoginPage() {
               {[...Array(5)].map((_, i) => (
                 <svg
                   key={i}
-                  className="h-4 w-4 text-[#7c3aed]"
+                  className="h-4 w-4 text-accent"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -272,7 +262,7 @@ export default function LoginPage() {
                 </svg>
               ))}
             </div>
-            <p className="text-sm text-[#71717a]">
+            <p className="text-sm text-subtle">
               — Saif Gawdat, Product Lead
             </p>
           </div>
@@ -286,16 +276,15 @@ export default function LoginPage() {
           ].map(([val, label]) => (
             <div
               key={label}
-              className="rounded-xl border border-border bg-sidebar-accent/60 p-4"
+              className="rounded-xl border border-border bg-surface p-4"
             >
-              <p className="text-xl font-bold text-white">{val}</p>
-              <p className="text-xs text-[#71717a] mt-0.5">{label}</p>
+              <p className="text-xl font-bold text-foreground">{val}</p>
+              <p className="text-xs text-subtle mt-0.5">{label}</p>
             </div>
           ))}
         </div>
       </motion.div>
 
-      {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <Suspense>
           <LoginForm />

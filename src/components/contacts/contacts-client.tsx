@@ -20,8 +20,6 @@ import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Contact as CRMContact, ContactStatus } from "@/types/crm-types";
 
-
-
 type Company = { id: string; name: string };
 
 const STATUS_CONFIG: Record<
@@ -113,14 +111,13 @@ export function ContactsClient({
   };
 
   return (
-    <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
-      {/* Header */}
+    <div className="p-8 space-y-6 bg-background min-h-full">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
             Contacts
           </h1>
-          <p className="text-[#52525b] text-sm mt-1">
+          <p className="text-subtle text-sm mt-1">
             Manage your people and relationships
           </p>
         </div>
@@ -135,24 +132,15 @@ export function ContactsClient({
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total", value: counts.total, color: "text-white" },
-          {
-            label: "Customers",
-            value: counts.customers,
-            color: "text-emerald-400",
-          },
-          {
-            label: "Leads & Prospects",
-            value: counts.leads,
-            color: "text-blue-400",
-          },
+          { label: "Total", value: counts.total, color: "text-foreground" },
+          { label: "Customers", value: counts.customers, color: "text-emerald-400" },
+          { label: "Leads & Prospects", value: counts.leads, color: "text-blue-400" },
           { label: "Targets", value: counts.targets, color: "text-amber-400" },
         ].map((s) => (
           <div key={s.label} className="oled-card py-4">
-            <p className="text-[#52525b] text-xs uppercase tracking-widest mb-1">
+            <p className="text-subtle text-xs uppercase tracking-widest mb-1">
               {s.label}
             </p>
             <p className={cn("text-2xl font-bold font-mono", s.color)}>
@@ -162,10 +150,9 @@ export function ContactsClient({
         ))}
       </div>
 
-      {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#52525b]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle" />
           <Input
             placeholder="Search contacts..."
             value={search}
@@ -180,8 +167,8 @@ export function ContactsClient({
             className={cn(
               "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
               !filterStatus
-                ? "bg-[#7c3aed] text-white"
-                : "bg-[#18181b] border border-[#1e1e24] text-[#52525b] hover:text-[#a1a1aa]",
+                ? "bg-accent text-white"
+                : "bg-surface border border-border text-subtle hover:text-muted",
             )}
           >
             All
@@ -193,50 +180,34 @@ export function ContactsClient({
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5",
                 filterStatus === s
-                  ? "bg-[#7c3aed] text-white"
-                  : "bg-[#18181b] border border-[#1e1e24] text-[#52525b] hover:text-[#a1a1aa]",
+                  ? "bg-accent text-white"
+                  : "bg-surface border border-border text-subtle hover:text-muted",
               )}
             >
-              <span
-                className={cn(
-                  "h-1.5 w-1.5 rounded-full",
-                  STATUS_CONFIG[s]?.dot,
-                )}
-              />
+              <span className={cn("h-1.5 w-1.5 rounded-full", STATUS_CONFIG[s]?.dot)} />
               {STATUS_CONFIG[s]?.label ?? s}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Table */}
-      <div className="border border-[#1e1e24] rounded-xl overflow-hidden">
+      <div className="border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#1e1e24] bg-[#0d0d11]">
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
-                Name
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs hidden md:table-cell">
-                Company
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs hidden lg:table-cell">
-                Contact
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs">
-                Status
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-[#52525b] uppercase tracking-wider text-xs hidden sm:table-cell">
-                Added
-              </th>
+            <tr className="border-b border-border bg-overlay">
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Name</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs hidden md:table-cell">Company</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs hidden lg:table-cell">Contact</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Status</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs hidden sm:table-cell">Added</th>
               <th className="px-4 py-3 w-20" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1e1e24]">
+          <tbody className="divide-y divide-border">
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-16 text-center">
-                  <p className="text-[#52525b] text-sm">
+                  <p className="text-subtle text-sm">
                     {search || filterStatus
                       ? "No contacts match your filters"
                       : "No contacts yet. Add your first one!"}
@@ -249,25 +220,25 @@ export function ContactsClient({
               return (
                 <tr
                   key={contact.id}
-                  className="hover:bg-[#0d0d11] transition-colors group"
+                  className="hover:bg-surface transition-colors group"
                 >
                   <td className="px-4 py-3.5">
                     <Link
                       href={`/contacts/${contact.id}`}
                       className="flex items-center gap-3"
                     >
-                      <div className="h-9 w-9 rounded-full bg-[#7c3aed]/15 border border-[#7c3aed]/25 flex items-center justify-center shrink-0">
-                        <span className="text-xs font-bold text-[#7c3aed]">
+                      <div className="h-9 w-9 rounded-full bg-accent/15 border border-accent/25 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-accent">
                           {contact.firstName[0]}
                           {contact.lastName[0]}
                         </span>
                       </div>
                       <div>
-                        <p className="font-medium text-white group-hover:text-[#7c3aed] transition-colors leading-tight">
+                        <p className="font-medium text-foreground group-hover:text-accent transition-colors leading-tight">
                           {contact.firstName} {contact.lastName}
                         </p>
                         {contact.title && (
-                          <p className="text-xs text-[#52525b] leading-tight mt-0.5">
+                          <p className="text-xs text-subtle leading-tight mt-0.5">
                             {contact.title}
                           </p>
                         )}
@@ -279,56 +250,46 @@ export function ContactsClient({
                     {contact.company ? (
                       <Link
                         href={`/companies/${contact.company.id}`}
-                        className="flex items-center gap-1.5 text-[#a1a1aa] hover:text-white transition-colors w-fit"
+                        className="flex items-center gap-1.5 text-muted hover:text-foreground transition-colors w-fit"
                       >
-                        <Building2 className="h-3 w-3 shrink-0 text-[#52525b]" />
+                        <Building2 className="h-3 w-3 shrink-0 text-subtle" />
                         <span className="text-sm">{contact.company.name}</span>
                       </Link>
                     ) : (
-                      <span className="text-[#3f3f46]">—</span>
+                      <span className="text-border-hover">—</span>
                     )}
                   </td>
 
                   <td className="px-4 py-3.5 hidden lg:table-cell">
                     <div className="space-y-1">
                       {contact.email && (
-                        <div className="flex items-center gap-1.5 text-xs text-[#52525b]">
+                        <div className="flex items-center gap-1.5 text-xs text-subtle">
                           <Mail className="h-3 w-3 shrink-0" />
-                          <span className="truncate max-w-[180px]">
-                            {contact.email}
-                          </span>
+                          <span className="truncate max-w-[180px]">{contact.email}</span>
                         </div>
                       )}
                       {contact.phone && (
-                        <div className="flex items-center gap-1.5 text-xs text-[#52525b]">
+                        <div className="flex items-center gap-1.5 text-xs text-subtle">
                           <Phone className="h-3 w-3 shrink-0" />
                           <span>{contact.phone}</span>
                         </div>
                       )}
                       {!contact.email && !contact.phone && (
-                        <span className="text-[#3f3f46] text-xs">—</span>
+                        <span className="text-border-hover text-xs">—</span>
                       )}
                     </div>
                   </td>
 
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1.5">
-                      <span
-                        className={cn(
-                          "h-1.5 w-1.5 rounded-full shrink-0",
-                          cfg?.dot,
-                        )}
-                      />
-                      <Badge
-                        variant={cfg?.variant ?? "secondary"}
-                        className="text-xs"
-                      >
+                      <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", cfg?.dot)} />
+                      <Badge variant={cfg?.variant ?? "secondary"} className="text-xs">
                         {cfg?.label ?? contact.status}
                       </Badge>
                     </div>
                   </td>
 
-                  <td className="px-4 py-3.5 hidden sm:table-cell text-[#52525b] text-xs">
+                  <td className="px-4 py-3.5 hidden sm:table-cell text-subtle text-xs">
                     {formatDate(contact.createdAt)}
                   </td>
 
@@ -363,7 +324,7 @@ export function ContactsClient({
       </div>
 
       {filtered.length > 0 && (
-        <p className="text-xs text-[#52525b] text-right">
+        <p className="text-xs text-subtle text-right">
           Showing {filtered.length} of {contacts.length} contacts
         </p>
       )}
