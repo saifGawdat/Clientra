@@ -8,7 +8,8 @@ const STAGE_ORDER = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOS
 
 export default async function SalesDashboardPage() {
   const session = await auth()
-  const userId = session!.user.id
+  if (!session?.user) return null
+  const userId = session.user.id
 
   const [deals, recentActivities] = await Promise.all([
     prisma.deal.findMany({

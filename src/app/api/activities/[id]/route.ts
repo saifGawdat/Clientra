@@ -12,7 +12,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json()
     const data = activitySchema.partial().parse(body)
 
-    const updateData: any = { ...data }
+    const updateData: Record<string, unknown> = { ...data }
     if ("contactId" in body) updateData.contactId = body.contactId || null
     if ("dealId" in body) updateData.dealId = body.dealId || null
     if ("scheduledAt" in body) updateData.scheduledAt = body.scheduledAt ? new Date(body.scheduledAt) : null

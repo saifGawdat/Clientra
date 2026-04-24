@@ -4,6 +4,7 @@ import { TargetsClient } from "@/components/targets/targets-client"
 
 export default async function TargetsPage() {
   const session = await auth()
+  if (!session?.user) return null
 
   const [targets, companies] = await Promise.all([
     prisma.contact.findMany({
@@ -12,7 +13,7 @@ export default async function TargetsPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.company.findMany({
-      where: { ownerId: session!.user.id },
+      where: { ownerId: session.user.id },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),

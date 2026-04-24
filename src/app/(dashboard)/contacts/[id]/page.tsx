@@ -5,6 +5,7 @@ import { ContactDetail } from "@/components/contacts/contact-detail"
 
 export default async function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
+  if (!session?.user) return null
   const { id } = await params
 
   const [contact, companies] = await Promise.all([
@@ -18,7 +19,7 @@ export default async function ContactDetailPage({ params }: { params: Promise<{ 
       },
     }),
     prisma.company.findMany({
-      where: { ownerId: session!.user.id },
+      where: { ownerId: session.user.id },
       select: { id: true, name: true },
     }),
   ])

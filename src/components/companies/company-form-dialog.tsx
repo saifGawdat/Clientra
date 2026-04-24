@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -9,19 +9,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { companySchema, type CompanyInput } from "@/lib/validations"
+import { Company } from "@/types/crm-types"
 
 interface CompanyFormDialogProps {
   open: boolean
   onClose: () => void
-  onSave: (company: any) => void
-  company?: any | null
+  onSave: (company: Company) => void
+  company?: Company | null
 }
 
 const industries = ["Technology", "Finance", "Healthcare", "Retail", "Manufacturing", "Education", "Real Estate", "Other"]
 const sizes = ["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]
 
 export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFormDialogProps) {
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<CompanyInput>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<CompanyInput>({
     resolver: zodResolver(companySchema),
   })
 
@@ -72,21 +73,33 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Industry</Label>
-              <Select value={watch("industry") ?? ""} onValueChange={(v) => setValue("industry", v)}>
-                <SelectTrigger><SelectValue placeholder="Select industry" /></SelectTrigger>
-                <SelectContent>
-                  {industries.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="industry"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue placeholder="Select industry" /></SelectTrigger>
+                    <SelectContent>
+                      {industries.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Company size</Label>
-              <Select value={watch("size") ?? ""} onValueChange={(v) => setValue("size", v as CompanyInput["size"])}>
-                <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
-                <SelectContent>
-                  {sizes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="size"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
+                    <SelectContent>
+                      {sizes.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
           <div className="space-y-1.5">

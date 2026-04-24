@@ -4,6 +4,7 @@ import { LeadsClient } from "@/components/leads/leads-client"
 
 export default async function LeadsPage() {
   const session = await auth()
+  if (!session?.user) return null
 
   const [leads, companies] = await Promise.all([
     prisma.contact.findMany({
@@ -12,7 +13,7 @@ export default async function LeadsPage() {
       orderBy: { createdAt: "desc" },
     }),
     prisma.company.findMany({
-      where: { ownerId: session!.user.id },
+      where: { ownerId: session.user.id },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),

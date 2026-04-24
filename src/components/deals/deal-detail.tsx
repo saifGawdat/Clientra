@@ -14,6 +14,7 @@ import { DealFormDialog } from "@/components/deals/deal-form-dialog"
 import { useConfirm } from "@/components/ui/confirm-modal"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
+import { Deal, Contact, Company, Note, CRMActivity } from "@/types/crm-types"
 
 const STAGE_COLORS: Record<string, string> = {
   LEAD:        "bg-zinc-800 text-zinc-300 border-zinc-700",
@@ -37,24 +38,7 @@ const ACTIVITY_TYPE_COLORS: Record<string, string> = {
   NOTE:    "text-zinc-400 bg-zinc-900 border-zinc-800",
 }
 
-type Deal = {
-  id: string
-  title: string
-  value: number | null
-  currency: string
-  stage: string
-  probability: number | null
-  closeDate: Date | null
-  description: string | null
-  contactId: string | null
-  companyId: string | null
-  contact: { id: string; firstName: string; lastName: string } | null
-  company: { id: string; name: string } | null
-  activities: { id: string; type: string; subject: string; description: string | null; status: string; scheduledAt: Date | null; createdAt: Date }[]
-  notes: { id: string; content: string; createdAt: Date }[]
-  createdAt: Date
-  updatedAt: Date
-}
+
 
 export function DealDetail({
   deal: initialDeal,
@@ -92,7 +76,7 @@ export function DealDetail({
     })
     if (res.ok) {
       const note = await res.json()
-      setDeal((prev) => ({ ...prev, notes: [note, ...prev.notes] }))
+      setDeal((prev) => ({ ...prev, notes: [note, ...(prev.notes ?? [])] }))
       setNoteContent("")
     }
     setSavingNote(false)
@@ -100,7 +84,7 @@ export function DealDetail({
 
   const handleDeleteNote = async (noteId: string) => {
     await fetch(`/api/notes/${noteId}`, { method: "DELETE" })
-    setDeal((prev) => ({ ...prev, notes: prev.notes.filter((n) => n.id !== noteId) }))
+    setDeal((prev) => ({ ...prev, notes: (prev.notes ?? []).filter((n) => n.id !== noteId) }))
   }
 
   const stageBarColor = STAGE_BAR[deal.stage] ?? "bg-zinc-600"
@@ -222,8 +206,8 @@ export function DealDetail({
           {/* Stats */}
           <div className="grid grid-cols-2 gap-2">
             {[
-              { icon: TrendingUp,    label: "Activities", value: deal.activities.length },
-              { icon: MessageSquare, label: "Notes",       value: deal.notes.length },
+              { icon: TrendingUp,    label: "Activities", value: (deal.activities ?? []).length },
+              { icon: MessageSquare, label: "Notes",       value: (deal.notes ?? []).length },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="oled-card py-3 px-3 text-center">
                 <Icon className="h-3.5 w-3.5 text-[#52525b] mx-auto mb-1" />
@@ -238,16 +222,16 @@ export function DealDetail({
         <div>
           <Tabs defaultValue="activities">
             <TabsList className="mb-4">
-              <TabsTrigger value="activities">Activities ({deal.activities.length})</TabsTrigger>
-              <TabsTrigger value="notes">Notes ({deal.notes.length})</TabsTrigger>
+              <TabsTrigger value="activities">Activities ({(deal.activities ?? []).length})</TabsTrigger>
+              <TabsTrigger value="notes">Notes ({(deal.notes ?? []).length})</TabsTrigger>
             </TabsList>
 
             {/* Activities */}
             <TabsContent value="activities" className="space-y-2">
-              {deal.activities.length === 0 ? (
+              {(deal.activities ?? []).length === 0 ? (
                 <div className="py-12 text-center text-[#52525b] text-sm">No activities logged for this deal.</div>
               ) : (
-                deal.activities.map((act) => {
+                (deal.activities ?? []).map((act: CRMActivity) => {
                   const colorClass = ACTIVITY_TYPE_COLORS[act.type] ?? ACTIVITY_TYPE_COLORS.NOTE
                   return (
                     <div key={act.id} className="oled-card flex items-start gap-4">
@@ -300,10 +284,10 @@ export function DealDetail({
                 </div>
               </div>
 
-              {deal.notes.length === 0 ? (
+              {(deal.notes ?? []).length === 0 ? (
                 <div className="py-8 text-center text-[#52525b] text-sm">No notes yet.</div>
               ) : (
-                deal.notes.map((note) => (
+                (deal.notes ?? []).map((note: Note) => (
                   <div key={note.id} className="oled-card">
                     <p className="text-sm text-[#a1a1aa] whitespace-pre-wrap leading-relaxed">{note.content}</p>
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#1e1e24]">
@@ -328,7 +312,7 @@ export function DealDetail({
       <DealFormDialog
         open={showEdit}
         onClose={() => setShowEdit(false)}
-        onSave={(updated) => { setDeal((prev) => ({ ...prev, ...updated })); setShowEdit(false) }}
+        onSave={(updated: Partial<Deal>) => { setDeal((prev) => ({ ...prev, ...updated })); setShowEdit(false) }}
         deal={deal}
         contacts={contacts}
         companies={companies}

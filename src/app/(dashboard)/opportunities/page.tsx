@@ -4,10 +4,11 @@ import { OpportunitiesClient } from "@/components/opportunities/opportunities-cl
 
 export default async function OpportunitiesPage() {
   const session = await auth()
+  if (!session?.user) return null
 
   const opportunities = await prisma.deal.findMany({
     where: {
-      ownerId: session!.user.id,
+      ownerId: session.user.id,
       stage: { notIn: ["WON", "LOST"] },
     },
     include: {

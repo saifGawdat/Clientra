@@ -18,21 +18,9 @@ import { ContactFormDialog } from "@/components/contacts/contact-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { Contact as CRMContact, ContactStatus } from "@/types/crm-types";
 
-type Contact = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phone: string | null;
-  title: string | null;
-  status: string;
-  source: string;
-  tags: string[];
-  companyId: string | null;
-  company: { id: string; name: string } | null;
-  createdAt: Date;
-};
+
 
 type Company = { id: string; name: string };
 
@@ -62,7 +50,7 @@ const ALL_STATUSES = [
 ] as const;
 
 interface ContactsClientProps {
-  initialContacts: Contact[];
+  initialContacts: CRMContact[];
   companies: Company[];
 }
 
@@ -71,20 +59,20 @@ export function ContactsClient({
   companies,
 }: ContactsClientProps) {
   const confirm = useConfirm();
-  const [contacts, setContacts] = useState(initialContacts);
+  const [contacts, setContacts] = useState<CRMContact[]>(initialContacts);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [editingContact, setEditingContact] = useState<CRMContact | null>(null);
 
   const filtered = contacts.filter((c) => {
     const q = search.toLowerCase();
     const matchesSearch =
       `${c.firstName} ${c.lastName}`.toLowerCase().includes(q) ||
       c.email?.toLowerCase().includes(q) ||
-      c.company?.name.toLowerCase().includes(q) ||
+      c.company?.name?.toLowerCase().includes(q) ||
       false;
-    const matchesStatus = !filterStatus || c.status === filterStatus;
+    const matchesStatus = !filterStatus || c.status === (filterStatus as ContactStatus);
     return matchesSearch && matchesStatus;
   });
 
@@ -110,7 +98,7 @@ export function ContactsClient({
     setContacts((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const handleSave = (contact: Contact) => {
+  const handleSave = (contact: CRMContact) => {
     setContacts((prev) => {
       const idx = prev.findIndex((c) => c.id === contact.id);
       if (idx >= 0) {
@@ -256,7 +244,7 @@ export function ContactsClient({
                 </td>
               </tr>
             )}
-            {filtered.map((contact) => {
+            {filtered.map((contact: CRMContact) => {
               const cfg = STATUS_CONFIG[contact.status];
               return (
                 <tr

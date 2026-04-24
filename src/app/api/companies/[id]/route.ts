@@ -30,7 +30,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json()
     const data = companySchema.partial().parse(body)
 
-    const updateData: any = { ...data }
+    const updateData: Record<string, unknown> = { ...data }
     if ("website" in body) updateData.website = body.website || null
     if ("email" in body) updateData.email = body.email || null
 

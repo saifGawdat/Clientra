@@ -1,11 +1,4 @@
-import {
-  Search,
-  MessageSquare,
-  Moon,
-  HelpCircle,
-  ChevronDown,
-  LayoutGrid,
-} from "lucide-react";
+import { Search, Moon, ChevronDown, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Header() {

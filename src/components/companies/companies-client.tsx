@@ -17,31 +17,20 @@ import { Input } from "@/components/ui/input";
 import { CompanyFormDialog } from "@/components/companies/company-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
+import { Company as CRMCompany } from "@/types/crm-types";
 
-type Company = {
-  id: string;
-  name: string;
-  website: string | null;
-  industry: string | null;
-  size: string | null;
-  email: string | null;
-  phone: string | null;
-  city: string | null;
-  country: string | null;
-  createdAt: Date;
-  _count: { contacts: number; deals: number };
-};
+
 
 export function CompaniesClient({
   initialCompanies,
 }: {
-  initialCompanies: Company[];
+  initialCompanies: CRMCompany[];
 }) {
   const confirm = useConfirm();
-  const [companies, setCompanies] = useState(initialCompanies);
+  const [companies, setCompanies] = useState<CRMCompany[]>(initialCompanies);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [editingCompany, setEditingCompany] = useState<CRMCompany | null>(null);
 
   const filtered = companies.filter(
     (c) =>
@@ -62,7 +51,7 @@ export function CompaniesClient({
     setCompanies((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const handleSave = (company: any) => {
+  const handleSave = (company: CRMCompany) => {
     setCompanies((prev) => {
       const idx = prev.findIndex((c) => c.id === company.id);
       if (idx >= 0) {
@@ -179,11 +168,11 @@ export function CompaniesClient({
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-[#1e1e24]">
                 <div className="flex items-center gap-1 text-xs text-[#52525b]">
                   <Users className="h-3.5 w-3.5" />
-                  <span>{company._count.contacts} contacts</span>
+                  <span>{company._count?.contacts ?? 0} contacts</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-[#52525b]">
                   <TrendingUp className="h-3.5 w-3.5" />
-                  <span>{company._count.deals} deals</span>
+                  <span>{company._count?.deals ?? 0} deals</span>
                 </div>
                 <span className="ml-auto text-xs text-[#52525b]">
                   {formatDate(company.createdAt)}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -10,12 +10,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { dealSchema, type DealInput } from "@/lib/validations"
+import { Deal } from "@/types/crm-types"
 
 interface DealFormDialogProps {
   open: boolean
   onClose: () => void
-  onSave: (deal: any) => void
-  deal?: any | null
+  onSave: (deal: Deal) => void
+  deal?: Deal | null
   contacts: { id: string; firstName: string; lastName: string }[]
   companies: { id: string; name: string }[]
 }
@@ -24,7 +25,7 @@ const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"]
 const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD"]
 
 export function DealFormDialog({ open, onClose, onSave, deal, contacts, companies }: DealFormDialogProps) {
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<DealInput>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<DealInput>({
     resolver: zodResolver(dealSchema),
     defaultValues: { stage: "LEAD" as const, currency: "USD" },
   })
@@ -81,24 +82,36 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
             </div>
             <div className="space-y-1.5">
               <Label>Currency</Label>
-              <Select value={watch("currency")} onValueChange={(v) => setValue("currency", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="currency"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CURRENCIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Stage</Label>
-              <Select value={watch("stage")} onValueChange={(v) => setValue("stage", v as DealInput["stage"])}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STAGES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="stage"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {STAGES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Probability (%)</Label>
@@ -113,34 +126,46 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
 
           <div className="space-y-1.5">
             <Label>Contact</Label>
-            <Select 
-              value={watch("contactId") || "none"} 
-              onValueChange={(v) => setValue("contactId", v === "none" ? "" : v)}
-            >
-              <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {contacts.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="contactId"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  value={field.value || "none"} 
+                  onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {contacts.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label>Company</Label>
-            <Select 
-              value={watch("companyId") || "none"} 
-              onValueChange={(v) => setValue("companyId", v === "none" ? "" : v)}
-            >
-              <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {companies.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="companyId"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  value={field.value || "none"} 
+                  onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {companies.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
           <div className="space-y-1.5">

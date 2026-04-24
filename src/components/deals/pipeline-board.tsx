@@ -8,11 +8,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { formatCurrency } from "@/lib/utils"
 import { cn } from "@/lib/utils"
 import { useConfirm } from "@/components/ui/confirm-modal"
+import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
 
 const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"] as const
-type Stage = typeof STAGES[number]
 
-const STAGE_CONFIG: Record<Stage, {
+const STAGE_CONFIG: Record<string, {
   label: string
   accent: string
   bar: string
@@ -28,46 +28,31 @@ const STAGE_CONFIG: Record<Stage, {
   LOST:        { label: "Lost",        accent: "border-t-red-600",      bar: "bg-red-600",      count: "bg-red-950/60 text-red-400",          empty: "border-red-900/40",    drag: "ring-red-600" },
 }
 
-type Deal = {
-  id: string
-  title: string
-  value: number | null
-  currency: string
-  stage: Stage
-  probability: number | null
-  closeDate: Date | null
-  description: string | null
-  contactId: string | null
-  companyId: string | null
-  contact: { id: string; firstName: string; lastName: string } | null
-  company: { id: string; name: string } | null
-  createdAt: Date
-  updatedAt: Date
-}
+
 
 interface PipelineBoardProps {
-  deals: Deal[]
-  onStageChange: (dealId: string, stage: Stage) => void
-  onEdit: (deal: Deal) => void
+  deals: CRMDeal[]
+  onStageChange: (dealId: string, stage: DealStage) => void
+  onEdit: (deal: CRMDeal) => void
   onDelete: (dealId: string) => void
 }
 
 export function PipelineBoard({ deals, onStageChange, onEdit, onDelete }: PipelineBoardProps) {
   const confirm = useConfirm()
   const [dragging, setDragging] = useState<string | null>(null)
-  const [dragOver, setDragOver] = useState<Stage | null>(null)
+  const [dragOver, setDragOver] = useState<DealStage | null>(null)
 
   const dealsByStage = STAGES.reduce((acc, stage) => {
-    acc[stage] = deals.filter((d) => d.stage === stage)
+    acc[stage as DealStage] = deals.filter((d) => d.stage === stage)
     return acc
-  }, {} as Record<Stage, Deal[]>)
+  }, {} as Record<DealStage, CRMDeal[]>)
 
   const handleDragStart = (e: React.DragEvent, dealId: string) => {
     setDragging(dealId)
     e.dataTransfer.effectAllowed = "move"
   }
 
-  const handleDrop = (e: React.DragEvent, stage: Stage) => {
+  const handleDrop = (e: React.DragEvent, stage: DealStage) => {
     e.preventDefault()
     if (dragging) onStageChange(dragging, stage)
     setDragging(null)

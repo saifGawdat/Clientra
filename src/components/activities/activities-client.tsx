@@ -9,21 +9,9 @@ import { useConfirm } from "@/components/ui/confirm-modal"
 import { SquareCheck } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
+import { CRMActivity } from "@/types/crm-types"
 
-type Activity = {
-  id: string
-  type: string
-  subject: string
-  description: string | null
-  status: string
-  scheduledAt: Date | null
-  completedAt: Date | null
-  contactId: string | null
-  dealId: string | null
-  contact: { id: string; firstName: string; lastName: string } | null
-  deal: { id: string; title: string } | null
-  createdAt: Date
-}
+
 
 const typeIcon: Record<string, React.ElementType> = {
   CALL: Phone,
@@ -41,7 +29,7 @@ const typeColor: Record<string, string> = {
   NOTE: "text-[#a1a1aa] bg-[#18181b] border border-[#1e1e24]",
 }
 
-const statusVariant: Record<string, any> = {
+const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"> = {
   PLANNED: "secondary",
   IN_PROGRESS: "default",
   COMPLETED: "success",
@@ -49,16 +37,16 @@ const statusVariant: Record<string, any> = {
 }
 
 interface ActivitiesClientProps {
-  initialActivities: Activity[]
+  initialActivities: CRMActivity[]
   contacts: { id: string; firstName: string; lastName: string }[]
   deals: { id: string; title: string }[]
 }
 
 export function ActivitiesClient({ initialActivities, contacts, deals }: ActivitiesClientProps) {
   const confirm = useConfirm()
-  const [activities, setActivities] = useState(initialActivities)
+  const [activities, setActivities] = useState<CRMActivity[]>(initialActivities)
   const [showForm, setShowForm] = useState(false)
-  const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
+  const [editingActivity, setEditingActivity] = useState<CRMActivity | null>(null)
   const [filterType, setFilterType] = useState("")
   const [filterStatus, setFilterStatus] = useState("")
 
@@ -68,7 +56,7 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
     return true
   })
 
-  const handleSave = (activity: Activity) => {
+  const handleSave = (activity: CRMActivity) => {
     setActivities((prev) => {
       const idx = prev.findIndex((a) => a.id === activity.id)
       if (idx >= 0) {

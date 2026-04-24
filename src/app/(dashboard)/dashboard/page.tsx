@@ -72,7 +72,7 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold text-white tracking-tight">
             Welcome back, {userName}
           </h1>
-          <p className="text-[#52525b] text-sm">Here's what's happening with your pipeline</p>
+          <p className="text-[#52525b] text-sm">Here&apos;s what&apos;s happening with your pipeline</p>
         </div>
       </div>
 

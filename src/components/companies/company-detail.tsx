@@ -16,14 +16,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CompanyFormDialog } from "@/components/companies/company-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { Company, Contact, Deal, Note } from "@/types/crm-types";
 
-const dealStageVariant: Record<string, any> = {
+const dealStageVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"> = {
   LEAD: "secondary",
   QUALIFIED: "default",
   PROPOSAL: "warning",
@@ -31,7 +32,7 @@ const dealStageVariant: Record<string, any> = {
   WON: "success",
   LOST: "destructive",
 };
-const contactStatusVariant: Record<string, any> = {
+const contactStatusVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"> = {
   LEAD: "secondary",
   PROSPECT: "default",
   CUSTOMER: "success",
@@ -39,10 +40,12 @@ const contactStatusVariant: Record<string, any> = {
   INACTIVE: "secondary",
 };
 
-export function CompanyDetail({ company: initialCompany }: { company: any }) {
+type FullCompany = Company & { contacts: Contact[]; deals: Deal[]; notes: Note[] };
+
+export function CompanyDetail({ company: initialCompany }: { company: FullCompany }) {
   const router = useRouter();
   const confirm = useConfirm();
-  const [company, setCompany] = useState(initialCompany);
+  const [company, setCompany] = useState<FullCompany>(initialCompany);
   const [showEdit, setShowEdit] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [savingNote, setSavingNote] = useState(false);
@@ -60,7 +63,7 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
     });
     if (res.ok) {
       const note = await res.json();
-      setCompany((prev: any) => ({
+      setCompany((prev) => ({
         ...prev,
         notes: [note, ...(prev.notes ?? [])],
       }));
@@ -71,9 +74,9 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
 
   const handleDeleteNote = async (noteId: string) => {
     await fetch(`/api/notes/${noteId}`, { method: "DELETE" });
-    setCompany((prev: any) => ({
+    setCompany((prev) => ({
       ...prev,
-      notes: prev.notes.filter((n: any) => n.id !== noteId),
+      notes: prev.notes.filter((n: Note) => n.id !== noteId),
     }));
   };
 
@@ -218,7 +221,7 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
                   No contacts for this company.
                 </p>
               )}
-              {company.contacts.map((contact: any) => (
+              {company.contacts.map((contact: Contact) => (
                 <Link key={contact.id} href={`/contacts/${contact.id}`}>
                   <Card className="hover:border-blue-200 transition-colors">
                     <CardContent className="p-4 flex items-center justify-between">
@@ -253,7 +256,7 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
                   No deals for this company.
                 </p>
               )}
-              {company.deals.map((deal: any) => (
+              {company.deals.map((deal: Deal) => (
                 <Link key={deal.id} href={`/deals/${deal.id}`}>
                   <Card className="hover:border-blue-200 transition-colors">
                     <CardContent className="p-4 flex items-center justify-between">
@@ -305,7 +308,7 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
               {(company.notes ?? []).length === 0 && (
                 <p className="text-sm text-gray-400 py-2">No notes yet.</p>
               )}
-              {(company.notes ?? []).map((note: any) => (
+              {(company.notes ?? []).map((note: Note) => (
                 <Card key={note.id}>
                   <CardContent className="p-4">
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">
@@ -335,7 +338,7 @@ export function CompanyDetail({ company: initialCompany }: { company: any }) {
       <CompanyFormDialog
         open={showEdit}
         onClose={() => setShowEdit(false)}
-        onSave={(updated) => {
+        onSave={(updated: Partial<Company>) => {
           setCompany({ ...company, ...updated });
           setShowEdit(false);
         }}

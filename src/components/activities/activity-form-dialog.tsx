@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -10,12 +10,13 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { activitySchema, type ActivityInput } from "@/lib/validations"
+import { CRMActivity } from "@/types/crm-types"
 
 interface ActivityFormDialogProps {
   open: boolean
   onClose: () => void
-  onSave: (activity: any) => void
-  activity?: any | null
+  onSave: (activity: CRMActivity) => void
+  activity?: CRMActivity | null
   contacts: { id: string; firstName: string; lastName: string }[]
   deals: { id: string; title: string }[]
 }
@@ -24,7 +25,7 @@ const TYPES = ["CALL", "EMAIL", "MEETING", "TASK", "NOTE"]
 const STATUSES = ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
 
 export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, deals }: ActivityFormDialogProps) {
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<ActivityInput>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<ActivityInput>({
     resolver: zodResolver(activitySchema),
     defaultValues: { type: "CALL" as const, status: "PLANNED" as const },
   })
@@ -72,21 +73,33 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Type *</Label>
-              <Select value={watch("type")} onValueChange={(v) => setValue("type", v as ActivityInput["type"])}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Status</Label>
-              <Select value={watch("status")} onValueChange={(v) => setValue("status", v as ActivityInput["status"])}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
 
@@ -108,34 +121,46 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
 
           <div className="space-y-1.5">
             <Label>Contact</Label>
-            <Select 
-              value={watch("contactId") || "none"} 
-              onValueChange={(v) => setValue("contactId", v === "none" ? "" : v)}
-            >
-              <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {contacts.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="contactId"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  value={field.value || "none"} 
+                  onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {contacts.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
           <div className="space-y-1.5">
             <Label>Deal</Label>
-            <Select 
-              value={watch("dealId") || "none"} 
-              onValueChange={(v) => setValue("dealId", v === "none" ? "" : v)}
-            >
-              <SelectTrigger><SelectValue placeholder="Select deal" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {deals.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Controller
+              name="dealId"
+              control={control}
+              render={({ field }) => (
+                <Select 
+                  value={field.value || "none"} 
+                  onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select deal" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {deals.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
 
           <DialogFooter>

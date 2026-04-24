@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -9,17 +9,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { contactSchema, type ContactInput } from "@/lib/validations"
+import { Contact } from "@/types/crm-types"
 
 interface ContactFormDialogProps {
   open: boolean
   onClose: () => void
-  onSave: (contact: any) => void
-  contact?: any | null
+  onSave: (contact: Contact) => void
+  contact?: Contact | null
   companies: { id: string; name: string }[]
 }
 
 export function ContactFormDialog({ open, onClose, onSave, contact, companies }: ContactFormDialogProps) {
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<ContactInput>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
     defaultValues: { status: "LEAD" as const, source: "OTHER" as const, tags: [] },
   })
@@ -93,42 +94,60 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Status</Label>
-              <Select value={watch("status")} onValueChange={(v) => setValue("status", v as ContactInput["status"])}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["TARGET", "LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"].map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="status"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["TARGET", "LEAD", "PROSPECT", "CUSTOMER", "CHURNED", "INACTIVE"].map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Source</Label>
-              <Select value={watch("source")} onValueChange={(v) => setValue("source", v as ContactInput["source"])}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["WEBSITE", "REFERRAL", "SOCIAL", "EMAIL", "COLD_CALL", "EVENT", "OTHER"].map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="source"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["WEBSITE", "REFERRAL", "SOCIAL", "EMAIL", "COLD_CALL", "EVENT", "OTHER"].map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           </div>
           {companies.length > 0 && (
             <div className="space-y-1.5">
               <Label>Company</Label>
-              <Select 
-                value={watch("companyId") || "none"} 
-                onValueChange={(v) => setValue("companyId", v === "none" ? "" : v)}
-              >
-                <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {companies.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="companyId"
+                control={control}
+                render={({ field }) => (
+                  <Select 
+                    value={field.value || "none"} 
+                    onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Select company" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {companies.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
           )}
           <DialogFooter>

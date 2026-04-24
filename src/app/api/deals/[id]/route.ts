@@ -32,7 +32,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const data = dealSchema.partial().parse(body)
 
     // Construct update data carefully to avoid overwriting with null
-    const updateData: any = { ...data }
+    const updateData: Record<string, unknown> = { ...data }
     if ("contactId" in body) updateData.contactId = body.contactId || null
     if ("companyId" in body) updateData.companyId = body.companyId || null
     if ("closeDate" in body) updateData.closeDate = body.closeDate ? new Date(body.closeDate) : null

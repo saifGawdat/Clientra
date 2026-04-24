@@ -10,21 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
+import { Contact as CRMContact } from "@/types/crm-types";
 
-type Lead = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phone: string | null;
-  title: string | null;
-  status: string;
-  source: string;
-  tags: string[];
-  companyId: string | null;
-  company: { id: string; name: string } | null;
-  createdAt: Date;
-};
+
 
 const sourceLabels: Record<string, string> = {
   WEBSITE: "Website",
@@ -37,24 +25,24 @@ const sourceLabels: Record<string, string> = {
 };
 
 interface LeadsClientProps {
-  initialLeads: Lead[];
+  initialLeads: CRMContact[];
   companies: { id: string; name: string }[];
 }
 
 export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
   const router = useRouter();
   const confirm = useConfirm();
-  const [leads, setLeads] = useState(initialLeads);
+  const [leads, setLeads] = useState<CRMContact[]>(initialLeads);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [editingLead, setEditingLead] = useState<CRMContact | null>(null);
 
   const filtered = leads.filter((l) => {
     const q = search.toLowerCase();
     return (
       `${l.firstName} ${l.lastName}`.toLowerCase().includes(q) ||
       l.email?.toLowerCase().includes(q) ||
-      l.company?.name.toLowerCase().includes(q) ||
+      l.company?.name?.toLowerCase().includes(q) ||
       false
     );
   });
@@ -87,7 +75,7 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
     }
   };
 
-  const handleSave = (contact: Lead) => {
+  const handleSave = (contact: CRMContact) => {
     setLeads((prev) => {
       if (!["LEAD", "PROSPECT"].includes(contact.status)) {
         return prev.filter((l) => l.id !== contact.id);
@@ -186,7 +174,7 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
                 </td>
               </tr>
             )}
-            {filtered.map((lead) => (
+            {filtered.map((lead: CRMContact) => (
               <tr
                 key={lead.id}
                 className="border-b border-[#1e1e24] hover:bg-[#18181b] transition-colors"
@@ -215,7 +203,7 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
                 <td className="px-4 py-3 text-[#a1a1aa]">
                   {lead.company ? (
                     <Link
-                      href={`/companies/${lead.company.id}`}
+                      href={`/companies/${lead.company!.id}`}
                       className="hover:text-white transition-colors"
                     >
                       {lead.company.name}

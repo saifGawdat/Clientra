@@ -20,8 +20,9 @@ const statusColors: Record<string, string> = {
 
 export default async function MyDashboardPage() {
   const session = await auth()
-  const userId = session!.user.id
-  const userName = session!.user.name ?? "You"
+  if (!session?.user) return null
+  const userId = session.user.id
+  const userName = session.user.name ?? "You"
 
   const [deals, activities, contacts] = await Promise.all([
     prisma.deal.findMany({
@@ -59,7 +60,7 @@ export default async function MyDashboardPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12 border border-[#1e1e24]">
-          <AvatarImage src={session!.user.image ?? ""} />
+          <AvatarImage src={session.user.image ?? ""} />
           <AvatarFallback className="bg-[#7c3aed]/20 text-[#7c3aed] font-bold">
             {getInitials(userName)}
           </AvatarFallback>

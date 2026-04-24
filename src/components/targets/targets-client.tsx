@@ -8,21 +8,9 @@ import { Input } from "@/components/ui/input";
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
+import { Contact as CRMContact } from "@/types/crm-types";
 
-type Target = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phone: string | null;
-  title: string | null;
-  status: string;
-  source: string;
-  tags: string[];
-  companyId: string | null;
-  company: { id: string; name: string } | null;
-  createdAt: Date;
-};
+
 
 const ALL_STATUSES = [
   "LEAD",
@@ -52,7 +40,7 @@ const sourceLabels: Record<string, string> = {
 };
 
 interface TargetsClientProps {
-  initialTargets: Target[];
+  initialTargets: CRMContact[];
   companies: { id: string; name: string }[];
 }
 
@@ -61,10 +49,10 @@ export function TargetsClient({
   companies,
 }: TargetsClientProps) {
   const confirm = useConfirm();
-  const [targets, setTargets] = useState(initialTargets);
+  const [targets, setTargets] = useState<CRMContact[]>(initialTargets);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editingTarget, setEditingTarget] = useState<Target | null>(null);
+  const [editingTarget, setEditingTarget] = useState<CRMContact | null>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
 
   const filtered = targets.filter((t) => {
@@ -72,7 +60,7 @@ export function TargetsClient({
     return (
       `${t.firstName} ${t.lastName}`.toLowerCase().includes(q) ||
       t.email?.toLowerCase().includes(q) ||
-      t.company?.name.toLowerCase().includes(q) ||
+      t.company?.name?.toLowerCase().includes(q) ||
       false
     );
   });
@@ -102,7 +90,7 @@ export function TargetsClient({
     }
   };
 
-  const handleSave = (contact: Target) => {
+  const handleSave = (contact: CRMContact) => {
     setTargets((prev) => {
       if (contact.status !== "TARGET")
         return prev.filter((t) => t.id !== contact.id);
@@ -189,7 +177,7 @@ export function TargetsClient({
                 </td>
               </tr>
             )}
-            {filtered.map((target) => (
+            {filtered.map((target: CRMContact) => (
               <tr
                 key={target.id}
                 className="border-b border-[#1e1e24] hover:bg-[#18181b] transition-colors"
@@ -218,7 +206,7 @@ export function TargetsClient({
                 <td className="px-4 py-3 text-[#a1a1aa]">
                   {target.company ? (
                     <Link
-                      href={`/companies/${target.company.id}`}
+                      href={`/companies/${target.company!.id}`}
                       className="hover:text-white transition-colors"
                     >
                       {target.company.name}

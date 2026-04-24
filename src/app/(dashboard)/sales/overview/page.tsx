@@ -23,7 +23,8 @@ const SOURCE_LABELS: Record<string, string> = {
 
 export default async function SalesOverviewPage() {
   const session = await auth()
-  const userId = session!.user.id
+  if (!session?.user) return null
+  const userId = session.user.id
 
   const [deals, contacts] = await Promise.all([
     prisma.deal.findMany({ where: { ownerId: userId } }),

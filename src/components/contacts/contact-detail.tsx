@@ -25,10 +25,11 @@ import { useConfirm } from "@/components/ui/confirm-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { Contact, Company, Note, CRMActivity, Deal } from "@/types/crm-types";
 
 const STATUS_CONFIG: Record<
   string,
-  { variant: any; dot: string; label: string }
+  { variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"; dot: string; label: string }
 > = {
   TARGET: { variant: "warning", dot: "bg-amber-400", label: "Target" },
   LEAD: { variant: "secondary", dot: "bg-zinc-400", label: "Lead" },
@@ -59,12 +60,12 @@ export function ContactDetail({
   contact: initialContact,
   companies,
 }: {
-  contact: any;
-  companies: any[];
+  contact: Contact;
+  companies: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const confirm = useConfirm();
-  const [contact, setContact] = useState(initialContact);
+  const [contact, setContact] = useState<Contact>(initialContact);
   const [showEdit, setShowEdit] = useState(false);
   const [noteContent, setNoteContent] = useState("");
   const [savingNote, setSavingNote] = useState(false);
@@ -82,7 +83,7 @@ export function ContactDetail({
     });
     if (res.ok) {
       const note = await res.json();
-      setContact((prev: any) => ({ ...prev, notes: [note, ...prev.notes] }));
+      setContact((prev) => ({ ...prev, notes: [note, ...(prev.notes ?? [])] }));
       setNoteContent("");
     }
     setSavingNote(false);
@@ -90,9 +91,9 @@ export function ContactDetail({
 
   const handleDeleteNote = async (noteId: string) => {
     await fetch(`/api/notes/${noteId}`, { method: "DELETE" });
-    setContact((prev: any) => ({
+    setContact((prev) => ({
       ...prev,
-      notes: prev.notes.filter((n: any) => n.id !== noteId),
+      notes: (prev.notes ?? []).filter((n: Note) => n.id !== noteId),
     }));
   };
 
@@ -239,16 +240,16 @@ export function ContactDetail({
           {/* Stats */}
           <div className="grid grid-cols-3 gap-2">
             {[
-              { icon: TrendingUp, label: "Deals", value: contact.deals.length },
+              { icon: TrendingUp, label: "Deals", value: (contact.deals ?? []).length },
               {
                 icon: Activity,
                 label: "Activities",
-                value: contact.activities.length,
+                value: (contact.activities ?? []).length,
               },
               {
                 icon: MessageSquare,
                 label: "Notes",
-                value: contact.notes.length,
+                value: (contact.notes ?? []).length,
               },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="oled-card py-3 px-3 text-center">
@@ -287,24 +288,24 @@ export function ContactDetail({
           <Tabs defaultValue="deals">
             <TabsList className="mb-4">
               <TabsTrigger value="deals">
-                Deals ({contact.deals.length})
+                Deals ({(contact.deals ?? []).length})
               </TabsTrigger>
               <TabsTrigger value="activities">
-                Activities ({contact.activities.length})
+                Activities ({(contact.activities ?? []).length})
               </TabsTrigger>
               <TabsTrigger value="notes">
-                Notes ({contact.notes.length})
+                Notes ({(contact.notes ?? []).length})
               </TabsTrigger>
             </TabsList>
 
             {/* Deals */}
             <TabsContent value="deals" className="space-y-2">
-              {contact.deals.length === 0 ? (
+              {(contact.deals ?? []).length === 0 ? (
                 <div className="py-12 text-center text-[#52525b] text-sm">
                   No deals linked to this contact.
                 </div>
               ) : (
-                contact.deals.map((deal: any) => (
+                (contact.deals ?? []).map((deal: Deal) => (
                   <Link key={deal.id} href={`/deals/${deal.id}`}>
                     <div className="oled-card flex items-center justify-between hover:border-[#7c3aed]/30 transition-colors cursor-pointer">
                       <div className="min-w-0">
@@ -342,12 +343,12 @@ export function ContactDetail({
 
             {/* Activities */}
             <TabsContent value="activities" className="space-y-2">
-              {contact.activities.length === 0 ? (
+              {(contact.activities ?? []).length === 0 ? (
                 <div className="py-12 text-center text-[#52525b] text-sm">
                   No activities logged for this contact.
                 </div>
               ) : (
-                contact.activities.map((act: any) => {
+                (contact.activities ?? []).map((act: CRMActivity) => {
                   const colorClass =
                     ACTIVITY_TYPE_COLORS[act.type] ?? ACTIVITY_TYPE_COLORS.NOTE;
                   return (
@@ -419,12 +420,12 @@ export function ContactDetail({
                 </div>
               </div>
 
-              {contact.notes.length === 0 ? (
+              {(contact.notes ?? []).length === 0 ? (
                 <div className="py-8 text-center text-[#52525b] text-sm">
                   No notes yet.
                 </div>
               ) : (
-                contact.notes.map((note: any) => (
+                (contact.notes ?? []).map((note: Note) => (
                   <div key={note.id} className="oled-card">
                     <p className="text-sm text-[#a1a1aa] whitespace-pre-wrap leading-relaxed">
                       {note.content}
@@ -453,8 +454,8 @@ export function ContactDetail({
       <ContactFormDialog
         open={showEdit}
         onClose={() => setShowEdit(false)}
-        onSave={(updated) => {
-          setContact((prev: any) => ({ ...prev, ...updated }));
+        onSave={(updated: Partial<Contact>) => {
+          setContact((prev: Contact) => ({ ...prev, ...updated }));
           setShowEdit(false);
         }}
         contact={contact}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -70,9 +71,11 @@ export function Sidebar({ user }: SidebarProps) {
     >
       <div className="flex items-center gap-3 px-5 py-6">
         <div className="h-8 w-8 shrink-0 flex items-center justify-center">
-          <img
+          <Image
             src="/clientra-icon-dark.svg"
             alt="Clientra"
+            width={32}
+            height={32}
             className="h-8 w-8"
           />
         </div>

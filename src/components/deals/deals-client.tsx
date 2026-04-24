@@ -6,39 +6,24 @@ import { Button } from "@/components/ui/button"
 import { DealFormDialog } from "@/components/deals/deal-form-dialog"
 import { PipelineBoard } from "@/components/deals/pipeline-board"
 import { formatCurrency } from "@/lib/utils"
+import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
 
-const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"] as const
-type Stage = typeof STAGES[number]
 
-type Deal = {
-  id: string
-  title: string
-  value: number | null
-  currency: string
-  stage: Stage
-  probability: number | null
-  closeDate: Date | null
-  description: string | null
-  contactId: string | null
-  companyId: string | null
-  contact: { id: string; firstName: string; lastName: string } | null
-  company: { id: string; name: string } | null
-  createdAt: Date
-  updatedAt: Date
-}
+
+
 
 interface DealsClientProps {
-  initialDeals: Deal[]
+  initialDeals: CRMDeal[]
   contacts: { id: string; firstName: string; lastName: string }[]
   companies: { id: string; name: string }[]
 }
 
 export function DealsClient({ initialDeals, contacts, companies }: DealsClientProps) {
-  const [deals, setDeals] = useState(initialDeals)
+  const [deals, setDeals] = useState<CRMDeal[]>(initialDeals)
   const [showForm, setShowForm] = useState(false)
-  const [editingDeal, setEditingDeal] = useState<Deal | null>(null)
+  const [editingDeal, setEditingDeal] = useState<CRMDeal | null>(null)
 
-  const handleSave = (deal: Deal) => {
+  const handleSave = (deal: CRMDeal) => {
     setDeals((prev) => {
       const idx = prev.findIndex((d) => d.id === deal.id)
       if (idx >= 0) {
@@ -52,7 +37,7 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
     setEditingDeal(null)
   }
 
-  const handleStageChange = async (dealId: string, newStage: Stage) => {
+  const handleStageChange = async (dealId: string, newStage: DealStage) => {
     const res = await fetch(`/api/deals/${dealId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

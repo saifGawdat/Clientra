@@ -4,10 +4,11 @@ import { DealsClient } from "@/components/deals/deals-client"
 
 export default async function PipelinePage() {
   const session = await auth()
+  if (!session?.user) return null
 
   const [deals, contacts, companies] = await Promise.all([
     prisma.deal.findMany({
-      where: { ownerId: session!.user.id },
+      where: { ownerId: session.user.id },
       include: {
         contact: { select: { id: true, firstName: true, lastName: true } },
         company: { select: { id: true, name: true } },
@@ -15,7 +16,7 @@ export default async function PipelinePage() {
       orderBy: { updatedAt: "desc" },
     }),
     prisma.contact.findMany({
-      where: { ownerId: session!.user.id },
+      where: { ownerId: session.user.id },
       select: { id: true, firstName: true, lastName: true },
       orderBy: { firstName: "asc" },
     }),
