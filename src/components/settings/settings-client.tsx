@@ -83,8 +83,8 @@ export function SettingsClient({ user }: SettingsClientProps) {
   return (
     <div className="p-6 space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage your account settings</p>
+        <h1 className="text-2xl font-bold text-white-500">Settings</h1>
+        <p className="text-white-500 text-sm mt-1">Manage your account settings</p>
       </div>
 
       <Card>
@@ -95,11 +95,11 @@ export function SettingsClient({ user }: SettingsClientProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="font-medium text-gray-500">Email</p>
-              <p className="mt-0.5 text-gray-800">{user.email}</p>
+              <p className="font-medium text-white-500">Email</p>
+              <p className="mt-0.5 text-white-800">{user.email}</p>
             </div>
             <div>
-              <p className="font-medium text-gray-500">Role</p>
+              <p className="font-medium text-white-500">Role</p>
               <Badge variant="secondary" className="mt-0.5">{user.role}</Badge>
             </div>
           </div>

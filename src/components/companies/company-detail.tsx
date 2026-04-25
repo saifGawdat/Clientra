@@ -102,9 +102,9 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
+          <h1 className="text-2xl font-bold text-white-500">{company.name}</h1>
           {company.industry && (
-            <p className="text-gray-500 text-sm">{company.industry}</p>
+            <p className="text-white-500 text-sm">{company.industry}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -132,16 +132,16 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                 <Building2 className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{company.name}</p>
+                <p className="font-semibold text-white-500">{company.name}</p>
                 {company.size && (
-                  <p className="text-xs text-gray-400">{company.size}</p>
+                  <p className="text-xs text-white-400">{company.size}</p>
                 )}
               </div>
             </div>
 
             {company.website && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Globe className="h-3.5 w-3.5 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-white-600">
+                <Globe className="h-3.5 w-3.5 text-white-400" />
                 <a
                   href={company.website}
                   target="_blank"
@@ -153,8 +153,8 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
               </div>
             )}
             {company.email && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail className="h-3.5 w-3.5 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-white-600">
+                <Mail className="h-3.5 w-3.5 text-white-400" />
                 <a
                   href={`mailto:${company.email}`}
                   className="hover:text-blue-600"
@@ -164,36 +164,36 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
               </div>
             )}
             {company.phone && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone className="h-3.5 w-3.5 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-white-600">
+                <Phone className="h-3.5 w-3.5 text-white-400" />
                 <span>{company.phone}</span>
               </div>
             )}
             {(company.city || company.country) && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin className="h-3.5 w-3.5 text-gray-400" />
+              <div className="flex items-center gap-2 text-sm text-white-600">
+                <MapPin className="h-3.5 w-3.5 text-white-400" />
                 <span>
                   {[company.city, company.country].filter(Boolean).join(", ")}
                 </span>
               </div>
             )}
 
-            <div className="pt-3 border-t border-gray-100 space-y-2 text-xs text-gray-500">
+            <div className="pt-3 border-t border-white-100 space-y-2 text-xs text-white-500">
               <div className="flex justify-between">
                 <span>Contacts</span>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-white-700">
                   {company.contacts.length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Deals</span>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-white-700">
                   {company.deals.length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Created</span>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-white-700">
                   {formatDate(company.createdAt)}
                 </span>
               </div>
@@ -217,7 +217,7 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
 
             <TabsContent value="contacts" className="mt-4 space-y-2">
               {company.contacts.length === 0 && (
-                <p className="text-sm text-gray-400 py-4">
+                <p className="text-sm text-white-400 py-4">
                   No contacts for this company.
                 </p>
               )}
@@ -233,10 +233,10 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-sm text-gray-900">
+                          <p className="font-medium text-sm text-white-500">
                             {contact.firstName} {contact.lastName}
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-white-400">
                             {contact.title ?? contact.email ?? "—"}
                           </p>
                         </div>
@@ -252,7 +252,7 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
 
             <TabsContent value="deals" className="mt-4 space-y-2">
               {company.deals.length === 0 && (
-                <p className="text-sm text-gray-400 py-4">
+                <p className="text-sm text-white-400 py-4">
                   No deals for this company.
                 </p>
               )}
@@ -261,10 +261,10 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                   <Card className="hover:border-blue-200 transition-colors">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-sm text-gray-900">
+                        <p className="font-medium text-sm text-white-500">
                           {deal.title}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-white-400">
                           {formatDate(deal.createdAt)}
                         </p>
                       </div>
@@ -306,16 +306,16 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                 </CardContent>
               </Card>
               {(company.notes ?? []).length === 0 && (
-                <p className="text-sm text-gray-400 py-2">No notes yet.</p>
+                <p className="text-sm text-white-400 py-2">No notes yet.</p>
               )}
               {(company.notes ?? []).map((note: Note) => (
                 <Card key={note.id}>
                   <CardContent className="p-4">
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                    <p className="text-sm text-white-700 whitespace-pre-wrap">
                       {note.content}
                     </p>
                     <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-white-400">
                         {formatDate(note.createdAt)}
                       </p>
                       <Button
