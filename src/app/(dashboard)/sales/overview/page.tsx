@@ -67,7 +67,7 @@ export default async function SalesOverviewPage() {
   const maxSourceCount = Math.max(...sourceBreakdown.map(([, count]) => count), 1)
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-background min-h-full">
       <div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">Sales Overview</h1>
         <p className="text-subtle text-sm mt-1">Pipeline health and conversion analysis</p>

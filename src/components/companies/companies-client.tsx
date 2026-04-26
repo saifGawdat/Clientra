@@ -64,7 +64,7 @@ export function CompaniesClient({
   };
 
   return (
-    <div className="p-8 space-y-6 bg-background min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">

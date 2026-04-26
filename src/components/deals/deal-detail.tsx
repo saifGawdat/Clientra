@@ -91,7 +91,7 @@ export function DealDetail({
   const stageColor = STAGE_COLORS[deal.stage] ?? STAGE_COLORS.LEAD
 
   return (
-    <div className="p-8 space-y-6 bg-background min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
       {/* Top bar */}
       <div className="flex items-center gap-4">
         <Link href="/pipeline">

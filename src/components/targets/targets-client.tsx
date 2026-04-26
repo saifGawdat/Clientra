@@ -105,7 +105,7 @@ export function TargetsClient({
   };
 
   return (
-    <div className="p-8 space-y-6 bg-background min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
@@ -140,8 +140,8 @@ export function TargetsClient({
         />
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="w-full text-sm min-w-[480px]">
           <thead>
             <tr className="border-b border-border bg-surface">
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Name</th>

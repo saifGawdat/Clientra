@@ -56,7 +56,7 @@ export default async function SalesDashboardPage() {
   const recentDeals = deals.slice(0, 6)
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-background min-h-full">
       <div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">Sales Dashboard</h1>
         <p className="text-subtle text-sm mt-1">Your full sales pipeline at a glance</p>

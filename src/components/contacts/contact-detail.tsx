@@ -40,20 +40,20 @@ const STATUS_CONFIG: Record<
 };
 
 const DEAL_STAGE_COLORS: Record<string, string> = {
-  LEAD: "bg-zinc-800 text-zinc-300 border-zinc-700",
-  QUALIFIED: "bg-blue-950/50 text-blue-300 border-blue-800/50",
-  PROPOSAL: "bg-amber-950/50 text-amber-300 border-amber-800/50",
-  NEGOTIATION: "bg-[#7c3aed]/20 text-[#a78bfa] border-[#7c3aed]/40",
-  WON: "bg-emerald-950/50 text-emerald-300 border-emerald-800/50",
-  LOST: "bg-red-950/50 text-red-300 border-red-800/50",
+  LEAD: "bg-surface-raised text-muted border-border-hover",
+  QUALIFIED: "bg-blue-500/15 text-blue-500 border-blue-500/30",
+  PROPOSAL: "bg-amber-500/15 text-amber-500 border-amber-500/30",
+  NEGOTIATION: "bg-accent/15 text-accent-light border-accent/30",
+  WON: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
+  LOST: "bg-red-500/15 text-red-500 border-red-500/30",
 };
 
 const ACTIVITY_TYPE_COLORS: Record<string, string> = {
-  CALL: "text-blue-400 bg-blue-950/40 border-blue-800/30",
-  EMAIL: "text-[#a78bfa] bg-[#7c3aed]/20 border-[#7c3aed]/30",
-  MEETING: "text-emerald-400 bg-emerald-950/40 border-emerald-800/30",
-  TASK: "text-amber-400 bg-amber-950/40 border-amber-800/30",
-  NOTE: "text-zinc-400 bg-zinc-900 border-zinc-800",
+  CALL: "text-blue-500 bg-blue-500/15 border-blue-500/30",
+  EMAIL: "text-accent-light bg-accent/15 border-accent/30",
+  MEETING: "text-emerald-500 bg-emerald-500/15 border-emerald-500/30",
+  TASK: "text-amber-500 bg-amber-500/15 border-amber-500/30",
+  NOTE: "text-muted bg-surface border-border",
 };
 
 export function ContactDetail({
@@ -113,21 +113,21 @@ export function ContactDetail({
   const statusCfg = STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.LEAD;
 
   return (
-    <div className="p-8 space-y-6 bg-[#09090b] min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
       {/* Top bar */}
       <div className="flex items-center gap-4">
         <Link href="/contacts">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-[#52525b] hover:text-white"
+            className="h-8 w-8 text-subtle hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl font-bold text-white tracking-tight">
+            <h1 className="text-xl font-bold text-foreground tracking-tight">
               {contact.firstName} {contact.lastName}
             </h1>
             <div className="flex items-center gap-1.5">
@@ -138,7 +138,7 @@ export function ContactDetail({
             </div>
           </div>
           {contact.title && (
-            <p className="text-[#52525b] text-sm mt-0.5">{contact.title}</p>
+            <p className="text-subtle text-sm mt-0.5">{contact.title}</p>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -149,7 +149,7 @@ export function ContactDetail({
           <Button
             variant="ghost"
             size="sm"
-            className="text-red-400 hover:text-red-400 hover:bg-red-950/30"
+            className="text-red-500 hover:text-red-500 hover:bg-red-500/10"
             onClick={handleDelete}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -158,24 +158,24 @@ export function ContactDetail({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6">
         {/* Sidebar */}
         <div className="space-y-4">
           {/* Avatar + identity */}
           <div className="oled-card space-y-4">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full bg-[#7c3aed]/15 border border-[#7c3aed]/25 flex items-center justify-center shrink-0">
-                <span className="text-lg font-bold text-[#7c3aed]">
+              <div className="h-14 w-14 rounded-full bg-accent/15 border border-accent/25 flex items-center justify-center shrink-0">
+                <span className="text-lg font-bold text-accent">
                   {contact.firstName[0]}
                   {contact.lastName[0]}
                 </span>
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-white leading-tight">
+                <p className="font-semibold text-foreground leading-tight">
                   {contact.firstName} {contact.lastName}
                 </p>
                 {contact.title && (
-                  <p className="text-xs text-[#52525b] mt-0.5">
+                  <p className="text-xs text-subtle mt-0.5">
                     {contact.title}
                   </p>
                 )}
@@ -186,27 +186,27 @@ export function ContactDetail({
               {contact.email && (
                 <a
                   href={`mailto:${contact.email}`}
-                  className="flex items-center gap-2.5 text-sm text-[#a1a1aa] hover:text-white transition-colors group"
+                  className="flex items-center gap-2.5 text-sm text-muted hover:text-foreground transition-colors group"
                 >
-                  <Mail className="h-3.5 w-3.5 text-[#52525b] group-hover:text-[#7c3aed] shrink-0 transition-colors" />
+                  <Mail className="h-3.5 w-3.5 text-subtle group-hover:text-accent shrink-0 transition-colors" />
                   <span className="truncate">{contact.email}</span>
                 </a>
               )}
               {contact.phone && (
                 <a
                   href={`tel:${contact.phone}`}
-                  className="flex items-center gap-2.5 text-sm text-[#a1a1aa] hover:text-white transition-colors group"
+                  className="flex items-center gap-2.5 text-sm text-muted hover:text-foreground transition-colors group"
                 >
-                  <Phone className="h-3.5 w-3.5 text-[#52525b] group-hover:text-[#7c3aed] shrink-0 transition-colors" />
+                  <Phone className="h-3.5 w-3.5 text-subtle group-hover:text-accent shrink-0 transition-colors" />
                   <span>{contact.phone}</span>
                 </a>
               )}
               {contact.company && (
                 <Link
                   href={`/companies/${contact.company.id}`}
-                  className="flex items-center gap-2.5 text-sm text-[#a1a1aa] hover:text-white transition-colors group"
+                  className="flex items-center gap-2.5 text-sm text-muted hover:text-foreground transition-colors group"
                 >
-                  <Building2 className="h-3.5 w-3.5 text-[#52525b] group-hover:text-[#7c3aed] shrink-0 transition-colors" />
+                  <Building2 className="h-3.5 w-3.5 text-subtle group-hover:text-accent shrink-0 transition-colors" />
                   <span>{contact.company.name}</span>
                 </Link>
               )}
@@ -215,7 +215,7 @@ export function ContactDetail({
 
           {/* Meta */}
           <div className="oled-card space-y-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#52525b]">
+            <p className="text-xs font-bold uppercase tracking-widest text-subtle">
               Details
             </p>
             <div className="space-y-2.5">
@@ -228,8 +228,8 @@ export function ContactDetail({
                   key={label}
                   className="flex items-center justify-between gap-2"
                 >
-                  <span className="text-xs text-[#52525b]">{label}</span>
-                  <span className="text-xs text-[#a1a1aa] font-medium">
+                  <span className="text-xs text-subtle">{label}</span>
+                  <span className="text-xs text-muted font-medium">
                     {value}
                   </span>
                 </div>
@@ -253,11 +253,11 @@ export function ContactDetail({
               },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="oled-card py-3 px-3 text-center">
-                <Icon className="h-3.5 w-3.5 text-[#52525b] mx-auto mb-1" />
-                <p className="text-lg font-bold font-mono text-white leading-none">
+                <Icon className="h-3.5 w-3.5 text-subtle mx-auto mb-1" />
+                <p className="text-lg font-bold font-mono text-foreground leading-none">
                   {value}
                 </p>
-                <p className="text-[10px] text-[#52525b] mt-0.5">{label}</p>
+                <p className="text-[10px] text-subtle mt-0.5">{label}</p>
               </div>
             ))}
           </div>
@@ -265,14 +265,14 @@ export function ContactDetail({
           {/* Tags */}
           {contact.tags.length > 0 && (
             <div className="oled-card space-y-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#52525b]">
+              <p className="text-xs font-bold uppercase tracking-widest text-subtle">
                 Tags
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {contact.tags.map((tag: string) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#18181b] border border-[#1e1e24] text-xs text-[#a1a1aa]"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface border border-border text-xs text-muted"
                   >
                     <Tag className="h-2.5 w-2.5" />
                     {tag}
@@ -301,27 +301,27 @@ export function ContactDetail({
             {/* Deals */}
             <TabsContent value="deals" className="space-y-2">
               {(contact.deals ?? []).length === 0 ? (
-                <div className="py-12 text-center text-[#52525b] text-sm">
+                <div className="py-12 text-center text-subtle text-sm">
                   No deals linked to this contact.
                 </div>
               ) : (
                 (contact.deals ?? []).map((deal: Deal) => (
                   <Link key={deal.id} href={`/deals/${deal.id}`}>
-                    <div className="oled-card flex items-center justify-between hover:border-[#7c3aed]/30 transition-colors cursor-pointer">
+                    <div className="oled-card flex items-center justify-between hover:border-accent/30 transition-colors cursor-pointer">
                       <div className="min-w-0">
-                        <p className="font-medium text-white text-sm truncate">
+                        <p className="font-medium text-foreground text-sm truncate">
                           {deal.title}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Calendar className="h-3 w-3 text-[#52525b]" />
-                          <span className="text-xs text-[#52525b]">
+                          <Calendar className="h-3 w-3 text-subtle" />
+                          <span className="text-xs text-subtle">
                             {formatDate(deal.createdAt)}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0 ml-4">
                         {deal.value != null && (
-                          <span className="text-sm font-mono text-[#7c3aed]">
+                          <span className="text-sm font-mono text-accent">
                             {formatCurrency(deal.value, deal.currency)}
                           </span>
                         )}
@@ -344,7 +344,7 @@ export function ContactDetail({
             {/* Activities */}
             <TabsContent value="activities" className="space-y-2">
               {(contact.activities ?? []).length === 0 ? (
-                <div className="py-12 text-center text-[#52525b] text-sm">
+                <div className="py-12 text-center text-subtle text-sm">
                   No activities logged for this contact.
                 </div>
               ) : (
@@ -365,29 +365,29 @@ export function ContactDetail({
                         {act.type[0]}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-white">
+                        <p className="font-medium text-sm text-foreground">
                           {act.subject}
                         </p>
                         {act.description && (
-                          <p className="text-xs text-[#52525b] mt-0.5 truncate">
+                          <p className="text-xs text-subtle mt-0.5 truncate">
                             {act.description}
                           </p>
                         )}
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-xs text-[#52525b]">
+                        <p className="text-xs text-subtle">
                           {formatDate(act.createdAt)}
                         </p>
                         <span
                           className={cn(
                             "text-xs font-medium",
                             act.status === "COMPLETED"
-                              ? "text-emerald-400"
+                              ? "text-emerald-500"
                               : act.status === "IN_PROGRESS"
-                                ? "text-amber-400"
+                                ? "text-amber-500"
                                 : act.status === "CANCELLED"
-                                  ? "text-red-400"
-                                  : "text-[#52525b]",
+                                  ? "text-red-500"
+                                  : "text-subtle",
                           )}
                         >
                           {act.status}
@@ -421,23 +421,23 @@ export function ContactDetail({
               </div>
 
               {(contact.notes ?? []).length === 0 ? (
-                <div className="py-8 text-center text-[#52525b] text-sm">
+                <div className="py-8 text-center text-subtle text-sm">
                   No notes yet.
                 </div>
               ) : (
                 (contact.notes ?? []).map((note: Note) => (
                   <div key={note.id} className="oled-card">
-                    <p className="text-sm text-[#a1a1aa] whitespace-pre-wrap leading-relaxed">
+                    <p className="text-sm text-muted whitespace-pre-wrap leading-relaxed">
                       {note.content}
                     </p>
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#1e1e24]">
-                      <span className="text-xs text-[#52525b]">
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+                      <span className="text-xs text-subtle">
                         {formatDate(note.createdAt)}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-[#52525b] hover:text-red-400 hover:bg-red-950/30"
+                        className="h-6 w-6 text-subtle hover:text-red-500 hover:bg-red-500/10"
                         onClick={() => handleDeleteNote(note.id)}
                       >
                         <Trash2 className="h-3 w-3" />

@@ -54,7 +54,7 @@ export function OpportunitiesClient({
   );
 
   return (
-    <div className="p-8 space-y-6 bg-background min-h-full">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
       <div>
         <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Opportunities
@@ -64,7 +64,7 @@ export function OpportunitiesClient({
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="oled-card">
           <p className="text-subtle text-xs uppercase tracking-widest mb-2">Pipeline Value</p>
           <p className="text-2xl font-bold font-mono text-foreground">
@@ -95,8 +95,8 @@ export function OpportunitiesClient({
         />
       </div>
 
-      <div className="border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="border-b border-border bg-surface">
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Opportunity</th>

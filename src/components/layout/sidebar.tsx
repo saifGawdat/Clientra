@@ -17,6 +17,7 @@ import {
   Target,
   Calendar,
   Kanban,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -47,9 +48,11 @@ const sections = [
 
 interface SidebarProps {
   user: { name?: string | null; email?: string | null; image?: string | null };
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ user }: SidebarProps) {
+export function Sidebar({ user, mobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState<string[]>(["Sales"]);
@@ -65,8 +68,11 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "relative flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-200 shrink-0 border-r border-border",
-        collapsed ? "w-16" : "w-64",
+        "fixed md:relative inset-y-0 left-0 z-50 md:z-auto",
+        "flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 shrink-0 border-r border-border",
+        mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+        collapsed ? "md:w-16" : "md:w-64",
+        "w-64",
       )}
     >
       <div className="flex items-center gap-3 px-5 py-6">
@@ -80,10 +86,16 @@ export function Sidebar({ user }: SidebarProps) {
           />
         </div>
         {!collapsed && (
-          <span className="font-bold text-xl tracking-tight text-foreground">
+          <span className="font-bold text-xl tracking-tight text-foreground flex-1">
             Clientra
           </span>
         )}
+        <button
+          onClick={onMobileClose}
+          className="md:hidden h-8 w-8 flex items-center justify-center rounded-sm hover:bg-sidebar-accent text-subtle hover:text-foreground transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
       <div
@@ -123,6 +135,7 @@ export function Sidebar({ user }: SidebarProps) {
                     <Link
                       key={href}
                       href={href}
+                      onClick={onMobileClose}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium transition-all group",
                         active
@@ -173,6 +186,7 @@ export function Sidebar({ user }: SidebarProps) {
         <div className="flex flex-col gap-0.5">
           <Link
             href="/settings"
+            onClick={onMobileClose}
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-medium hover:bg-sidebar-accent hover:text-foreground transition-colors",
               pathname === "/settings" && "bg-sidebar-accent text-foreground",
@@ -203,7 +217,7 @@ export function Sidebar({ user }: SidebarProps) {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-surface-raised transition-colors z-20"
+        className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full bg-surface border border-border items-center justify-center hover:bg-surface-raised transition-colors z-20"
       >
         {collapsed ? (
           <ChevronRight className="h-3 w-3 text-muted" />
