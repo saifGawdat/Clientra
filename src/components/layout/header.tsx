@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Menu, Search, Moon, Sun, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/theme-provider";
@@ -12,7 +13,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-6 border-b border-border bg-background shrink-0 gap-2">
+    <header className="relative flex items-center h-14 sm:h-16 px-3 sm:px-6 border-b border-border bg-background shrink-0 gap-2">
+      {/* Left: hamburger (mobile) + search (desktop) */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
         <Button
           variant="ghost"
@@ -37,6 +39,13 @@ export function Header({ onMenuClick }: HeaderProps) {
         </div>
       </div>
 
+      {/* Center: logo — mobile only */}
+      <div className="absolute left-1/2 -translate-x-1/2 md:hidden flex items-center gap-2 pointer-events-none select-none">
+        <Image src="/clientra-icon-dark.svg" alt="Clientra" width={24} height={24} />
+        <span className="font-bold text-lg tracking-tight text-foreground">Clientra</span>
+      </div>
+
+      {/* Right: language, currency, theme toggle */}
       <div className="flex items-center gap-2">
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-md border border-border hover:bg-surface transition-colors cursor-pointer group">
           <div className="h-5 w-5 rounded-full overflow-hidden border border-foreground/10 flex items-center justify-center bg-surface-raised">
