@@ -22,21 +22,21 @@
 
 /* Light */
 [data-theme="light"] {
-  --background: #ffffff;
-  --foreground: #09090b;
-  --surface: #f4f4f5;
-  --surface-raised: #e4e4e7;
-  --overlay: #fafafa;
-  --border: #e4e4e7;
-  --border-hover: #d4d4d8;
-  --muted: #71717a;
-  --subtle: #a1a1aa;
+  --background: #b8b8c8;
+  --foreground: #000000;
+  --surface: #acacbe;
+  --surface-raised: #9f9fb4;
+  --overlay: #c4c4d4;
+  --border: #8888a0;
+  --border-hover: #707090;
+  --muted: #0f0f12;
+  --subtle: #2d2d3a;
   --accent: #7c3aed;
   --accent-hover: #6d28d9;
-  --accent-light: #7c3aed;
-  --sidebar: #f8f8fa;
-  --sidebar-foreground: #52525b;
-  --sidebar-accent: #ededf0;
+  --accent-light: #6d28d9;
+  --sidebar: #b0b0c2;
+  --sidebar-foreground: #0f0f12;
+  --sidebar-accent: #a4a4b8;
 }
 
 @theme inline {
@@ -71,9 +71,9 @@ html {
 
 html[data-theme="light"] {
   background:
-    radial-gradient(ellipse at 75% 5%, rgba(124, 58, 237, 0.08) 0%, transparent 45%),
-    radial-gradient(ellipse at 10% 85%, rgba(124, 58, 237, 0.05) 0%, transparent 40%),
-    #ffffff;
+    radial-gradient(ellipse at 75% 5%, rgba(124, 58, 237, 0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 10% 85%, rgba(124, 58, 237, 0.12) 0%, transparent 40%),
+    #b8b8c8;
 }
 
 body {

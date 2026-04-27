@@ -61,8 +61,8 @@ export default async function DashboardPage() {
           </AvatarFallback>
         </Avatar>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight gradient-text">
-            Welcome back, {userName}
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome back, <span className="text-foreground">{userName}</span>
           </h1>
           <p className="text-subtle text-sm">Here&apos;s what&apos;s happening with your pipeline</p>
         </div>
