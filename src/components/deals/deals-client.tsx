@@ -60,7 +60,7 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
   )
 
   return (
-    <div className="p-6 flex flex-col h-full gap-5 bg-background">
+    <div className="p-6 flex flex-col h-full gap-5">
       <div className="flex items-start justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Pipeline</h1>

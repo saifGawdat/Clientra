@@ -52,7 +52,7 @@ export default async function DashboardPage() {
   const recentActivities = activities.slice(0, 8)
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-background min-h-full">
+    <div className="p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5 min-h-full">
       <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12 border border-border">
           <AvatarImage src={session.user.image ?? ""} />
@@ -61,21 +61,21 @@ export default async function DashboardPage() {
           </AvatarFallback>
         </Avatar>
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight gradient-text">
             Welcome back, {userName}
           </h1>
           <p className="text-subtle text-sm">Here&apos;s what&apos;s happening with your pipeline</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: "Pipeline Value", value: formatCurrency(pipelineValue), sub: `${openDeals.length} open deals` },
           { label: "Won Revenue", value: formatCurrency(wonRevenue), sub: `${wonDeals.length} deals closed` },
           { label: "Contacts", value: totalContacts.toString(), sub: `${totalCompanies} companies` },
           { label: "Activities Done", value: completedActivities.toString(), sub: "completed" },
         ].map((kpi) => (
-          <div key={kpi.label} className="oled-card">
+          <div key={kpi.label} className="gradient-card">
             <p className="text-subtle text-xs uppercase tracking-widest mb-2">{kpi.label}</p>
             <p className="text-2xl font-bold font-mono text-foreground mb-1">{kpi.value}</p>
             <p className="text-xs text-subtle">{kpi.sub}</p>

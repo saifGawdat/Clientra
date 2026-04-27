@@ -113,7 +113,7 @@ export function ContactDetail({
   const statusCfg = STATUS_CONFIG[contact.status] ?? STATUS_CONFIG.LEAD;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
+    <div className="p-3 sm:p-4 lg:p-5 space-y-4 min-h-full">
       {/* Top bar */}
       <div className="flex items-center gap-4">
         <Link href="/contacts">

@@ -49,7 +49,7 @@ export default async function MyDashboardPage() {
   const recentActivities = activities.slice(0, 8)
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-background min-h-full">
+    <div className="p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5 min-h-full">
       <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12 border border-border">
           <AvatarImage src={session.user.image ?? ""} />

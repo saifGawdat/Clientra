@@ -8,7 +8,7 @@ interface ComingSoonProps {
 
 export function ComingSoon({ title, description, icon: Icon }: ComingSoonProps) {
   return (
-    <div className="p-8 min-h-full bg-background flex items-center justify-center">
+    <div className="p-8 min-h-full flex items-center justify-center">
       <div className="text-center max-w-sm">
         <div className="h-16 w-16 rounded-2xl bg-surface border border-border flex items-center justify-center mx-auto mb-6">
           <Icon className="h-7 w-7 text-accent" />

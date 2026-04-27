@@ -93,7 +93,7 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   const statuses = ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 bg-background min-h-full">
+    <div className="p-3 sm:p-4 lg:p-5 space-y-4 min-h-full">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Activities</h1>
