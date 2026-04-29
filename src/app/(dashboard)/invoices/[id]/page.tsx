@@ -15,20 +15,23 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       include: {
         contact: { select: { id: true, firstName: true, lastName: true } },
         company: { select: { id: true, name: true } },
-        items: true,
+        items: { orderBy: { id: "asc" } },
       },
     }),
     prisma.contact.findMany({
       where: { ownerId: session.user.id },
       select: { id: true, firstName: true, lastName: true, companyId: true },
+      orderBy: { firstName: "asc" },
     }),
     prisma.company.findMany({
       where: { ownerId: session.user.id },
       select: { id: true, name: true },
+      orderBy: { name: "asc" },
     }),
     prisma.deal.findMany({
       where: { ownerId: session.user.id },
       select: { id: true, title: true, value: true, currency: true, contactId: true, companyId: true },
+      orderBy: { title: "asc" },
     }),
   ])
 

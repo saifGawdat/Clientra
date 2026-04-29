@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   const userId = session.user.id
   const userName = session.user.name ?? "there"
 
-  const [deals, activities, totalContacts, totalCompanies, recentInvoices] = await Promise.all([
+  const [deals, activities, totalContacts, totalCompanies] = await Promise.all([
     prisma.deal.findMany({
       where: { ownerId: userId },
       include: { company: { select: { id: true, name: true } } },
@@ -37,16 +37,17 @@ export default async function DashboardPage() {
     }),
     prisma.contact.count({ where: { ownerId: userId } }),
     prisma.company.count({ where: { ownerId: userId } }),
-    prisma.invoice.findMany({
-      where: { ownerId: userId },
-      include: {
-        contact: { select: { firstName: true, lastName: true } },
-        company: { select: { name: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
   ])
+
+  const recentInvoices = await prisma.invoice.findMany({
+    where: { ownerId: userId },
+    include: {
+      contact: { select: { firstName: true, lastName: true } },
+      company: { select: { name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  }).catch(() => [])
 
   const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
   const wonDeals = deals.filter((d) => d.stage === "WON")
