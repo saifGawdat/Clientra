@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ActivityTypeIcon } from "@/components/activities/activity-type-icon"
+import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import Link from "next/link"
 
 const statusColors: Record<string, string> = {
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
   const userId = session.user.id
   const userName = session.user.name ?? "there"
 
-  const [deals, activities, totalContacts, totalCompanies] = await Promise.all([
+  const [deals, activities, totalContacts, totalCompanies, recentInvoices] = await Promise.all([
     prisma.deal.findMany({
       where: { ownerId: userId },
       include: { company: { select: { id: true, name: true } } },
@@ -36,6 +37,15 @@ export default async function DashboardPage() {
     }),
     prisma.contact.count({ where: { ownerId: userId } }),
     prisma.company.count({ where: { ownerId: userId } }),
+    prisma.invoice.findMany({
+      where: { ownerId: userId },
+      include: {
+        contact: { select: { firstName: true, lastName: true } },
+        company: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
   ])
 
   const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
@@ -137,6 +147,39 @@ export default async function DashboardPage() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="oled-card space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-widest text-subtle">Recent Invoices</p>
+          <Link href="/invoices" className="text-xs text-accent hover:text-accent-light">View all →</Link>
+        </div>
+        {recentInvoices.length === 0 ? (
+          <p className="text-subtle text-sm py-4 text-center">No invoices yet</p>
+        ) : (
+          <div className="space-y-1">
+            {recentInvoices.map((inv) => (
+              <Link
+                key={inv.id}
+                href={`/invoices/${inv.id}`}
+                className="flex items-center justify-between py-2.5 border-b border-border last:border-0 hover:bg-surface/40 -mx-1 px-1 rounded transition-colors"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm text-foreground font-mono font-medium">{inv.invoiceNumber}</p>
+                  <p className="text-xs text-subtle truncate">
+                    {inv.contact
+                      ? `${inv.contact.firstName} ${inv.contact.lastName}`
+                      : inv.company?.name ?? "No client"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0 ml-4">
+                  <InvoiceStatusBadge status={inv.status} />
+                  <p className="text-xs font-mono font-bold text-emerald-400">${inv.amount.toLocaleString()}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="oled-card space-y-3">

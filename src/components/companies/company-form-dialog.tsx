@@ -60,17 +60,17 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{company ? "Edit Company" : "Add Company"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
           <div className="space-y-1.5">
             <Label>Company name *</Label>
             <Input placeholder="Acme Corp" {...register("name")} />
             {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Industry</Label>
               <Controller
@@ -107,7 +107,7 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
             <Input placeholder="https://example.com" {...register("website")} />
             {errors.website && <p className="text-xs text-red-500">{errors.website.message}</p>}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Email</Label>
               <Input type="email" placeholder="info@example.com" {...register("email")} />
@@ -117,7 +117,7 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
               <Input placeholder="+1 555 0100" {...register("phone")} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>City</Label>
               <Input placeholder="New York" {...register("city")} />

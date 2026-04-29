@@ -18,6 +18,7 @@ import {
   Calendar,
   Kanban,
   X,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -38,6 +39,7 @@ const sections = [
       { href: "/targets", label: "Targets", icon: Target },
       { href: "/opportunities", label: "Opportunities", icon: TrendingUp },
       { href: "/pipeline", label: "Pipeline", icon: Kanban },
+      { href: "/invoices", label: "Invoices", icon: Receipt },
     ],
   },
   {
@@ -68,7 +70,7 @@ export function Sidebar({ user, mobileOpen = false, onMobileClose }: SidebarProp
   return (
     <aside
       className={cn(
-        "fixed md:relative inset-y-0 left-0 z-50 md:z-auto",
+        "fixed md:relative inset-y-0 left-0 z-50 md:z-auto print:hidden",
         "flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 shrink-0 border-r border-border",
         mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         collapsed ? "md:w-12" : "md:w-52",

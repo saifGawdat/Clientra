@@ -17,7 +17,7 @@ interface DealFormDialogProps {
   onClose: () => void
   onSave: (deal: Deal) => void
   deal?: Deal | null
-  contacts: { id: string; firstName: string; lastName: string }[]
+  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[]
   companies: { id: string; name: string }[]
 }
 
@@ -25,10 +25,25 @@ const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"]
 const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD"]
 
 export function DealFormDialog({ open, onClose, onSave, deal, contacts, companies }: DealFormDialogProps) {
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<DealInput>({
+  const { register, handleSubmit, control, reset, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<DealInput>({
     resolver: zodResolver(dealSchema),
     defaultValues: { stage: "LEAD" as const, currency: "USD" },
   })
+
+  const selectedCompanyId = watch("companyId")
+  const filteredContacts = selectedCompanyId
+    ? contacts.filter((c) => c.companyId === selectedCompanyId)
+    : contacts
+
+  useEffect(() => {
+    if (!selectedCompanyId) return
+    const currentContactId = getValues("contactId")
+    if (currentContactId) {
+      const stillValid = contacts.some((c) => c.id === currentContactId && c.companyId === selectedCompanyId)
+      if (!stillValid) setValue("contactId", "")
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompanyId])
 
   useEffect(() => {
     if (deal) {
@@ -64,18 +79,18 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{deal ? "Edit Deal" : "Add Deal"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
           <div className="space-y-1.5">
             <Label>Deal title *</Label>
             <Input placeholder="Enterprise subscription" {...register("title")} />
             {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Value</Label>
               <Input type="number" placeholder="10000" {...register("value", { valueAsNumber: true })} />
@@ -97,7 +112,7 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Stage</Label>
               <Controller
@@ -125,21 +140,24 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
           </div>
 
           <div className="space-y-1.5">
-            <Label>Contact</Label>
+            <Label>Contact{selectedCompanyId ? " (filtered by company)" : ""}</Label>
             <Controller
               name="contactId"
               control={control}
               render={({ field }) => (
-                <Select 
-                  value={field.value || "none"} 
+                <Select
+                  value={field.value || "none"}
                   onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
                 >
                   <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {contacts.map((c) => (
+                    {filteredContacts.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
                     ))}
+                    {selectedCompanyId && filteredContacts.length === 0 && (
+                      <div className="px-2 py-3 text-xs text-subtle text-center">No contacts for this company</div>
+                    )}
                   </SelectContent>
                 </Select>
               )}

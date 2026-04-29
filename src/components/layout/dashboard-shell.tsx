@@ -16,7 +16,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
     <div className="flex h-screen overflow-hidden text-foreground">
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40 md:hidden print:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
@@ -25,9 +25,11 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
         mobileOpen={mobileSidebarOpen}
         onMobileClose={() => setMobileSidebarOpen(false)}
       />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <Header onMenuClick={() => setMobileSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden print:overflow-visible">
+        <div className="print:hidden">
+          <Header onMenuClick={() => setMobileSidebarOpen(true)} />
+        </div>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-none print:overflow-visible">
           {children}
         </main>
       </div>

@@ -13,6 +13,8 @@ import {
   MapPin,
   Building2,
   Send,
+  Receipt,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +24,8 @@ import { CompanyFormDialog } from "@/components/companies/company-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { Company, Contact, Deal, Note } from "@/types/crm-types";
+import { Company, Contact, Deal, Note, Invoice } from "@/types/crm-types";
+import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 
 const dealStageVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"> = {
   LEAD: "secondary",
@@ -40,7 +43,7 @@ const contactStatusVariant: Record<string, "default" | "secondary" | "destructiv
   INACTIVE: "secondary",
 };
 
-type FullCompany = Company & { contacts: Contact[]; deals: Deal[]; notes: Note[] };
+type FullCompany = Company & { contacts: Contact[]; deals: Deal[]; notes: Note[]; invoices: Invoice[] };
 
 export function CompanyDetail({ company: initialCompany }: { company: FullCompany }) {
   const router = useRouter();
@@ -186,9 +189,9 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Deals</span>
+                <span>Invoices</span>
                 <span className="font-medium text-white-700">
-                  {company.deals.length}
+                  {company.invoices?.length || 0}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -212,6 +215,9 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
               </TabsTrigger>
               <TabsTrigger value="notes">
                 Notes ({(company.notes ?? []).length})
+              </TabsTrigger>
+              <TabsTrigger value="invoices">
+                Invoices ({(company.invoices ?? []).length})
               </TabsTrigger>
             </TabsList>
 
@@ -329,6 +335,39 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                     </div>
                   </CardContent>
                 </Card>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="invoices" className="mt-4 space-y-2">
+              {(company.invoices ?? []).length === 0 && (
+                <p className="text-sm text-white-400 py-4">
+                  No invoices for this company.
+                </p>
+              )}
+              {(company.invoices ?? []).map((inv: Invoice) => (
+                <Link key={inv.id} href={`/invoices/${inv.id}`}>
+                  <Card className="hover:border-blue-200 transition-colors cursor-pointer group">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-mono text-xs font-medium text-white-500">
+                          {inv.invoiceNumber}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Calendar className="h-3 w-3 text-white-400" />
+                          <span className="text-xs text-white-400">
+                            Due {formatDate(inv.dueDate)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm font-mono font-bold text-emerald-400">
+                          ${inv.amount.toLocaleString()}
+                        </span>
+                        <InvoiceStatusBadge status={inv.status} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </TabsContent>
           </Tabs>

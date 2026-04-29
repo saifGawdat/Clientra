@@ -14,6 +14,10 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       contacts: { take: 20, orderBy: { createdAt: "desc" } },
       deals: { take: 20, orderBy: { createdAt: "desc" } },
       notes: { orderBy: { createdAt: "desc" } },
+      invoices: {
+        include: { items: true },
+        orderBy: { createdAt: "desc" }
+      }
     },
   })
 
