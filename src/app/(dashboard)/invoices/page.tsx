@@ -34,13 +34,17 @@ export default async function InvoicesPage() {
       orderBy: { title: "asc" },
     }),
   ])
+  const safeInvoices = JSON.parse(JSON.stringify(invoices));
+  const safeContacts = JSON.parse(JSON.stringify(contacts));
+  const safeCompanies = JSON.parse(JSON.stringify(companies));
+  const safeDeals = JSON.parse(JSON.stringify(deals));
 
   return (
     <InvoicesClient 
-      initialInvoices={invoices} 
-      contacts={contacts} 
-      companies={companies} 
-      deals={deals}
+      initialInvoices={safeInvoices} 
+      contacts={safeContacts} 
+      companies={safeCompanies} 
+      deals={safeDeals}
     />
   )
 }
