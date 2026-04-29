@@ -78,6 +78,14 @@ export async function POST(req: Request) {
       },
     })
 
+    // Auto-update deal to WON if invoice is PAID
+    if (invoice.status === "PAID" && invoice.dealId) {
+      await prisma.deal.update({
+        where: { id: invoice.dealId },
+        data: { stage: "WON" }
+      })
+    }
+
     return NextResponse.json(invoice, { status: 201 })
   } catch (error) {
     console.error("Invoice creation error:", error)

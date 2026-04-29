@@ -62,6 +62,14 @@ export async function PATCH(
       },
     })
 
+    // Auto-update deal to WON if invoice is PAID
+    if (invoice.status === "PAID" && invoice.dealId) {
+      await prisma.deal.update({
+        where: { id: invoice.dealId },
+        data: { stage: "WON" }
+      })
+    }
+
     return NextResponse.json(invoice)
   } catch (error) {
     console.error("Invoice update error:", error)
