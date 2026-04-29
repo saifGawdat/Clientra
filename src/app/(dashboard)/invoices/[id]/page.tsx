@@ -20,7 +20,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
     }),
     prisma.contact.findMany({
       where: { ownerId: session.user.id },
-      select: { id: true, firstName: true, lastName: true },
+      select: { id: true, firstName: true, lastName: true, companyId: true },
     }),
     prisma.company.findMany({
       where: { ownerId: session.user.id },
@@ -36,7 +36,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
   return (
     <InvoiceDetail 
-      invoice={invoice as any}
+      invoice={invoice}
       contacts={contacts} 
       companies={companies} 
       deals={deals} 

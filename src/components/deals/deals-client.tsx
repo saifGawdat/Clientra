@@ -10,7 +10,7 @@ import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
 
 interface DealsClientProps {
   initialDeals: CRMDeal[]
-  contacts: { id: string; firstName: string; lastName: string }[]
+  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[]
   companies: { id: string; name: string }[]
 }
 

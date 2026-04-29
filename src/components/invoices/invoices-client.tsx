@@ -31,7 +31,7 @@ const ALL_STATUSES: InvoiceStatus[] = [
 
 interface InvoicesClientProps {
   initialInvoices: Invoice[];
-  contacts: { id: string; firstName: string; lastName: string }[];
+  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[];
   companies: { id: string; name: string }[];
   deals: { id: string; title: string; value?: number | null; currency?: string; contactId?: string | null; companyId?: string | null }[];
 }

@@ -46,7 +46,7 @@ export function DealDetail({
   companies,
 }: {
   deal: Deal
-  contacts: { id: string; firstName: string; lastName: string }[]
+  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[]
   companies: { id: string; name: string }[]
 }) {
   const router = useRouter()

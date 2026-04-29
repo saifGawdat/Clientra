@@ -20,7 +20,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     }),
     prisma.contact.findMany({
       where: { ownerId: session.user.id },
-      select: { id: true, firstName: true, lastName: true },
+      select: { id: true, firstName: true, lastName: true, companyId: true },
       orderBy: { firstName: "asc" },
     }),
     prisma.company.findMany({

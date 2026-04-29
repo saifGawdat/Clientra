@@ -20,7 +20,7 @@ export default async function InvoicesPage() {
     }),
     prisma.contact.findMany({
       where: { ownerId: userId },
-      select: { id: true, firstName: true, lastName: true },
+      select: { id: true, firstName: true, lastName: true, companyId: true },
       orderBy: { firstName: "asc" },
     }),
     prisma.company.findMany({

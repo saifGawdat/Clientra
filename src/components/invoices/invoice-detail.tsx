@@ -27,7 +27,7 @@ import { InvoiceFormDialog } from "./invoice-form-dialog";
 
 interface InvoiceDetailProps {
   invoice: Invoice;
-  contacts: { id: string; firstName: string; lastName: string }[];
+  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[];
   companies: { id: string; name: string }[];
   deals: { id: string; title: string; value?: number | null; currency?: string; contactId?: string | null; companyId?: string | null }[];
 }
@@ -265,7 +265,7 @@ export function InvoiceDetail({ invoice: initialInvoice, contacts, companies, de
               <Download className="h-4 w-4 text-accent" />
               <p className="text-xs font-bold text-foreground">Download PDF</p>
             </div>
-            <p className="text-[10px] text-subtle">Generates a clean PDF via your browser's print dialog.</p>
+            <p className="text-[10px] text-subtle">Generates a clean PDF via your browser&apos;s print dialog.</p>
             <Button size="sm" className="w-full h-8 bg-accent hover:bg-accent/90 text-white text-xs" onClick={handlePrint}>
               <Download className="h-3.5 w-3.5 mr-1.5" /> Download / Print
             </Button>

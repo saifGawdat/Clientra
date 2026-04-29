@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
-import { useForm, Controller, useFieldArray } from "react-hook-form"
+import { useEffect, useState } from "react"
+import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { 
   Plus, 
@@ -28,7 +28,7 @@ interface InvoiceFormDialogProps {
   onClose: () => void
   onSave: (invoice: Invoice) => void
   invoice?: Invoice | null
-  contacts: { id: string; firstName: string; lastName: string }[]
+  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[]
   companies: { id: string; name: string }[]
   deals: { id: string; title: string; value?: number | null; currency?: string; contactId?: string | null; companyId?: string | null }[]
 }
@@ -42,18 +42,19 @@ export function InvoiceFormDialog({
   companies,
   deals
 }: InvoiceFormDialogProps) {
-  const today = new Date().toISOString().split('T')[0]
-  const defaultDueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  const [today] = useState(() => new Date().toISOString().split('T')[0])
+  const [defaultDueDate] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+  const [defaultInvoiceNumber] = useState(() => `INV-${Math.floor(1000 + Math.random() * 9000)}`)
 
-  const { register, handleSubmit, control, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm<InvoiceInput>({
+  const { register, handleSubmit, control, reset, setValue, getValues, formState: { errors, isSubmitting } } = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceSchema),
-    defaultValues: { 
-      status: "DRAFT", 
-      amount: 0, 
+    defaultValues: {
+      status: "DRAFT",
+      amount: 0,
       issueDate: today,
       dueDate: defaultDueDate,
       items: [{ service: "", price: 0 }],
-      invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`
+      invoiceNumber: defaultInvoiceNumber,
     },
   })
 
@@ -62,10 +63,25 @@ export function InvoiceFormDialog({
     name: "items",
   })
 
-  const items = watch("items") || []
+  const items = useWatch({ control, name: "items" }) || []
   const calculatedTotal = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
-  
-  const dealId = watch("dealId")
+
+  const selectedCompanyId = useWatch({ control, name: "companyId" })
+  const filteredContacts = selectedCompanyId
+    ? contacts.filter((c) => c.companyId === selectedCompanyId)
+    : contacts
+
+  useEffect(() => {
+    if (!selectedCompanyId) return
+    const currentContactId = getValues("contactId")
+    if (currentContactId) {
+      const stillValid = contacts.some((c) => c.id === currentContactId && c.companyId === selectedCompanyId)
+      if (!stillValid) setValue("contactId", "")
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompanyId])
+
+  const dealId = useWatch({ control, name: "dealId" })
   useEffect(() => {
     setValue("amount", calculatedTotal)
   }, [calculatedTotal, setValue])
@@ -86,8 +102,8 @@ export function InvoiceFormDialog({
       }
     }
     // Auto-link contact/company from deal if not already set
-    if (deal.contactId && !watch("contactId")) setValue("contactId", deal.contactId)
-    if (deal.companyId && !watch("companyId")) setValue("companyId", deal.companyId)
+    if (deal.contactId && !getValues("contactId")) setValue("contactId", deal.contactId)
+    if (deal.companyId && !getValues("companyId")) setValue("companyId", deal.companyId)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dealId])
 
@@ -315,7 +331,7 @@ export function InvoiceFormDialog({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted flex items-center gap-1.5"><UserIcon className="h-3 w-3" /> Contact</Label>
+                  <Label className="text-xs text-muted flex items-center gap-1.5"><UserIcon className="h-3 w-3" /> Contact{selectedCompanyId ? " (filtered)" : ""}</Label>
                   <Controller
                     name="contactId"
                     control={control}
@@ -327,9 +343,12 @@ export function InvoiceFormDialog({
                         <SelectTrigger className="bg-surface h-9"><SelectValue placeholder="Select Contact" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
-                          {contacts.map((c) => (
+                          {filteredContacts.map((c) => (
                             <SelectItem key={c.id} value={c.id} className="text-xs">{c.firstName} {c.lastName}</SelectItem>
                           ))}
+                          {selectedCompanyId && filteredContacts.length === 0 && (
+                            <div className="px-2 py-3 text-xs text-subtle text-center">No contacts for this company</div>
+                          )}
                         </SelectContent>
                       </Select>
                     )}
