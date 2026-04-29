@@ -1,46 +1,45 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { InvoicesClient } from "@/components/invoices/invoices-client"
+import { notFound } from "next/navigation"
+import { InvoiceDetail } from "@/components/invoices/invoice-detail"
 
-export default async function InvoicesPage() {
+export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session?.user) return null
 
-  const userId = session.user.id
+  const { id } = await params
 
-  const [invoices, contacts, companies, deals] = await Promise.all([
-    prisma.invoice.findMany({
-      where: { ownerId: userId },
+  const [invoice, contacts, companies, deals] = await Promise.all([
+    prisma.invoice.findFirst({
+      where: { id, ownerId: session.user.id },
       include: {
         contact: { select: { id: true, firstName: true, lastName: true } },
         company: { select: { id: true, name: true } },
         items: true,
       },
-      orderBy: { createdAt: "desc" },
     }),
     prisma.contact.findMany({
-      where: { ownerId: userId },
+      where: { ownerId: session.user.id },
       select: { id: true, firstName: true, lastName: true },
-      orderBy: { firstName: "asc" },
     }),
     prisma.company.findMany({
-      where: { ownerId: userId },
+      where: { ownerId: session.user.id },
       select: { id: true, name: true },
-      orderBy: { name: "asc" },
     }),
     prisma.deal.findMany({
-      where: { ownerId: userId },
+      where: { ownerId: session.user.id },
       select: { id: true, title: true, value: true, currency: true, contactId: true, companyId: true },
-      orderBy: { title: "asc" },
     }),
   ])
 
+  if (!invoice) notFound()
+
   return (
-    <InvoicesClient 
-      initialInvoices={invoices} 
+    <InvoiceDetail 
+      invoice={invoice as any}
       contacts={contacts} 
       companies={companies} 
-      deals={deals}
+      deals={deals} 
     />
   )
 }

@@ -64,6 +64,23 @@ export const noteSchema = z.object({
   companyId: z.string().optional(),
 })
 
+export const invoiceItemSchema = z.object({
+  service: z.string().min(1, "Service name is required"),
+  price: z.number().min(0, "Price must be positive"),
+})
+
+export const invoiceSchema = z.object({
+  invoiceNumber: z.string().min(1, "Invoice number is required"),
+  amount: z.number().min(0),
+  status: z.enum(["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELLED"]),
+  issueDate: z.string().optional(),
+  dueDate: z.string().min(1, "Due date is required"),
+  contactId: z.string().optional(),
+  companyId: z.string().optional(),
+  dealId: z.string().optional(),
+  items: z.array(invoiceItemSchema).min(1, "At least one service is required"),
+})
+
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 export type ContactInput = z.infer<typeof contactSchema>
@@ -71,3 +88,5 @@ export type CompanyInput = z.infer<typeof companySchema>
 export type DealInput = z.infer<typeof dealSchema>
 export type ActivityInput = z.infer<typeof activitySchema>
 export type NoteInput = z.infer<typeof noteSchema>
+export type InvoiceInput = z.infer<typeof invoiceSchema>
+export type InvoiceItemInput = z.infer<typeof invoiceItemSchema>

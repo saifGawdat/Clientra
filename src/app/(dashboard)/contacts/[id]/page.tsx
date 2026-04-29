@@ -16,6 +16,10 @@ export default async function ContactDetailPage({ params }: { params: Promise<{ 
         deals: { orderBy: { createdAt: "desc" } },
         activities: { orderBy: { createdAt: "desc" }, take: 10 },
         notes: { orderBy: { createdAt: "desc" } },
+        invoices: { 
+          include: { items: true },
+          orderBy: { createdAt: "desc" } 
+        },
       },
     }),
     prisma.company.findMany({

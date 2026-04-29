@@ -23,6 +23,7 @@ model User {
   deals      Deal[]
   activities Activity[]
   notes      Note[]
+  invoices   Invoice[]
 }
 
 model Contact {
@@ -46,6 +47,7 @@ model Contact {
   deals      Deal[]
   activities Activity[]
   notes      Note[]
+  invoices   Invoice[]
 }
 
 model Company {
@@ -68,6 +70,7 @@ model Company {
   contacts Contact[]
   deals    Deal[]
   notes    Note[]
+  invoices Invoice[]
 }
 
 model Deal {
@@ -90,6 +93,7 @@ model Deal {
   owner      User       @relation(fields: [ownerId], references: [id])
   activities Activity[]
   notes      Note[]
+  invoices   Invoice[]
 }
 
 model Activity {
@@ -180,5 +184,42 @@ enum ActivityStatus {
   PLANNED
   IN_PROGRESS
   COMPLETED
+  CANCELLED
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  amount        Float
+  status        InvoiceStatus @default(DRAFT)
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime
+  contactId     String?
+  companyId     String?
+  dealId        String?
+  ownerId       String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  contact Contact?      @relation(fields: [contactId], references: [id])
+  company Company?      @relation(fields: [companyId], references: [id])
+  deal    Deal?         @relation(fields: [dealId], references: [id])
+  owner   User          @relation(fields: [ownerId], references: [id])
+  items   InvoiceItem[]
+}
+
+model InvoiceItem {
+  id        String  @id @default(cuid())
+  service   String
+  price     Float
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
   CANCELLED
 }

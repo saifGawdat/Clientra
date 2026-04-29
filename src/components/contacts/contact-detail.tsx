@@ -25,7 +25,9 @@ import { useConfirm } from "@/components/ui/confirm-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { Contact, Company, Note, CRMActivity, Deal } from "@/types/crm-types";
+import { Contact, Company, Note, CRMActivity, Deal, Invoice } from "@/types/crm-types";
+import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
+import { Receipt } from "lucide-react";
 
 const STATUS_CONFIG: Record<
   string,
@@ -251,6 +253,11 @@ export function ContactDetail({
                 label: "Notes",
                 value: (contact.notes ?? []).length,
               },
+              {
+                icon: Receipt,
+                label: "Invoices",
+                value: (contact.invoices ?? []).length,
+              },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="oled-card py-3 px-3 text-center">
                 <Icon className="h-3.5 w-3.5 text-subtle mx-auto mb-1" />
@@ -295,6 +302,9 @@ export function ContactDetail({
               </TabsTrigger>
               <TabsTrigger value="notes">
                 Notes ({(contact.notes ?? []).length})
+              </TabsTrigger>
+              <TabsTrigger value="invoices">
+                Invoices ({(contact.invoices ?? []).length})
               </TabsTrigger>
             </TabsList>
 
@@ -444,6 +454,39 @@ export function ContactDetail({
                       </Button>
                     </div>
                   </div>
+                ))
+              )}
+            </TabsContent>
+
+            {/* Invoices */}
+            <TabsContent value="invoices" className="space-y-2">
+              {(contact.invoices ?? []).length === 0 ? (
+                <div className="py-12 text-center text-subtle text-sm">
+                  No invoices issued to this contact.
+                </div>
+              ) : (
+                (contact.invoices ?? []).map((inv: Invoice) => (
+                  <Link key={inv.id} href={`/invoices/${inv.id}`}>
+                    <div className="oled-card flex items-center justify-between hover:border-accent/30 transition-colors cursor-pointer">
+                      <div className="min-w-0">
+                        <p className="font-mono text-xs font-medium text-foreground">
+                          {inv.invoiceNumber}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Calendar className="h-3 w-3 text-subtle" />
+                          <span className="text-xs text-subtle">
+                            Due {formatDate(inv.dueDate)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 shrink-0 ml-4">
+                        <span className="text-sm font-mono font-bold text-emerald-400">
+                          ${inv.amount.toLocaleString()}
+                        </span>
+                        <InvoiceStatusBadge status={inv.status} />
+                      </div>
+                    </div>
+                  </Link>
                 ))
               )}
             </TabsContent>

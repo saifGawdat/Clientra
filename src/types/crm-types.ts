@@ -24,7 +24,9 @@ export interface Company {
   _count?: {
     contacts?: number;
     deals?: number;
+    invoices?: number;
   };
+  invoices?: Invoice[];
 }
 
 export interface Contact {
@@ -46,6 +48,7 @@ export interface Contact {
   deals?: Deal[];
   activities?: CRMActivity[];
   notes?: Note[];
+  invoices?: Invoice[];
 }
 
 export interface Deal {
@@ -66,6 +69,7 @@ export interface Deal {
   company?: Partial<Company> | null;
   activities?: CRMActivity[];
   notes?: Note[];
+  invoices?: Invoice[];
 }
 
 export interface CRMActivity {
@@ -94,4 +98,32 @@ export interface Note {
   userId: string;
   createdAt: Date | string;
   updatedAt: Date | string;
+}
+
+export type InvoiceStatus = "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "CANCELLED";
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  amount: number;
+  status: InvoiceStatus;
+  issueDate: Date | string;
+  dueDate: Date | string;
+  contactId?: string | null;
+  companyId?: string | null;
+  dealId?: string | null;
+  ownerId: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  contact?: Partial<Contact> | null;
+  company?: Partial<Company> | null;
+  deal?: Partial<Deal> | null;
+  items?: InvoiceItem[];
+}
+
+export interface InvoiceItem {
+  id: string;
+  service: string;
+  price: number;
+  invoiceId: string;
 }
