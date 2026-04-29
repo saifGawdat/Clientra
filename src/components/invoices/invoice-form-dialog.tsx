@@ -141,7 +141,7 @@ export function InvoiceFormDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[92vh] overflow-hidden flex flex-col p-0 bg-sidebar border-border rounded-2xl shadow-2xl">
-        <DialogHeader className="px-6 py-4 border-b border-border bg-overlay/50">
+        <DialogHeader className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-overlay/50">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-accent/15 flex items-center justify-center border border-accent/20">
               <Receipt className="h-5 w-5 text-accent" />
@@ -157,20 +157,20 @@ export function InvoiceFormDialog({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
           {/* Section 1: Basic Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-subtle/70">
               <FileText className="h-3 w-3" />
               General Information
             </div>
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-surface/30 border border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-surface/30 border border-border/50">
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted">Invoice Number</Label>
-                <Input 
-                  placeholder="INV-0001" 
+                <Input
+                  placeholder="INV-0001"
                   className="bg-surface h-9"
-                  {...register("invoiceNumber")} 
+                  {...register("invoiceNumber")}
                 />
                 {errors.invoiceNumber && <p className="text-[10px] text-red-400 font-medium flex items-center gap-1"><AlertCircle className="h-2.5 w-2.5" /> {errors.invoiceNumber.message}</p>}
               </div>
@@ -200,7 +200,7 @@ export function InvoiceFormDialog({
               <Calendar className="h-3 w-3" />
               Timeline
             </div>
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-surface/30 border border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl bg-surface/30 border border-border/50">
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted font-medium">Issue Date</Label>
                 <Input type="date" className="bg-surface h-9" {...register("issueDate")} />
@@ -232,40 +232,40 @@ export function InvoiceFormDialog({
             </div>
             
             <div className="space-y-3 p-4 rounded-xl bg-surface/30 border border-border/50">
-              <div className="grid grid-cols-[1fr_120px_40px] gap-3 px-2">
+              <div className="grid grid-cols-[1fr_90px_36px] sm:grid-cols-[1fr_120px_40px] gap-2 sm:gap-3 px-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-subtle/50">Description / Service</span>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-subtle/50">Price ($)</span>
                 <span></span>
               </div>
               {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-3 items-start animate-in fade-in zoom-in-95 duration-200">
+                <div key={field.id} className="flex gap-2 sm:gap-3 items-start animate-in fade-in zoom-in-95 duration-200">
                   <div className="flex-1">
-                    <Input 
-                      placeholder="e.g. Monthly Consulting Fee" 
+                    <Input
+                      placeholder="e.g. Monthly Consulting Fee"
                       className="bg-surface h-9"
-                      {...register(`items.${index}.service` as const)} 
+                      {...register(`items.${index}.service` as const)}
                     />
                   </div>
-                  <div className="w-[120px]">
-                    <Input 
-                      type="number" 
-                      step="0.01" 
-                      placeholder="0.00" 
+                  <div className="w-[90px] sm:w-[120px]">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
                       className="bg-surface h-9 font-mono"
-                      {...register(`items.${index}.price` as const, { valueAsNumber: true })} 
+                      {...register(`items.${index}.price` as const, { valueAsNumber: true })}
                     />
                   </div>
                   {fields.length > 1 ? (
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => remove(index)}
-                      className="h-9 w-9 text-subtle hover:text-red-400 hover:bg-red-950/20"
+                      className="h-9 w-9 shrink-0 text-subtle hover:text-red-400 hover:bg-red-950/20"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  ) : <div className="w-9 h-9" />}
+                  ) : <div className="w-9 h-9 shrink-0" />}
                 </div>
               ))}
               {errors.items && <p className="text-xs text-red-400 mt-2">{errors.items.message}</p>}
@@ -313,7 +313,7 @@ export function InvoiceFormDialog({
                   )}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted flex items-center gap-1.5"><UserIcon className="h-3 w-3" /> Contact</Label>
                   <Controller
@@ -361,7 +361,7 @@ export function InvoiceFormDialog({
           </div>
         </form>
 
-        <DialogFooter className="px-6 py-4 border-t border-border bg-overlay/30">
+        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border bg-overlay/30">
           <Button 
             type="button" 
             variant="ghost" 

@@ -65,12 +65,12 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{activity ? "Edit Activity" : "Log Activity"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Type *</Label>
               <Controller

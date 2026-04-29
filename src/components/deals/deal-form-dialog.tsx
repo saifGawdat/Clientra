@@ -64,18 +64,18 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg max-h-[90svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{deal ? "Edit Deal" : "Add Deal"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
           <div className="space-y-1.5">
             <Label>Deal title *</Label>
             <Input placeholder="Enterprise subscription" {...register("title")} />
             {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Value</Label>
               <Input type="number" placeholder="10000" {...register("value", { valueAsNumber: true })} />
@@ -97,7 +97,7 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Stage</Label>
               <Controller

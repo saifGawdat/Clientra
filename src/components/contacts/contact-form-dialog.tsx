@@ -59,12 +59,12 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90svh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{contact ? "Edit Contact" : "Add Contact"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>First name *</Label>
               <Input placeholder="John" {...register("firstName")} />
@@ -81,7 +81,7 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
             <Input type="email" placeholder="john@example.com" {...register("email")} />
             {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Phone</Label>
               <Input placeholder="+1 555 0100" {...register("phone")} />
@@ -91,7 +91,7 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
               <Input placeholder="CEO" {...register("title")} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Status</Label>
               <Controller
