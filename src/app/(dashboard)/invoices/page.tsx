@@ -19,8 +19,12 @@ export default function InvoicesPage() {
     async function fetchData() {
       try {
         const res = await fetch("/api/dashboard/invoices-data");
-        if (!res.ok) throw new Error("Failed to fetch data");
         const json = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(json.details || json.error || "Failed to fetch data");
+        }
+        
         setData(json);
       } catch (err: unknown) {
         if (err instanceof Error) {

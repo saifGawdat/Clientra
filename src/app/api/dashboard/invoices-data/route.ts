@@ -11,6 +11,10 @@ export async function GET() {
   const userId = session.user.id
 
   try {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL is not defined");
+    }
+
     const [invoices, contacts, companies, deals] = await Promise.all([
       prisma.invoice.findMany({
         where: { ownerId: userId },
@@ -46,6 +50,9 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Invoices Data API Error:", error)
-    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Failed to fetch data",
+      details: error || "Unknown error" 
+    }, { status: 500 })
   }
 }
