@@ -12,7 +12,7 @@ export default async function InvoicesPage() {
 
   const userId = session.user.id
 
-  const data = await Promise.all([
+  const [invoices, contacts, companies, deals] = await Promise.all([
     prisma.invoice.findMany({
       where: { ownerId: userId },
       include: {
@@ -37,9 +37,7 @@ export default async function InvoicesPage() {
       select: { id: true, title: true, value: true, currency: true, contactId: true, companyId: true },
       orderBy: { title: "asc" },
     }),
-  ])
-
-  const [invoices, contacts, companies, deals] = JSON.parse(JSON.stringify(data))
+  ]).then(res => JSON.parse(JSON.stringify(res)))
 
   return (
     <InvoicesClient 
@@ -49,6 +47,5 @@ export default async function InvoicesPage() {
       deals={deals}
     />
   )
-
 
 }
