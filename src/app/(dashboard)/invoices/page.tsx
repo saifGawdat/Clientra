@@ -1,12 +1,18 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { InvoicesClient } from "@/components/invoices/invoices-client"
+import { redirect } from "next/navigation"
 
 export default async function InvoicesPage() {
   const session = await auth()
-  if (!session?.user) return null
+  
+  if (!session?.user) {
+    redirect("/login");
+  }
 
   const userId = session.user.id
+
+
 
   const [invoices, contacts, companies, deals] = await Promise.all([
     prisma.invoice.findMany({
