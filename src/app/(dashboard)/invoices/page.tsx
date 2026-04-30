@@ -6,15 +6,13 @@ import { redirect } from "next/navigation"
 export default async function InvoicesPage() {
   const session = await auth()
   
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
   const userId = session.user.id
 
-
-
-  const [invoices, contacts, companies, deals] = await Promise.all([
+  const data = await Promise.all([
     prisma.invoice.findMany({
       where: { ownerId: userId },
       include: {
@@ -40,17 +38,16 @@ export default async function InvoicesPage() {
       orderBy: { title: "asc" },
     }),
   ])
-  const safeInvoices = JSON.parse(JSON.stringify(invoices));
-  const safeContacts = JSON.parse(JSON.stringify(contacts));
-  const safeCompanies = JSON.parse(JSON.stringify(companies));
-  const safeDeals = JSON.parse(JSON.stringify(deals));
+
+  const [invoices, contacts, companies, deals] = JSON.parse(JSON.stringify(data))
 
   return (
     <InvoicesClient 
-      initialInvoices={safeInvoices} 
-      contacts={safeContacts} 
-      companies={safeCompanies} 
-      deals={safeDeals}
+      initialInvoices={invoices} 
+      contacts={contacts} 
+      companies={companies} 
+      deals={deals}
     />
   )
+
 }
