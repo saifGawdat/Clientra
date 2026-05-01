@@ -12,6 +12,9 @@ import {
   Building2,
   User as UserIcon,
   Calendar,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +23,7 @@ import { formatDate, cn } from "@/lib/utils";
 import { Invoice, InvoiceStatus } from "@/types/crm-types";
 import { InvoiceStatusBadge } from "./invoice-status-badge";
 import { InvoiceFormDialog } from "./invoice-form-dialog";
+import { usePaginatedQuery } from "@/hooks/use-paginated-query";
 
 const ALL_STATUSES: InvoiceStatus[] = [
   "DRAFT",
@@ -29,47 +33,26 @@ const ALL_STATUSES: InvoiceStatus[] = [
   "CANCELLED",
 ];
 
-interface InvoicesClientProps {
-  initialInvoices: Invoice[];
-  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[];
-  companies: { id: string; name: string }[];
-  deals: { id: string; title: string; value?: number | null; currency?: string; contactId?: string | null; companyId?: string | null }[];
-}
-
-export function InvoicesClient({
-  initialInvoices,
-  contacts,
-  companies,
-  deals
-}: InvoicesClientProps) {
+export function InvoicesClient() {
   const router = useRouter();
   const confirm = useConfirm();
-  const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices);
+  
+  // State for filtering and pagination
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<InvoiceStatus | "">("");
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
+  // State for Dialogs
   const [showForm, setShowForm] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
-  const filtered = invoices.filter((inv) => {
-    const q = search.toLowerCase();
-    const matchesSearch =
-      inv.invoiceNumber.toLowerCase().includes(q) ||
-      inv.contact?.firstName?.toLowerCase().includes(q) ||
-      inv.contact?.lastName?.toLowerCase().includes(q) ||
-      inv.company?.name?.toLowerCase().includes(q) ||
-      false;
-    const matchesStatus = !filterStatus || inv.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
-
-  const stats = {
-    total: invoices.length,
-    paid: invoices.filter((i) => i.status === "PAID").length,
-    overdue: invoices.filter((i) => i.status === "OVERDUE").length,
-    totalRevenue: invoices
-      .filter((i) => i.status === "PAID")
-      .reduce((sum, i) => sum + i.amount, 0),
-  };
+  // Fetch paginated data
+  const { data, isLoading, error, refetch } = usePaginatedQuery<Invoice>(
+    ["invoices"],
+    "/api/dashboard/invoices-data",
+    { page, limit, search, status: filterStatus }
+  );
 
   const handleDelete = async (id: string) => {
     if (
@@ -81,22 +64,29 @@ export function InvoicesClient({
     )
       return;
     await fetch(`/api/invoices/${id}`, { method: "DELETE" });
-    setInvoices((prev) => prev.filter((i) => i.id !== id));
+    refetch();
   };
 
-  const handleSave = (invoice: Invoice) => {
-    setInvoices((prev) => {
-      const idx = prev.findIndex((i) => i.id === invoice.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = invoice;
-        return next;
-      }
-      return [invoice, ...prev];
-    });
+  const handleSave = () => {
+    refetch();
     setShowForm(false);
     setEditingInvoice(null);
   };
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-red-500 font-medium">Error loading invoices: {(error as Error).message}</p>
+        <Button onClick={() => refetch()} className="mt-4" variant="outline">Try Again</Button>
+      </div>
+    );
+  }
+
+  const invoices = data?.data || [];
+  const meta = data?.meta;
+  const contacts = data?.contacts || [];
+  const companies = data?.companies || [];
+  const deals = data?.deals || [];
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 min-h-full">
@@ -120,42 +110,26 @@ export function InvoicesClient({
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: "Total Invoices", value: stats.total, color: "text-foreground" },
-          { label: "Paid", value: stats.paid, color: "text-emerald-400" },
-          { label: "Overdue", value: stats.overdue, color: "text-red-400" },
-          { 
-            label: "Total Revenue", 
-            value: `$${stats.totalRevenue.toLocaleString()}`, 
-            color: "text-emerald-400 font-mono" 
-          },
-        ].map((s) => (
-          <div key={s.label} className="oled-card py-4">
-            <p className="text-subtle text-xs uppercase tracking-widest mb-1">
-              {s.label}
-            </p>
-            <p className={cn("text-2xl font-bold", s.color)}>
-              {s.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
       <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-subtle" />
           <Input
             placeholder="Search invoice # or client..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1); // Reset to first page on search
+            }}
             className="pl-9"
           />
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
           <button
-            onClick={() => setFilterStatus("")}
+            onClick={() => {
+              setFilterStatus("");
+              setPage(1);
+            }}
             className={cn(
               "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
               !filterStatus
@@ -168,7 +142,10 @@ export function InvoicesClient({
           {ALL_STATUSES.map((s) => (
             <button
               key={s}
-              onClick={() => setFilterStatus(filterStatus === s ? "" : s)}
+              onClick={() => {
+                setFilterStatus(filterStatus === s ? "" : s);
+                setPage(1);
+              }}
               className={cn(
                 "px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5",
                 filterStatus === s
@@ -182,7 +159,13 @@ export function InvoicesClient({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border">
+      <div className="overflow-x-auto rounded-xl border border-border relative min-h-[400px]">
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+          </div>
+        )}
+
         <table className="w-full text-sm min-w-[640px]">
           <thead>
             <tr className="border-b border-border bg-overlay">
@@ -195,7 +178,7 @@ export function InvoicesClient({
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {filtered.length === 0 && (
+            {!isLoading && invoices.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-16 text-center">
                   <Receipt className="h-10 w-10 text-border mx-auto mb-3 opacity-20" />
@@ -207,7 +190,7 @@ export function InvoicesClient({
                 </td>
               </tr>
             )}
-            {filtered.map((inv) => (
+            {invoices.map((inv) => (
               <tr
                 key={inv.id}
                 className="hover:bg-surface transition-colors group cursor-pointer"
@@ -256,7 +239,8 @@ export function InvoicesClient({
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setEditingInvoice(inv);
                         setShowForm(true);
                       }}
@@ -267,7 +251,10 @@ export function InvoicesClient({
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 text-red-400 hover:text-red-400 hover:bg-red-950/30"
-                      onClick={() => handleDelete(inv.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(inv.id);
+                      }}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -278,6 +265,41 @@ export function InvoicesClient({
           </tbody>
         </table>
       </div>
+
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between py-2">
+          <p className="text-xs text-subtle">
+            Showing <span className="text-foreground font-medium">{invoices.length}</span> of <span className="text-foreground font-medium">{meta.total}</span> invoices
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1 || isLoading}
+              onClick={() => setPage(p => p - 1)}
+              className="h-8 px-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <div className="flex items-center gap-1 px-2">
+              <span className="text-xs font-medium">{page}</span>
+              <span className="text-xs text-subtle">/</span>
+              <span className="text-xs text-subtle">{meta.totalPages}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!meta.hasMore || isLoading}
+              onClick={() => setPage(p => p + 1)}
+              className="h-8 px-2"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <InvoiceFormDialog
         open={showForm}

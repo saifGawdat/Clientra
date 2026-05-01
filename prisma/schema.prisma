@@ -48,6 +48,9 @@ model Contact {
   activities Activity[]
   notes      Note[]
   invoices   Invoice[]
+
+  @@index([ownerId])
+  @@index([createdAt])
 }
 
 model Company {
@@ -71,6 +74,9 @@ model Company {
   deals    Deal[]
   notes    Note[]
   invoices Invoice[]
+
+  @@index([ownerId])
+  @@index([createdAt])
 }
 
 model Deal {
@@ -94,6 +100,9 @@ model Deal {
   activities Activity[]
   notes      Note[]
   invoices   Invoice[]
+
+  @@index([ownerId])
+  @@index([createdAt])
 }
 
 model Activity {
@@ -113,6 +122,9 @@ model Activity {
   contact Contact? @relation(fields: [contactId], references: [id])
   deal    Deal?    @relation(fields: [dealId], references: [id])
   user    User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Note {
@@ -129,6 +141,9 @@ model Note {
   deal    Deal?    @relation(fields: [dealId], references: [id])
   company Company? @relation(fields: [companyId], references: [id])
   user    User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 enum UserRole {
@@ -206,6 +221,9 @@ model Invoice {
   deal    Deal?         @relation(fields: [dealId], references: [id])
   owner   User          @relation(fields: [ownerId], references: [id])
   items   InvoiceItem[]
+
+  @@index([ownerId])
+  @@index([createdAt])
 }
 
 model InvoiceItem {
@@ -214,6 +232,8 @@ model InvoiceItem {
   price     Float
   invoiceId String
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
 }
 
 enum InvoiceStatus {

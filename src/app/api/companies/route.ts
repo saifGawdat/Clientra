@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { companySchema } from "@/lib/validations"
 import { CompanySize } from "@/types/crm-types"
+import { getPaginationParams, getPaginatedResponse } from "@/lib/pagination"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  const pagination = getPaginationParams(req)
   const { searchParams } = new URL(req.url)
   const search = searchParams.get("search") ?? ""
-  const page = parseInt(searchParams.get("page") ?? "1")
-  const limit = parseInt(searchParams.get("limit") ?? "20")
 
   const where = {
     ownerId: session.user.id,
@@ -25,13 +25,13 @@ export async function GET(req: Request) {
       where,
       include: { _count: { select: { contacts: true, deals: true } } },
       orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: pagination.skip,
+      take: pagination.limit,
     }),
     prisma.company.count({ where }),
   ])
 
-  return NextResponse.json({ companies, total, page, limit })
+  return NextResponse.json(getPaginatedResponse(companies, total, pagination))
 }
 
 export async function POST(req: Request) {

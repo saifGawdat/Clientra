@@ -1,34 +1,46 @@
 "use client"
 
 import { useState } from "react"
-import { Plus } from "lucide-react"
+import { Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DealFormDialog } from "@/components/deals/deal-form-dialog"
 import { PipelineBoard } from "@/components/deals/pipeline-board"
 import { formatCurrency } from "@/lib/utils"
 import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { usePaginatedQuery } from "@/hooks/use-paginated-query"
 
-interface DealsClientProps {
-  initialDeals: CRMDeal[]
-  contacts: { id: string; firstName: string; lastName: string; companyId?: string | null }[]
-  companies: { id: string; name: string }[]
-}
-
-export function DealsClient({ initialDeals, contacts, companies }: DealsClientProps) {
-  const [deals, setDeals] = useState<CRMDeal[]>(initialDeals)
+export function DealsClient() {
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false)
   const [editingDeal, setEditingDeal] = useState<CRMDeal | null>(null)
 
-  const handleSave = (deal: CRMDeal) => {
-    setDeals((prev) => {
-      const idx = prev.findIndex((d) => d.id === deal.id)
-      if (idx >= 0) {
-        const next = [...prev]
-        next[idx] = deal
-        return next
-      }
-      return [deal, ...prev]
-    })
+  // Fetch deals - for Kanban we usually want all active ones
+  const { data: dealsData, isLoading, refetch } = usePaginatedQuery<CRMDeal>(
+    ["deals"],
+    "/api/deals",
+    { limit: 500 } // High limit for Kanban
+  );
+
+  // Fetch supporting data
+  const { data: contactsData } = usePaginatedQuery<{ id: string; firstName: string; lastName: string; companyId?: string | null }>(
+    ["contacts-minimal"],
+    "/api/contacts",
+    { limit: 100 }
+  );
+
+  const { data: companiesData } = usePaginatedQuery<{ id: string; name: string }>(
+    ["companies-minimal"],
+    "/api/companies",
+    { limit: 100 }
+  );
+
+  const deals = dealsData?.data || []
+  const contacts = contactsData?.data || []
+  const companies = companiesData?.data || []
+
+  const handleSave = () => {
+    refetch();
     setShowForm(false)
     setEditingDeal(null)
   }
@@ -40,27 +52,34 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
       body: JSON.stringify({ stage: newStage }),
     })
     if (res.ok) {
-      const updated = await res.json()
-      setDeals((prev) => prev.map((d) => (d.id === dealId ? { ...d, ...updated } : d)))
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
     }
   }
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/deals/${id}`, { method: "DELETE" })
-    setDeals((prev) => prev.filter((d) => d.id !== id))
+    const res = await fetch(`/api/deals/${id}`, { method: "DELETE" })
+    if (res.ok) {
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+    }
   }
 
-  const openDeals = deals.filter((d) => !["WON", "LOST"].includes(d.stage))
-  const wonDeals = deals.filter((d) => d.stage === "WON")
-  const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-  const wonValue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
+  const openDeals = deals.filter((d: CRMDeal) => !["WON", "LOST"].includes(d.stage))
+  const wonDeals = deals.filter((d: CRMDeal) => d.stage === "WON")
+  const pipelineValue = openDeals.reduce((sum: number, d: CRMDeal) => sum + (d.value ?? 0), 0)
+  const wonValue = wonDeals.reduce((sum: number, d: CRMDeal) => sum + (d.value ?? 0), 0)
   const weightedValue = openDeals.reduce(
-    (sum, d) => sum + (d.value ?? 0) * ((d.probability ?? 50) / 100),
+    (sum: number, d: CRMDeal) => sum + (d.value ?? 0) * ((d.probability ?? 50) / 100),
     0
   )
 
   return (
-    <div className="p-6 flex flex-col h-full gap-5">
+    <div className="p-6 flex flex-col h-full gap-5 relative">
+      {isLoading && (
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-20 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        </div>
+      )}
+
       <div className="flex items-start justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Pipeline</h1>
@@ -77,9 +96,9 @@ export function DealsClient({ initialDeals, contacts, companies }: DealsClientPr
           { label: "Pipeline",  value: formatCurrency(pipelineValue), sub: `${openDeals.length} open`,   color: "text-foreground" },
           { label: "Weighted",  value: formatCurrency(weightedValue),  sub: "by probability",            color: "text-accent" },
           { label: "Won",       value: formatCurrency(wonValue),       sub: `${wonDeals.length} closed`, color: "text-emerald-400" },
-          { label: "Lost",      value: deals.filter(d => d.stage === "LOST").length.toString(), sub: "deals lost", color: "text-red-400" },
+          { label: "Lost",      value: deals.filter((d: CRMDeal) => d.stage === "LOST").length.toString(), sub: "deals lost", color: "text-red-400" },
         ].map((s) => (
-          <div key={s.label} className="bg-overlay border border-border rounded-xl p-4">
+          <div key={s.label} className="oled-card p-4">
             <p className="text-subtle text-xs uppercase tracking-widest mb-1">{s.label}</p>
             <p className={`text-xl font-bold font-mono ${s.color}`}>{s.value}</p>
             <p className="text-border-hover text-xs mt-0.5">{s.sub}</p>

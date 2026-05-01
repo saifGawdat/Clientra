@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { contactSchema } from "@/lib/validations"
+import { getPaginationParams, getPaginatedResponse } from "@/lib/pagination"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  const pagination = getPaginationParams(req)
   const { searchParams } = new URL(req.url)
   const search = searchParams.get("search") ?? ""
   const status = searchParams.get("status") ?? ""
-  const page = parseInt(searchParams.get("page") ?? "1")
-  const limit = parseInt(searchParams.get("limit") ?? "20")
 
   const where = {
     ownerId: session.user.id,
@@ -22,7 +22,7 @@ export async function GET(req: Request) {
         { email: { contains: search, mode: "insensitive" as const } },
       ],
     }),
-    ...(status && { status: status as "LEAD" | "PROSPECT" | "CUSTOMER" | "CHURNED" | "INACTIVE" }),
+    ...(status && { status: status as any }),
   }
 
   const [contacts, total] = await Promise.all([
@@ -30,13 +30,13 @@ export async function GET(req: Request) {
       where,
       include: { company: { select: { id: true, name: true } } },
       orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: pagination.skip,
+      take: pagination.limit,
     }),
     prisma.contact.count({ where }),
   ])
 
-  return NextResponse.json({ contacts, total, page, limit })
+  return NextResponse.json(getPaginatedResponse(contacts, total, pagination))
 }
 
 export async function POST(req: Request) {

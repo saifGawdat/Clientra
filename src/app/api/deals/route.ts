@@ -1,32 +1,39 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { dealSchema } from "@/lib/validations"
+import { getPaginationParams, getPaginatedResponse } from "@/lib/pagination"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  const pagination = getPaginationParams(req)
   const { searchParams } = new URL(req.url)
   const stage = searchParams.get("stage") ?? ""
   const search = searchParams.get("search") ?? ""
 
   const where = {
     ownerId: session.user.id,
-    ...(stage && { stage: stage as "LEAD" | "QUALIFIED" | "PROPOSAL" | "NEGOTIATION" | "WON" | "LOST" }),
+    ...(stage && { stage: stage as any }),
     ...(search && { title: { contains: search, mode: "insensitive" as const } }),
   }
 
-  const deals = await prisma.deal.findMany({
-    where,
-    include: {
-      contact: { select: { id: true, firstName: true, lastName: true } },
-      company: { select: { id: true, name: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-  })
+  const [deals, total] = await Promise.all([
+    prisma.deal.findMany({
+      where,
+      include: {
+        contact: { select: { id: true, firstName: true, lastName: true } },
+        company: { select: { id: true, name: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+      skip: pagination.skip,
+      take: pagination.limit,
+    }),
+    prisma.deal.count({ where }),
+  ])
 
-  return NextResponse.json(deals)
+  return NextResponse.json(getPaginatedResponse(deals, total, pagination))
 }
 
 export async function POST(req: Request) {

@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ActivityTypeIcon } from "@/components/activities/activity-type-icon"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import Link from "next/link"
+import { Suspense } from "react"
+import { Loader2 } from "lucide-react"
 
 const statusColors: Record<string, string> = {
   PLANNED: "text-blue-400",
@@ -20,12 +22,42 @@ export default async function DashboardPage() {
   const userId = session.user.id
   const userName = session.user.name ?? "there"
 
-  const [deals, activities, totalContacts, totalCompanies] = await Promise.all([
-    prisma.deal.findMany({
-      where: { ownerId: userId },
-      include: { company: { select: { id: true, name: true } } },
-      orderBy: { updatedAt: "desc" },
+  // Optimized KPI fetching using aggregations instead of full findMany
+  const [pipelineAgg, wonAgg, totalContacts, totalCompanies, completedActivitiesCount] = await Promise.all([
+    prisma.deal.aggregate({
+      where: { ownerId: userId, stage: { notIn: ["WON", "LOST"] } },
+      _sum: { value: true },
+      _count: { id: true },
     }),
+    prisma.deal.aggregate({
+      where: { ownerId: userId, stage: "WON" },
+      _sum: { value: true },
+      _count: { id: true },
+    }),
+    prisma.contact.count({ where: { ownerId: userId } }),
+    prisma.company.count({ where: { ownerId: userId } }),
+    prisma.activity.count({ where: { userId, status: "COMPLETED" } }),
+  ])
+
+  // Fetch only what's needed for the feed
+  const [upcomingActivities, recentInvoices, recentActivities, openDeals] = await Promise.all([
+    prisma.activity.findMany({
+      where: { userId, status: "PLANNED", scheduledAt: { not: null } },
+      include: {
+        contact: { select: { id: true, firstName: true, lastName: true } },
+      },
+      orderBy: { scheduledAt: "asc" },
+      take: 5,
+    }),
+    prisma.invoice.findMany({
+      where: { ownerId: userId },
+      include: {
+        contact: { select: { firstName: true, lastName: true } },
+        company: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }).catch(() => []),
     prisma.activity.findMany({
       where: { userId },
       include: {
@@ -33,34 +65,15 @@ export default async function DashboardPage() {
         deal: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 8,
     }),
-    prisma.contact.count({ where: { ownerId: userId } }),
-    prisma.company.count({ where: { ownerId: userId } }),
+    prisma.deal.findMany({
+      where: { ownerId: userId, stage: { notIn: ["WON", "LOST"] } },
+      include: { company: { select: { id: true, name: true } } },
+      orderBy: { updatedAt: "desc" },
+      take: 6,
+    }),
   ])
-
-  const recentInvoices = await prisma.invoice.findMany({
-    where: { ownerId: userId },
-    include: {
-      contact: { select: { firstName: true, lastName: true } },
-      company: { select: { name: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  }).catch(() => [])
-
-  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
-  const wonDeals = deals.filter((d) => d.stage === "WON")
-  const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-  const wonRevenue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-  const completedActivities = activities.filter((a) => a.status === "COMPLETED").length
-
-  const upcomingActivities = activities
-    .filter((a) => a.status === "PLANNED" && a.scheduledAt)
-    .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime())
-    .slice(0, 5)
-
-  const recentActivities = activities.slice(0, 8)
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5 min-h-full">
@@ -81,10 +94,10 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "Pipeline Value", value: formatCurrency(pipelineValue), sub: `${openDeals.length} open deals` },
-          { label: "Won Revenue", value: formatCurrency(wonRevenue), sub: `${wonDeals.length} deals closed` },
+          { label: "Pipeline Value", value: formatCurrency(pipelineAgg._sum.value || 0), sub: `${pipelineAgg._count.id} open deals` },
+          { label: "Won Revenue", value: formatCurrency(wonAgg._sum.value || 0), sub: `${wonAgg._count.id} deals closed` },
           { label: "Contacts", value: totalContacts.toString(), sub: `${totalCompanies} companies` },
-          { label: "Activities Done", value: completedActivities.toString(), sub: "completed" },
+          { label: "Activities Done", value: completedActivitiesCount.toString(), sub: "completed" },
         ].map((kpi) => (
           <div key={kpi.label} className="gradient-card">
             <p className="text-subtle text-xs uppercase tracking-widest mb-2">{kpi.label}</p>
@@ -129,7 +142,7 @@ export default async function DashboardPage() {
             <p className="text-subtle text-sm py-4 text-center">No open deals</p>
           ) : (
             <div className="space-y-1">
-              {openDeals.slice(0, 6).map((deal) => (
+              {openDeals.map((deal) => (
                 <div key={deal.id} className="flex items-center justify-between py-2.5 border-b border-border last:border-0">
                   <div className="min-w-0">
                     <Link href={`/deals/${deal.id}`} className="text-sm text-foreground font-medium truncate hover:text-accent transition-colors block">

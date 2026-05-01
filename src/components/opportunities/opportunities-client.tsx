@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { usePaginatedQuery } from "@/hooks/use-paginated-query";
 
 const STAGE_COLORS: Record<string, string> = {
   LEAD: "bg-surface-raised text-muted border-border-hover",
@@ -26,42 +28,52 @@ type Opportunity = {
   updatedAt: Date;
 };
 
-interface OpportunitiesClientProps {
-  initialOpportunities: Opportunity[];
-}
-
-export function OpportunitiesClient({
-  initialOpportunities,
-}: OpportunitiesClientProps) {
-  const [opportunities] = useState(initialOpportunities);
+export function OpportunitiesClient() {
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
-  const filtered = opportunities.filter((o) => {
-    const q = search.toLowerCase();
+  // Opportunities are active deals (not WON/LOST)
+  // We'll let the user filter by stage later, but for now we fetch all active ones
+  const { data, isLoading, error, refetch } = usePaginatedQuery<Opportunity>(
+    ["opportunities"],
+    "/api/deals",
+    { page, limit, search } // We might need a "stage: active" filter in the API if supported
+  );
+
+  if (error) {
     return (
-      o.title.toLowerCase().includes(q) ||
-      o.company?.name.toLowerCase().includes(q) ||
-      `${o.contact?.firstName ?? ""} ${o.contact?.lastName ?? ""}`
-        .toLowerCase()
-        .includes(q)
+      <div className="p-8 text-center">
+        <p className="text-red-500 font-medium">Error loading opportunities: {(error as Error).message}</p>
+        <Button onClick={() => refetch()} className="mt-4" variant="outline">Try Again</Button>
+      </div>
     );
-  });
+  }
 
-  const totalValue = opportunities.reduce((sum, o) => sum + (o.value ?? 0), 0);
-  const weightedValue = opportunities.reduce(
+  const opportunities = data?.data || [];
+  const meta = data?.meta;
+
+  // Filter out WON/LOST locally for now if the API doesn't support "active" filter yet
+  // Ideally the API should handle this to save bandwidth
+  const activeOpps = opportunities.filter(o => !["WON", "LOST"].includes(o.stage));
+
+  const totalValue = activeOpps.reduce((sum, o) => sum + (o.value ?? 0), 0);
+  const weightedValue = activeOpps.reduce(
     (sum, o) => sum + (o.value ?? 0) * ((o.probability ?? 50) / 100),
     0,
   );
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 min-h-full">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">
-          Opportunities
-        </h1>
-        <p className="text-subtle text-sm mt-1">
-          Active deals in your pipeline
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Opportunities
+          </h1>
+          <p className="text-subtle text-sm mt-1">
+            Active deals in your pipeline
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -80,7 +92,7 @@ export function OpportunitiesClient({
         <div className="oled-card">
           <p className="text-subtle text-xs uppercase tracking-widest mb-2">Open Deals</p>
           <p className="text-3xl font-bold font-mono text-foreground">
-            {opportunities.length}
+            {meta?.total ?? activeOpps.length}
           </p>
         </div>
       </div>
@@ -90,15 +102,24 @@ export function OpportunitiesClient({
         <Input
           placeholder="Search opportunities..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           className="pl-9"
         />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-lg border border-border relative min-h-[400px]">
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px] z-10 flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-accent" />
+          </div>
+        )}
+
         <table className="w-full text-sm min-w-[640px]">
           <thead>
-            <tr className="border-b border-border bg-surface">
+            <tr className="border-b border-border bg-overlay">
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Opportunity</th>
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Contact / Company</th>
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Stage</th>
@@ -107,8 +128,8 @@ export function OpportunitiesClient({
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Close Date</th>
             </tr>
           </thead>
-          <tbody>
-            {filtered.length === 0 && (
+          <tbody className="divide-y divide-border">
+            {!isLoading && activeOpps.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-subtle">
                   {search
@@ -117,10 +138,10 @@ export function OpportunitiesClient({
                 </td>
               </tr>
             )}
-            {filtered.map((opp) => (
+            {activeOpps.map((opp) => (
               <tr
                 key={opp.id}
-                className="border-b border-border hover:bg-surface transition-colors"
+                className="hover:bg-surface transition-colors"
               >
                 <td className="px-4 py-3">
                   <Link
@@ -188,6 +209,41 @@ export function OpportunitiesClient({
           </tbody>
         </table>
       </div>
+
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between py-2">
+          <p className="text-xs text-subtle">
+            Showing <span className="text-foreground font-medium">{activeOpps.length}</span> of <span className="text-foreground font-medium">{meta.total}</span> opportunities
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1 || isLoading}
+              onClick={() => setPage(p => p - 1)}
+              className="h-8 px-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <div className="flex items-center gap-1 px-2">
+              <span className="text-xs font-medium">{page}</span>
+              <span className="text-xs text-subtle">/</span>
+              <span className="text-xs text-subtle">{meta.totalPages}</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!meta.hasMore || isLoading}
+              onClick={() => setPage(p => p + 1)}
+              className="h-8 px-2"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
