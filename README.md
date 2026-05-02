@@ -1,6 +1,6 @@
 # Clientra — Modern CRM
 
-A full-featured, open-source CRM built with Next.js 15, Prisma, and PostgreSQL. Manage your entire sales pipeline — from cold targets to closed deals — in a clean, fast, dark/light-mode interface.
+A full-featured, open-source CRM built with Next.js 15, Prisma, and PostgreSQL. Manage your entire sales pipeline — from cold targets to closed deals — in a clean, fast, dark/light-mode interface..
 
 ---
 
