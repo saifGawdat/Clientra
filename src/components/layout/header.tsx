@@ -5,6 +5,8 @@ import { Menu, Search, Moon, Sun, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/theme-provider";
 
+import { GlobalSearch } from "./global-search";
+
 interface HeaderProps {
   onMenuClick?: () => void;
 }
@@ -25,18 +27,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Menu className="h-5 w-5" />
         </Button>
 
-        <div className="hidden sm:flex items-center gap-0 max-w-md flex-1">
-          <div className="relative flex-1 group">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-subtle group-focus-within:text-accent transition-colors" />
-            <input
-              placeholder="Search something ..."
-              className="w-full bg-surface border border-border border-r-0 rounded-l-md pl-8 pr-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-accent transition-all placeholder:text-subtle"
-            />
-          </div>
-          <button className="bg-linear-to-r from-violet-600 to-violet-500 hover:from-violet-700 hover:to-violet-600 text-white px-3 py-1.5 rounded-r-md text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 shadow-sm shadow-violet-900/30">
-            Search <Search className="h-2.5 w-2.5" />
-          </button>
-        </div>
+        <GlobalSearch />
       </div>
 
       {/* Center: logo — mobile only */}
