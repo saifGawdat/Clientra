@@ -105,9 +105,9 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white-500">{company.name}</h1>
+          <h1 className="text-2xl font-bold text-foreground">{company.name}</h1>
           {company.industry && (
-            <p className="text-white-500 text-sm">{company.industry}</p>
+            <p className="text-subtle text-sm">{company.industry}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -135,68 +135,68 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                 <Building2 className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="font-semibold text-white-500">{company.name}</p>
+                <p className="font-semibold text-foreground">{company.name}</p>
                 {company.size && (
-                  <p className="text-xs text-white-400">{company.size}</p>
+                  <p className="text-xs text-muted">{company.size}</p>
                 )}
               </div>
             </div>
 
             {company.website && (
-              <div className="flex items-center gap-2 text-sm text-white-600">
-                <Globe className="h-3.5 w-3.5 text-white-400" />
+              <div className="flex items-center gap-2 text-sm text-subtle">
+                <Globe className="h-3.5 w-3.5 text-muted" />
                 <a
                   href={company.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-blue-600 truncate"
+                  className="hover:text-accent truncate"
                 >
                   {company.website.replace(/^https?:\/\//, "")}
                 </a>
               </div>
             )}
             {company.email && (
-              <div className="flex items-center gap-2 text-sm text-white-600">
-                <Mail className="h-3.5 w-3.5 text-white-400" />
+              <div className="flex items-center gap-2 text-sm text-subtle">
+                <Mail className="h-3.5 w-3.5 text-muted" />
                 <a
                   href={`mailto:${company.email}`}
-                  className="hover:text-blue-600"
+                  className="hover:text-accent"
                 >
                   {company.email}
                 </a>
               </div>
             )}
             {company.phone && (
-              <div className="flex items-center gap-2 text-sm text-white-600">
-                <Phone className="h-3.5 w-3.5 text-white-400" />
+              <div className="flex items-center gap-2 text-sm text-subtle">
+                <Phone className="h-3.5 w-3.5 text-muted" />
                 <span>{company.phone}</span>
               </div>
             )}
             {(company.city || company.country) && (
-              <div className="flex items-center gap-2 text-sm text-white-600">
-                <MapPin className="h-3.5 w-3.5 text-white-400" />
+              <div className="flex items-center gap-2 text-sm text-subtle">
+                <MapPin className="h-3.5 w-3.5 text-muted" />
                 <span>
                   {[company.city, company.country].filter(Boolean).join(", ")}
                 </span>
               </div>
             )}
 
-            <div className="pt-3 border-t border-white-100 space-y-2 text-xs text-white-500">
+            <div className="pt-3 border-t border-border space-y-2 text-xs text-subtle">
               <div className="flex justify-between">
                 <span>Contacts</span>
-                <span className="font-medium text-white-700">
+                <span className="font-medium text-foreground">
                   {company.contacts.length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Invoices</span>
-                <span className="font-medium text-white-700">
+                <span className="font-medium text-foreground">
                   {company.invoices?.length || 0}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Created</span>
-                <span className="font-medium text-white-700">
+                <span className="font-medium text-foreground">
                   {formatDate(company.createdAt)}
                 </span>
               </div>
@@ -223,7 +223,7 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
 
             <TabsContent value="contacts" className="mt-4 space-y-2">
               {company.contacts.length === 0 && (
-                <p className="text-sm text-white-400 py-4">
+                <p className="text-sm text-muted py-4">
                   No contacts for this company.
                 </p>
               )}
@@ -239,10 +239,10 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-sm text-white-500">
+                          <p className="font-medium text-sm text-foreground">
                             {contact.firstName} {contact.lastName}
                           </p>
-                          <p className="text-xs text-white-400">
+                          <p className="text-xs text-muted">
                             {contact.title ?? contact.email ?? "—"}
                           </p>
                         </div>
@@ -258,7 +258,7 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
 
             <TabsContent value="deals" className="mt-4 space-y-2">
               {company.deals.length === 0 && (
-                <p className="text-sm text-white-400 py-4">
+                <p className="text-sm text-muted py-4">
                   No deals for this company.
                 </p>
               )}
@@ -267,10 +267,10 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                   <Card className="hover:border-blue-200 transition-colors">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-sm text-white-500">
+                        <p className="font-medium text-sm text-foreground">
                           {deal.title}
                         </p>
-                        <p className="text-xs text-white-400">
+                        <p className="text-xs text-muted">
                           {formatDate(deal.createdAt)}
                         </p>
                       </div>
@@ -312,16 +312,16 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
                 </CardContent>
               </Card>
               {(company.notes ?? []).length === 0 && (
-                <p className="text-sm text-white-400 py-2">No notes yet.</p>
+                <p className="text-sm text-muted py-2">No notes yet.</p>
               )}
               {(company.notes ?? []).map((note: Note) => (
                 <Card key={note.id}>
                   <CardContent className="p-4">
-                    <p className="text-sm text-white-700 whitespace-pre-wrap">
+                    <p className="text-sm text-subtle whitespace-pre-wrap">
                       {note.content}
                     </p>
                     <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs text-white-400">
+                      <p className="text-xs text-muted">
                         {formatDate(note.createdAt)}
                       </p>
                       <Button
@@ -340,21 +340,21 @@ export function CompanyDetail({ company: initialCompany }: { company: FullCompan
 
             <TabsContent value="invoices" className="mt-4 space-y-2">
               {(company.invoices ?? []).length === 0 && (
-                <p className="text-sm text-white-400 py-4">
+                <p className="text-sm text-muted py-4">
                   No invoices for this company.
                 </p>
               )}
               {(company.invoices ?? []).map((inv: Invoice) => (
                 <Link key={inv.id} href={`/invoices/${inv.id}`}>
-                  <Card className="hover:border-blue-200 transition-colors cursor-pointer group">
+                  <Card className="hover:border-accent/30 transition-colors cursor-pointer group">
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="font-mono text-xs font-medium text-white-500">
+                        <p className="font-mono text-xs font-medium text-foreground">
                           {inv.invoiceNumber}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <Calendar className="h-3 w-3 text-white-400" />
-                          <span className="text-xs text-white-400">
+                          <Calendar className="h-3 w-3 text-muted" />
+                          <span className="text-xs text-muted">
                             Due {formatDate(inv.dueDate)}
                           </span>
                         </div>

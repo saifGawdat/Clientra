@@ -91,6 +91,7 @@ export function Sidebar({ user, mobileOpen = false, onMobileClose }: SidebarProp
           <span className="font-bold text-base tracking-tight text-foreground flex-1">
             Clientra
           </span>
+
         )}
         <button
           onClick={onMobileClose}

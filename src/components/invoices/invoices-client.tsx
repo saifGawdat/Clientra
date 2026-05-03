@@ -250,7 +250,7 @@ export function InvoicesClient() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-red-400 hover:text-red-400 hover:bg-red-950/30"
+                      className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-500/10"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDelete(inv.id);

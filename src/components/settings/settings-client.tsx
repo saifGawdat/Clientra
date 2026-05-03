@@ -83,8 +83,8 @@ export function SettingsClient({ user }: SettingsClientProps) {
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-white-500">Settings</h1>
-        <p className="text-white-500 text-sm mt-1">Manage your account settings</p>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="text-subtle text-sm mt-1">Manage your account settings</p>
       </div>
 
       <Card>
@@ -95,11 +95,11 @@ export function SettingsClient({ user }: SettingsClientProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="font-medium text-white-500">Email</p>
-              <p className="mt-0.5 text-white-800">{user.email}</p>
+              <p className="font-medium text-subtle">Email</p>
+              <p className="mt-0.5 text-foreground">{user.email}</p>
             </div>
             <div>
-              <p className="font-medium text-white-500">Role</p>
+              <p className="font-medium text-subtle">Role</p>
               <Badge variant="secondary" className="mt-0.5">{user.role}</Badge>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
 
           <form onSubmit={profileForm.handleSubmit(onSaveProfile)} className="space-y-4">
             <div className="space-y-1.5">
-              <Label>Display name</Label>
+              <Label className="text-subtle">Display name</Label>
               <Input placeholder="Your name" {...profileForm.register("name")} />
               {profileForm.formState.errors.name && (
                 <p className="text-xs text-red-500">{profileForm.formState.errors.name.message}</p>

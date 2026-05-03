@@ -20,11 +20,11 @@ const typeIcon: Record<string, React.ElementType> = {
 }
 
 const typeColor: Record<string, string> = {
-  CALL: "text-blue-400 bg-blue-950/40 border border-blue-800/30",
-  EMAIL: "text-accent-light bg-accent/20 border border-accent/30",
-  MEETING: "text-emerald-400 bg-emerald-950/40 border border-emerald-800/30",
-  TASK: "text-amber-400 bg-amber-950/40 border border-amber-800/30",
-  NOTE: "text-muted bg-surface border border-border",
+  CALL: "text-blue-500 bg-blue-500/10 border border-blue-500/20",
+  EMAIL: "text-accent bg-accent/10 border border-accent/20",
+  MEETING: "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20",
+  TASK: "text-amber-500 bg-amber-500/10 border border-amber-500/20",
+  NOTE: "text-subtle bg-surface border border-border",
 }
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "purple"> = {
@@ -202,7 +202,7 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-emerald-400 hover:text-emerald-400 hover:bg-emerald-950/30"
+                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
                         onClick={() => handleComplete(activity.id)}
                         title="Mark complete"
                       >
@@ -220,7 +220,7 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-red-400 hover:text-red-400 hover:bg-red-950/30"
+                      className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-500/10"
                       onClick={() => handleDelete(activity.id)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
