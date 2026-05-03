@@ -5,26 +5,22 @@ import Link from "next/link";
 import { Plus, Search, Trash2, Pencil, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ContactFormDialog } from "@/components/contacts/contact-form-dialog";
+import { TargetFormDialog } from "./target-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
-import { formatDate } from "@/lib/utils";
+import { formatDate, cn } from "@/lib/utils";
 import { Contact as CRMContact } from "@/types/crm-types";
 
 const ALL_STATUSES = [
+  "TARGET",
   "LEAD",
   "PROSPECT",
-  "CUSTOMER",
-  "CHURNED",
-  "INACTIVE",
 ] as const;
 type ConvertStatus = (typeof ALL_STATUSES)[number];
 
-const statusColors: Record<ConvertStatus, string> = {
+const statusColors: Record<string, string> = {
+  TARGET: "text-amber-400 hover:bg-amber-950/30",
   LEAD: "text-muted hover:bg-surface-raised",
   PROSPECT: "text-blue-400 hover:bg-blue-950/40",
-  CUSTOMER: "text-emerald-400 hover:bg-emerald-950/40",
-  CHURNED: "text-red-400 hover:bg-red-950/40",
-  INACTIVE: "text-subtle hover:bg-surface-raised",
 };
 
 const sourceLabels: Record<string, string> = {
@@ -51,7 +47,8 @@ export function TargetsClient({
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingTarget, setEditingTarget] = useState<CRMContact | null>(null);
-  const [convertingId, setConvertingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [isConverting, setIsConverting] = useState<string | null>(null);
 
   const filtered = targets.filter((t) => {
     const q = search.toLowerCase();
@@ -76,21 +73,31 @@ export function TargetsClient({
     setTargets((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const handleConvert = async (id: string, newStatus: ConvertStatus) => {
-    setConvertingId(null);
-    const res = await fetch(`/api/contacts/${id}`, {
+  const handleConvert = async (contact: CRMContact) => {
+    setIsConverting(contact.id);
+    const res = await fetch(`/api/contacts/${contact.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status: "CUSTOMER" }),
     });
+    
     if (res.ok) {
-      setTargets((prev) => prev.filter((t) => t.id !== id));
+      setToast({ 
+        message: `${contact.firstName} ${contact.lastName} converted to Customer`, 
+        type: "success" 
+      });
+      setTargets((prev) => prev.filter((t) => t.id !== contact.id));
+      setTimeout(() => setToast(null), 3000);
+    } else {
+      setToast({ message: "Failed to convert target", type: "error" });
+      setTimeout(() => setToast(null), 3000);
     }
+    setIsConverting(null);
   };
 
   const handleSave = (contact: CRMContact) => {
     setTargets((prev) => {
-      if (contact.status !== "TARGET")
+      if (!["TARGET", "LEAD", "PROSPECT"].includes(contact.status))
         return prev.filter((t) => t.id !== contact.id);
       const idx = prev.findIndex((t) => t.id === contact.id);
       if (idx >= 0) {
@@ -146,7 +153,7 @@ export function TargetsClient({
             <tr className="border-b border-border bg-surface">
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Name</th>
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Company</th>
-              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Source</th>
+              <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Status</th>
               <th className="text-left px-4 py-3 font-medium text-subtle uppercase tracking-wider text-xs">Added</th>
               <th className="px-4 py-3" />
             </tr>
@@ -199,42 +206,30 @@ export function TargetsClient({
                     "—"
                   )}
                 </td>
-                <td className="px-4 py-3 text-muted">
-                  {sourceLabels[target.source] ?? target.source}
+                <td className="px-4 py-3">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    target.status === 'TARGET' ? 'text-amber-400 border-amber-400/30 bg-amber-400/10' :
+                    target.status === 'LEAD' ? 'text-zinc-400 border-zinc-400/30 bg-zinc-400/10' :
+                    'text-blue-400 border-blue-400/30 bg-blue-400/10'
+                  }`}>
+                    {target.status}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-subtle">
                   {formatDate(target.createdAt)}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1 justify-end">
-                    <div className="relative">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-950/30 gap-1"
-                        onClick={() =>
-                          setConvertingId(
-                            convertingId === target.id ? null : target.id,
-                          )
-                        }
-                      >
-                        <RefreshCw className="h-3.5 w-3.5" />
-                        Convert
-                      </Button>
-                      {convertingId === target.id && (
-                        <div className="absolute right-0 top-full mt-1 z-20 bg-surface border border-border rounded-md shadow-xl min-w-[130px] py-1">
-                          {ALL_STATUSES.map((s) => (
-                            <button
-                              key={s}
-                              onClick={() => handleConvert(target.id, s)}
-                              className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${statusColors[s]}`}
-                            >
-                              → {s}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 gap-1"
+                      disabled={isConverting === target.id}
+                      onClick={() => handleConvert(target)}
+                    >
+                      <RefreshCw className={cn("h-3.5 w-3.5", isConverting === target.id && "animate-spin")} />
+                      {isConverting === target.id ? "Converting..." : "Convert"}
+                    </Button>
 
                     <Button
                       variant="ghost"
@@ -263,14 +258,26 @@ export function TargetsClient({
         </table>
       </div>
 
-      {convertingId && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => setConvertingId(null)}
-        />
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={cn(
+            "px-4 py-3 rounded-xl shadow-2xl border flex items-center gap-3 min-w-[300px]",
+            toast.type === "success" 
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+              : "bg-red-500/10 border-red-500/20 text-red-400"
+          )}>
+            <div className={cn(
+              "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
+              toast.type === "success" ? "bg-emerald-500/20" : "bg-red-500/20"
+            )}>
+              <RefreshCw className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
       )}
 
-      <ContactFormDialog
+      <TargetFormDialog
         open={showForm}
         onClose={() => {
           setShowForm(false);
