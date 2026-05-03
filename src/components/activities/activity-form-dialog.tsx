@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { activitySchema, type ActivityInput } from "@/lib/validations"
 import { CRMActivity } from "@/types/crm-types"
+import { useCreateActivity, useUpdateActivity } from "@/hooks/crm-hooks"
 
 interface ActivityFormDialogProps {
   open: boolean
@@ -25,7 +26,10 @@ const TYPES = ["CALL", "EMAIL", "MEETING", "TASK", "NOTE"]
 const STATUSES = ["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
 
 export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, deals }: ActivityFormDialogProps) {
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<ActivityInput>({
+  const createActivity = useCreateActivity();
+  const updateActivity = useUpdateActivity();
+
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ActivityInput>({
     resolver: zodResolver(activitySchema),
     defaultValues: { type: "CALL" as const, status: "PLANNED" as const },
   })
@@ -49,19 +53,21 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
   }, [activity, reset])
 
   const onSubmit = async (data: ActivityInput) => {
-    const url = activity ? `/api/activities/${activity.id}` : "/api/activities"
-    const method = activity ? "PATCH" : "POST"
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (res.ok) {
-      const saved = await res.json()
-      onSave(saved)
-      if (!activity) reset({ type: "CALL", status: "PLANNED" })
+    if (activity) {
+      updateActivity.mutate({ id: activity.id, data }, {
+        onSuccess: (saved) => onSave(saved as CRMActivity)
+      });
+    } else {
+      createActivity.mutate(data, {
+        onSuccess: (saved) => {
+          onSave(saved as CRMActivity);
+          reset({ type: "CALL", status: "PLANNED" });
+        }
+      });
     }
   }
+
+  const isSaving = createActivity.isPending || updateActivity.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -132,7 +138,7 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
                   <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {contacts.map((c) => (
+                    {Array.isArray(contacts) && contacts.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
                     ))}
                   </SelectContent>
@@ -154,7 +160,7 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
                   <SelectTrigger><SelectValue placeholder="Select deal" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {deals.map((d) => (
+                    {Array.isArray(deals) && deals.map((d) => (
                       <SelectItem key={d.id} value={d.id}>{d.title}</SelectItem>
                     ))}
                   </SelectContent>
@@ -165,8 +171,8 @@ export function ActivityFormDialog({ open, onClose, onSave, activity, contacts, 
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : activity ? "Save changes" : "Log activity"}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : activity ? "Save changes" : "Log activity"}
             </Button>
           </DialogFooter>
         </form>

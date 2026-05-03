@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { dealSchema, type DealInput } from "@/lib/validations"
 import { Deal } from "@/types/crm-types"
+import { useCreateDeal, useUpdateDeal } from "@/hooks/crm-hooks"
 
 interface DealFormDialogProps {
   open: boolean
@@ -25,15 +26,19 @@ const STAGES = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"]
 const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD"]
 
 export function DealFormDialog({ open, onClose, onSave, deal, contacts, companies }: DealFormDialogProps) {
-  const { register, handleSubmit, control, reset, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<DealInput>({
+  const createDeal = useCreateDeal();
+  const updateDeal = useUpdateDeal();
+
+  const { register, handleSubmit, control, reset, watch, setValue, getValues, formState: { errors } } = useForm<DealInput>({
     resolver: zodResolver(dealSchema),
     defaultValues: { stage: "LEAD" as const, currency: "USD" },
   })
 
   const selectedCompanyId = watch("companyId")
+  const contactList = Array.isArray(contacts) ? contacts : [];
   const filteredContacts = selectedCompanyId
-    ? contacts.filter((c) => c.companyId === selectedCompanyId)
-    : contacts
+    ? contactList.filter((c) => c.companyId === selectedCompanyId)
+    : contactList
 
   useEffect(() => {
     if (!selectedCompanyId) return
@@ -64,18 +69,18 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
   }, [deal, reset])
 
   const onSubmit = async (data: DealInput) => {
-    const url = deal ? `/api/deals/${deal.id}` : "/api/deals"
-    const method = deal ? "PATCH" : "POST"
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (res.ok) {
-      const saved = await res.json()
-      onSave(saved)
+    if (deal) {
+      updateDeal.mutate({ id: deal.id, data }, {
+        onSuccess: (saved) => onSave(saved as Deal)
+      });
+    } else {
+      createDeal.mutate(data, {
+        onSuccess: (saved) => onSave(saved as Deal)
+      });
     }
   }
+
+  const isSaving = createDeal.isPending || updateDeal.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -152,10 +157,10 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
                   <SelectTrigger><SelectValue placeholder="Select contact" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {filteredContacts.map((c) => (
+                    {Array.isArray(filteredContacts) && filteredContacts.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.firstName} {c.lastName}</SelectItem>
                     ))}
-                    {selectedCompanyId && filteredContacts.length === 0 && (
+                    {selectedCompanyId && Array.isArray(filteredContacts) && filteredContacts.length === 0 && (
                       <div className="px-2 py-3 text-xs text-subtle text-center">No contacts for this company</div>
                     )}
                   </SelectContent>
@@ -193,8 +198,8 @@ export function DealFormDialog({ open, onClose, onSave, deal, contacts, companie
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : deal ? "Save changes" : "Add deal"}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : deal ? "Save changes" : "Add deal"}
             </Button>
           </DialogFooter>
         </form>

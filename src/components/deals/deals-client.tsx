@@ -7,61 +7,46 @@ import { DealFormDialog } from "@/components/deals/deal-form-dialog"
 import { PipelineBoard } from "@/components/deals/pipeline-board"
 import { formatCurrency } from "@/lib/utils"
 import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { usePaginatedQuery } from "@/hooks/use-paginated-query"
+import { useDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, keys, useContacts, useCompanies } from "@/hooks/crm-hooks"
 
 export function DealsClient() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false)
   const [editingDeal, setEditingDeal] = useState<CRMDeal | null>(null)
 
-  // Fetch deals - for Kanban we usually want all active ones
-  const { data: dealsData, isLoading, refetch } = usePaginatedQuery<CRMDeal>(
-    ["deals"],
+  // 1. Data Hooks
+  const { data: dealsData, isLoading } = usePaginatedQuery<CRMDeal>(
+    keys.deals.lists(),
     "/api/deals",
-    { limit: 500 } // High limit for Kanban
+    { limit: 500 }
   );
 
-  // Fetch supporting data
-  const { data: contactsData } = usePaginatedQuery<{ id: string; firstName: string; lastName: string; companyId?: string | null }>(
-    ["contacts-minimal"],
-    "/api/contacts",
-    { limit: 100 }
-  );
-
-  const { data: companiesData } = usePaginatedQuery<{ id: string; name: string }>(
-    ["companies-minimal"],
-    "/api/companies",
-    { limit: 100 }
-  );
+  const { data: contactsData } = useContacts();
+  const { data: companiesData } = useCompanies();
+  
+  const contacts = (contactsData as any)?.data || (Array.isArray(contactsData) ? contactsData : []);
+  const companies = (companiesData as any)?.data || (Array.isArray(companiesData) ? companiesData : []);
+  
+  const updateDeal = useUpdateDeal();
+  const deleteDeal = useDeleteDeal();
 
   const deals = dealsData?.data || []
-  const contacts = contactsData?.data || []
-  const companies = companiesData?.data || []
 
   const handleSave = () => {
-    refetch();
     setShowForm(false)
     setEditingDeal(null)
-  }
+    queryClient.invalidateQueries({ queryKey: keys.deals.all });
+  };
 
   const handleStageChange = async (dealId: string, newStage: DealStage) => {
-    const res = await fetch(`/api/deals/${dealId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stage: newStage }),
-    })
-    if (res.ok) {
-      queryClient.invalidateQueries({ queryKey: ["deals"] });
-    }
-  }
+    updateDeal.mutate({ id: dealId, data: { stage: newStage } });
+  };
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/deals/${id}`, { method: "DELETE" })
-    if (res.ok) {
-      queryClient.invalidateQueries({ queryKey: ["deals"] });
-    }
-  }
+    deleteDeal.mutate(id);
+  };
 
   const openDeals = deals.filter((d: CRMDeal) => !["WON", "LOST"].includes(d.stage))
   const wonDeals = deals.filter((d: CRMDeal) => d.stage === "WON")

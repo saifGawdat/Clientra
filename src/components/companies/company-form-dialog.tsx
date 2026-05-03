@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { companySchema, type CompanyInput } from "@/lib/validations"
 import { Company } from "@/types/crm-types"
+import { useCreateCompany, useUpdateCompany } from "@/hooks/crm-hooks"
 
 interface CompanyFormDialogProps {
   open: boolean
@@ -22,7 +23,10 @@ const industries = ["Technology", "Finance", "Healthcare", "Retail", "Manufactur
 const sizes = ["SOLO", "SMALL", "MEDIUM", "LARGE", "ENTERPRISE"]
 
 export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFormDialogProps) {
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<CompanyInput>({
+  const createCompany = useCreateCompany();
+  const updateCompany = useUpdateCompany();
+
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CompanyInput>({
     resolver: zodResolver(companySchema),
   })
 
@@ -45,18 +49,18 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
   }, [company, reset])
 
   const onSubmit = async (data: CompanyInput) => {
-    const url = company ? `/api/companies/${company.id}` : "/api/companies"
-    const method = company ? "PATCH" : "POST"
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (res.ok) {
-      const saved = await res.json()
-      onSave(saved)
+    if (company) {
+      updateCompany.mutate({ id: company.id, data }, {
+        onSuccess: (saved) => onSave(saved as Company)
+      });
+    } else {
+      createCompany.mutate(data, {
+        onSuccess: (saved) => onSave(saved as Company)
+      });
     }
   }
+
+  const isSaving = createCompany.isPending || updateCompany.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -129,8 +133,8 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : company ? "Save changes" : "Add company"}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : company ? "Save changes" : "Add company"}
             </Button>
           </DialogFooter>
         </form>

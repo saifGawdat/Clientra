@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { contactSchema, type ContactInput } from "@/lib/validations"
 import { Contact } from "@/types/crm-types"
+import { useCreateContact, useUpdateContact } from "@/hooks/crm-hooks"
 
 interface ContactFormDialogProps {
   open: boolean
@@ -20,7 +21,10 @@ interface ContactFormDialogProps {
 }
 
 export function ContactFormDialog({ open, onClose, onSave, contact, companies }: ContactFormDialogProps) {
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<ContactInput>({
+  const createContact = useCreateContact();
+  const updateContact = useUpdateContact();
+
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
     defaultValues: { status: "LEAD" as const, source: "OTHER" as const, tags: [] },
   })
@@ -44,18 +48,18 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
   }, [contact, reset])
 
   const onSubmit = async (data: ContactInput) => {
-    const url = contact ? `/api/contacts/${contact.id}` : "/api/contacts"
-    const method = contact ? "PATCH" : "POST"
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (res.ok) {
-      const saved = await res.json()
-      onSave(saved)
+    if (contact) {
+      updateContact.mutate({ id: contact.id, data }, {
+        onSuccess: (saved) => onSave(saved as Contact)
+      });
+    } else {
+      createContact.mutate(data, {
+        onSuccess: (saved) => onSave(saved as Contact)
+      });
     }
   }
+
+  const isSaving = createContact.isPending || updateContact.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -152,8 +156,8 @@ export function ContactFormDialog({ open, onClose, onSave, contact, companies }:
           )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : contact ? "Save changes" : "Add contact"}
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : contact ? "Save changes" : "Add contact"}
             </Button>
           </DialogFooter>
         </form>

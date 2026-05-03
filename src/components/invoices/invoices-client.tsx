@@ -24,6 +24,8 @@ import { Invoice, InvoiceStatus } from "@/types/crm-types";
 import { InvoiceStatusBadge } from "./invoice-status-badge";
 import { InvoiceFormDialog } from "./invoice-form-dialog";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
+import { useInvoices, useCreateInvoice, useUpdateInvoice, useDeleteInvoice, keys } from "@/hooks/crm-hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ALL_STATUSES: InvoiceStatus[] = [
   "DRAFT",
@@ -36,6 +38,7 @@ const ALL_STATUSES: InvoiceStatus[] = [
 export function InvoicesClient() {
   const router = useRouter();
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   
   // State for filtering and pagination
   const [search, setSearch] = useState("");
@@ -47,30 +50,33 @@ export function InvoicesClient() {
   const [showForm, setShowForm] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
 
-  // Fetch paginated data
+  // 1. Data Hooks
   const { data, isLoading, error, refetch } = usePaginatedQuery<Invoice>(
-    ["invoices"],
+    keys.invoices.lists(),
     "/api/dashboard/invoices-data",
     { page, limit, search, status: filterStatus }
   );
 
+  const deleteInvoice = useDeleteInvoice();
+
   const handleDelete = async (id: string) => {
-    if (
-      !(await confirm({
-        title: "Delete Invoice?",
-        description: "This action cannot be undone.",
-        variant: "destructive",
-      }))
-    )
-      return;
-    await fetch(`/api/invoices/${id}`, { method: "DELETE" });
-    refetch();
+    if (!(await confirm({
+      title: "Delete Invoice?",
+      description: "This action cannot be undone.",
+      variant: "destructive",
+    }))) return;
+
+    deleteInvoice.mutate(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: keys.invoices.all });
+      }
+    });
   };
 
   const handleSave = () => {
-    refetch();
     setShowForm(false);
     setEditingInvoice(null);
+    queryClient.invalidateQueries({ queryKey: keys.invoices.all });
   };
 
   if (error) {

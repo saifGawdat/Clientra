@@ -23,7 +23,8 @@ import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { Contact as CRMContact, ContactStatus } from "@/types/crm-types";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
-import { useQuery } from "@tanstack/react-query";
+import { useContacts, useCreateContact, useUpdateContact, useDeleteContact, keys, useCompanies } from "@/hooks/crm-hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const STATUS_CONFIG: Record<
   string,
@@ -52,6 +53,7 @@ const ALL_STATUSES = [
 
 export function ContactsClient() {
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   
   // State for filtering and pagination
   const [search, setSearch] = useState("");
@@ -63,39 +65,34 @@ export function ContactsClient() {
   const [showForm, setShowForm] = useState(false);
   const [editingContact, setEditingContact] = useState<CRMContact | null>(null);
 
-  // Fetch paginated contacts
+  // 1. Data Hooks
   const { data, isLoading, error, refetch } = usePaginatedQuery<CRMContact>(
-    ["contacts"],
+    keys.contacts.lists(),
     "/api/contacts",
     { page, limit, search, status: filterStatus }
   );
 
-  // Fetch companies for the form (limit to 100 for now)
-  const { data: companiesData } = useQuery({
-    queryKey: ["companies-minimal"],
-    queryFn: async () => {
-      const res = await fetch("/api/companies?limit=100");
-      return res.json();
-    }
-  });
+  const { data: companies = [] } = useCompanies();
+  const deleteContact = useDeleteContact();
 
   const handleDelete = async (id: string) => {
-    if (
-      !(await confirm({
-        title: "Delete Contact?",
-        description: "This action cannot be undone.",
-        variant: "destructive",
-      }))
-    )
-      return;
-    await fetch(`/api/contacts/${id}`, { method: "DELETE" });
-    refetch();
+    if (!(await confirm({
+      title: "Delete Contact?",
+      description: "This action cannot be undone.",
+      variant: "destructive",
+    }))) return;
+
+    deleteContact.mutate(id, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: keys.contacts.all });
+      }
+    });
   };
 
   const handleSave = () => {
-    refetch();
     setShowForm(false);
     setEditingContact(null);
+    queryClient.invalidateQueries({ queryKey: keys.contacts.all });
   };
 
   if (error) {
@@ -109,7 +106,6 @@ export function ContactsClient() {
 
   const contacts = data?.data || [];
   const meta = data?.meta;
-  const companies = companiesData?.companies || [];
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 min-h-full">

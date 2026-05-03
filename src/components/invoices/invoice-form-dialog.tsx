@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { invoiceSchema, type InvoiceInput } from "@/lib/validations"
 import { Invoice } from "@/types/crm-types"
+import { useCreateInvoice, useUpdateInvoice } from "@/hooks/crm-hooks"
 import { cn } from "@/lib/utils"
 
 interface InvoiceFormDialogProps {
@@ -42,11 +43,14 @@ export function InvoiceFormDialog({
   companies,
   deals
 }: InvoiceFormDialogProps) {
+  const createInvoice = useCreateInvoice();
+  const updateInvoice = useUpdateInvoice();
+
   const [today] = useState(() => new Date().toISOString().split('T')[0])
   const [defaultDueDate] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
   const [defaultInvoiceNumber] = useState(() => `INV-${Math.floor(1000 + Math.random() * 9000)}`)
 
-  const { register, handleSubmit, control, reset, setValue, getValues, formState: { errors, isSubmitting } } = useForm<InvoiceInput>({
+  const { register, handleSubmit, control, reset, setValue, getValues, formState: { errors } } = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       status: "DRAFT",
@@ -67,9 +71,10 @@ export function InvoiceFormDialog({
   const calculatedTotal = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
 
   const selectedCompanyId = useWatch({ control, name: "companyId" })
+  const contactList = Array.isArray(contacts) ? contacts : [];
   const filteredContacts = selectedCompanyId
-    ? contacts.filter((c) => c.companyId === selectedCompanyId)
-    : contacts
+    ? contactList.filter((c) => c.companyId === selectedCompanyId)
+    : contactList
 
   useEffect(() => {
     if (!selectedCompanyId) return
@@ -133,26 +138,18 @@ export function InvoiceFormDialog({
   }, [invoice, reset, today, defaultDueDate])
 
   const onSubmit = async (data: InvoiceInput) => {
-    try {
-      const url = invoice ? `/api/invoices/${invoice.id}` : "/api/invoices"
-      const method = invoice ? "PATCH" : "POST"
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-      if (res.ok) {
-        const saved = await res.json()
-        onSave(saved)
-      } else {
-        const errData = await res.json()
-        alert(`Error: ${errData.error || "Unknown error"}`)
-      }
-    } catch (e) {
-      alert("Failed to save invoice. Please check your connection.")
-      console.log(e)
+    if (invoice) {
+      updateInvoice.mutate({ id: invoice.id, data }, {
+        onSuccess: (saved) => onSave(saved as Invoice)
+      });
+    } else {
+      createInvoice.mutate(data, {
+        onSuccess: (saved) => onSave(saved as Invoice)
+      });
     }
   }
+
+  const isSaving = createInvoice.isPending || updateInvoice.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -318,7 +315,7 @@ export function InvoiceFormDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">None</SelectItem>
-                        {deals.map((d) => (
+                        {Array.isArray(deals) && deals.map((d) => (
                           <SelectItem key={d.id} value={d.id} className="text-xs">
                             <span className="font-medium">{d.title}</span>
                             {d.value ? <span className="ml-2 text-emerald-400 font-mono">${d.value.toLocaleString()}</span> : null}
@@ -343,10 +340,10 @@ export function InvoiceFormDialog({
                         <SelectTrigger className="bg-surface h-9"><SelectValue placeholder="Select Contact" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
-                          {filteredContacts.map((c) => (
+                          {Array.isArray(filteredContacts) && filteredContacts.map((c) => (
                             <SelectItem key={c.id} value={c.id} className="text-xs">{c.firstName} {c.lastName}</SelectItem>
                           ))}
-                          {selectedCompanyId && filteredContacts.length === 0 && (
+                          {selectedCompanyId && Array.isArray(filteredContacts) && filteredContacts.length === 0 && (
                             <div className="px-2 py-3 text-xs text-subtle text-center">No contacts for this company</div>
                           )}
                         </SelectContent>
@@ -367,9 +364,9 @@ export function InvoiceFormDialog({
                         <SelectTrigger className="bg-surface h-9"><SelectValue placeholder="Select Company" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
-                          {companies.map((c) => (
-                            <SelectItem key={c.id} value={c.id} className="text-xs">{c.name}</SelectItem>
-                          ))}
+                        {Array.isArray(companies) && companies.map((c) => (
+                          <SelectItem key={c.id} value={c.id} className="text-xs">{c.name}</SelectItem>
+                        ))}
                         </SelectContent>
                       </Select>
                     )}
@@ -391,11 +388,11 @@ export function InvoiceFormDialog({
           </Button>
           <Button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSaving}
             onClick={handleSubmit(onSubmit)}
             className="px-8 bg-accent hover:bg-accent/90 text-white font-bold"
           >
-            {isSubmitting ? "Processing..." : invoice ? "Update Invoice" : "Finalize & Create"}
+            {isSaving ? "Processing..." : invoice ? "Update Invoice" : "Finalize & Create"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -13,7 +13,7 @@ interface PaginatedResponse<T> {
 }
 
 export function usePaginatedQuery<T>(
-  queryKey: any[],
+  queryKey: readonly any[],
   url: string,
   params: Record<string, any> = {}
 ) {

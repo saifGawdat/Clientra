@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { contactSchema, type ContactInput } from "@/lib/validations";
 import { Contact } from "@/types/crm-types";
+import { useCreateContact, useUpdateContact } from "@/hooks/crm-hooks";
 
 interface TargetFormDialogProps {
   open: boolean;
@@ -38,12 +39,15 @@ export function TargetFormDialog({
   contact,
   companies,
 }: TargetFormDialogProps) {
+  const createContact = useCreateContact();
+  const updateContact = useUpdateContact();
+
   const {
     register,
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -72,18 +76,18 @@ export function TargetFormDialog({
   }, [contact, reset]);
 
   const onSubmit = async (data: ContactInput) => {
-    const url = contact ? `/api/contacts/${contact.id}` : "/api/contacts";
-    const method = contact ? "PATCH" : "POST";
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
-      const saved = await res.json();
-      onSave(saved);
+    if (contact) {
+      updateContact.mutate({ id: contact.id, data }, {
+        onSuccess: (saved) => onSave(saved as Contact)
+      });
+    } else {
+      createContact.mutate(data, {
+        onSuccess: (saved) => onSave(saved as Contact)
+      });
     }
   };
+
+  const isSaving = createContact.isPending || updateContact.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -217,8 +221,8 @@ export function TargetFormDialog({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
+            <Button type="submit" disabled={isSaving}>
+              {isSaving
                 ? "Saving..."
                 : contact
                   ? "Save changes"

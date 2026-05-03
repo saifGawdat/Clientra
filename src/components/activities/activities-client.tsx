@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { ActivityFormDialog } from "@/components/activities/activity-form-dialog"
 import { useConfirm } from "@/components/ui/confirm-modal"
 import { SquareCheck } from "lucide-react"
-import { formatDate } from "@/lib/utils"
-import { cn } from "@/lib/utils"
+import { formatDate, cn } from "@/lib/utils"
 import { CRMActivity } from "@/types/crm-types"
+import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, keys } from "@/hooks/crm-hooks"
+import { useQueryClient } from "@tanstack/react-query"
 
 const typeIcon: Record<string, React.ElementType> = {
   CALL: Phone,
@@ -42,29 +43,29 @@ interface ActivitiesClientProps {
 
 export function ActivitiesClient({ initialActivities, contacts, deals }: ActivitiesClientProps) {
   const confirm = useConfirm()
-  const [activities, setActivities] = useState<CRMActivity[]>(initialActivities)
+  const queryClient = useQueryClient()
+  
+  // 1. Data Hooks
+  const { data: activities = [] } = useActivities(initialActivities)
+  const createActivity = useCreateActivity()
+  const updateActivity = useUpdateActivity()
+  const deleteActivity = useDeleteActivity()
+
   const [showForm, setShowForm] = useState(false)
   const [editingActivity, setEditingActivity] = useState<CRMActivity | null>(null)
   const [filterType, setFilterType] = useState("")
   const [filterStatus, setFilterStatus] = useState("")
 
-  const filtered = activities.filter((a) => {
+  const filtered = activities.filter((a: CRMActivity) => {
     if (filterType && a.type !== filterType) return false
     if (filterStatus && a.status !== filterStatus) return false
     return true
   })
 
-  const handleSave = (activity: CRMActivity) => {
-    setActivities((prev) => {
-      const idx = prev.findIndex((a) => a.id === activity.id)
-      if (idx >= 0) {
-        const next = [...prev]
-        next[idx] = activity
-        return next
-      }
-      return [activity, ...prev]
-    })
+  const handleSave = () => {
     setShowForm(false)
+    setEditingActivity(null)
+    queryClient.invalidateQueries({ queryKey: keys.activities.all })
   }
 
   const handleDelete = async (id: string) => {
@@ -73,20 +74,12 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
       description: "This action cannot be undone.",
       variant: "destructive"
     }))) return
-    await fetch(`/api/activities/${id}`, { method: "DELETE" })
-    setActivities((prev) => prev.filter((a) => a.id !== id))
+    
+    deleteActivity.mutate(id)
   }
 
   const handleComplete = async (id: string) => {
-    const res = await fetch(`/api/activities/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "COMPLETED" }),
-    })
-    if (res.ok) {
-      const updated = await res.json()
-      setActivities((prev) => prev.map((a) => (a.id === id ? { ...a, ...updated } : a)))
-    }
+    updateActivity.mutate({ id, data: { status: "COMPLETED" } })
   }
 
   const types = ["CALL", "EMAIL", "MEETING", "TASK", "NOTE"]
@@ -155,7 +148,7 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
             No activities yet. Log your first one!
           </div>
         )}
-        {filtered.map((activity) => {
+        {filtered.map((activity: CRMActivity) => {
           const Icon = typeIcon[activity.type] ?? FileText
           const colorClass = typeColor[activity.type] ?? typeColor.NOTE
 

@@ -9,6 +9,8 @@ import { TargetFormDialog } from "./target-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate, cn } from "@/lib/utils";
 import { Contact as CRMContact } from "@/types/crm-types";
+import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/crm-hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ALL_STATUSES = [
   "TARGET",
@@ -43,14 +45,22 @@ export function TargetsClient({
   companies,
 }: TargetsClientProps) {
   const confirm = useConfirm();
-  const [targets, setTargets] = useState<CRMContact[]>(initialTargets);
+  const queryClient = useQueryClient();
+  
+  // 1. Data Hooks
+  const { data: contacts = [] } = useContacts(initialTargets);
+  const updateContact = useUpdateContact();
+  const deleteContact = useDeleteContact();
+
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingTarget, setEditingTarget] = useState<CRMContact | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [isConverting, setIsConverting] = useState<string | null>(null);
-
-  const filtered = targets.filter((t) => {
+  
+  // 2. Filter logic (Targets page shows TARGET, LEAD, PROSPECT)
+  const targets = contacts.filter((c: CRMContact) => ["TARGET", "LEAD", "PROSPECT"].includes(c.status));
+  
+  const filtered = targets.filter((t: CRMContact) => {
     const q = search.toLowerCase();
     return (
       `${t.firstName} ${t.lastName}`.toLowerCase().includes(q) ||
@@ -61,54 +71,45 @@ export function TargetsClient({
   });
 
   const handleDelete = async (id: string) => {
-    if (
-      !(await confirm({
-        title: "Delete Target?",
-        description: "This action cannot be undone.",
-        variant: "destructive",
-      }))
-    )
-      return;
-    await fetch(`/api/contacts/${id}`, { method: "DELETE" });
-    setTargets((prev) => prev.filter((t) => t.id !== id));
-  };
+    if (!(await confirm({
+      title: "Delete Target?",
+      description: "This action cannot be undone.",
+      variant: "destructive",
+    }))) return;
 
-  const handleConvert = async (contact: CRMContact) => {
-    setIsConverting(contact.id);
-    const res = await fetch(`/api/contacts/${contact.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "CUSTOMER" }),
-    });
-    
-    if (res.ok) {
-      setToast({ 
-        message: `${contact.firstName} ${contact.lastName} converted to Customer`, 
-        type: "success" 
-      });
-      setTargets((prev) => prev.filter((t) => t.id !== contact.id));
-      setTimeout(() => setToast(null), 3000);
-    } else {
-      setToast({ message: "Failed to convert target", type: "error" });
-      setTimeout(() => setToast(null), 3000);
-    }
-    setIsConverting(null);
-  };
-
-  const handleSave = (contact: CRMContact) => {
-    setTargets((prev) => {
-      if (!["TARGET", "LEAD", "PROSPECT"].includes(contact.status))
-        return prev.filter((t) => t.id !== contact.id);
-      const idx = prev.findIndex((t) => t.id === contact.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = contact;
-        return next;
+    deleteContact.mutate(id, {
+      onSuccess: () => {
+        setToast({ message: "Target deleted successfully", type: "success" });
+        setTimeout(() => setToast(null), 3000);
       }
-      return [contact, ...prev];
     });
+  };
+
+  const handleConvert = (contact: CRMContact) => {
+    updateContact.mutate(
+      { id: contact.id, data: { status: "CUSTOMER" } },
+      {
+        onSuccess: () => {
+          setToast({ 
+            message: `${contact.firstName} ${contact.lastName} converted to Customer`, 
+            type: "success" 
+          });
+          setTimeout(() => setToast(null), 3000);
+        },
+        onError: () => {
+          setToast({ message: "Failed to convert target", type: "error" });
+          setTimeout(() => setToast(null), 3000);
+        }
+      }
+    );
+  };
+
+  const handleSave = () => {
+    // With TanStack Query, the child dialog handles the fetch.
+    // We just need to close the form and invalidate.
     setShowForm(false);
     setEditingTarget(null);
+    queryClient.invalidateQueries({ queryKey: ["contacts"] });
   };
 
   return (
@@ -224,11 +225,14 @@ export function TargetsClient({
                       variant="ghost"
                       size="sm"
                       className="h-7 text-xs text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 gap-1"
-                      disabled={isConverting === target.id}
+                      disabled={updateContact.isPending && updateContact.variables?.id === target.id}
                       onClick={() => handleConvert(target)}
                     >
-                      <RefreshCw className={cn("h-3.5 w-3.5", isConverting === target.id && "animate-spin")} />
-                      {isConverting === target.id ? "Converting..." : "Convert"}
+                      <RefreshCw className={cn(
+                        "h-3.5 w-3.5", 
+                        updateContact.isPending && updateContact.variables?.id === target.id && "animate-spin"
+                      )} />
+                      {updateContact.isPending && updateContact.variables?.id === target.id ? "Converting..." : "Convert"}
                     </Button>
 
                     <Button

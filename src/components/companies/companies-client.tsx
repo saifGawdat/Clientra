@@ -19,12 +19,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CompanyFormDialog } from "@/components/companies/company-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
-import { formatDate } from "@/lib/utils";
+import { formatDate, cn } from "@/lib/utils";
 import { Company as CRMCompany } from "@/types/crm-types";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
+import { useCreateCompany, useUpdateCompany, useDeleteCompany, keys } from "@/hooks/crm-hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function CompaniesClient() {
   const confirm = useConfirm();
+  const queryClient = useQueryClient();
   
   // State for filtering and pagination
   const [search, setSearch] = useState("");
@@ -35,30 +38,34 @@ export function CompaniesClient() {
   const [showForm, setShowForm] = useState(false);
   const [editingCompany, setEditingCompany] = useState<CRMCompany | null>(null);
 
-  // Fetch paginated data
+  // 1. Data Hooks
   const { data, isLoading, error, refetch } = usePaginatedQuery<CRMCompany>(
-    ["companies"],
+    keys.companies.lists(),
     "/api/companies",
     { page, limit, search }
   );
 
+  const deleteCompany = useDeleteCompany();
+
   const handleDelete = async (id: string) => {
-    if (
-      !(await confirm({
-        title: "Delete Company?",
-        description: "This action cannot be undone.",
-        variant: "destructive",
-      }))
-    )
-      return;
-    await fetch(`/api/companies/${id}`, { method: "DELETE" });
-    refetch();
+    if (!(await confirm({
+      title: "Delete Company?",
+      description: "This action cannot be undone.",
+      variant: "destructive",
+    }))) return;
+
+    deleteCompany.mutate(id, {
+      onSuccess: () => {
+        // Optimistic update handles the removal, but we refresh for consistency
+        queryClient.invalidateQueries({ queryKey: keys.companies.all });
+      }
+    });
   };
 
   const handleSave = () => {
-    refetch();
     setShowForm(false);
     setEditingCompany(null);
+    queryClient.invalidateQueries({ queryKey: keys.companies.all });
   };
 
   if (error) {
