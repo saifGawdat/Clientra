@@ -26,8 +26,8 @@ export function DealsClient() {
   const { data: contactsData } = useContacts();
   const { data: companiesData } = useCompanies();
   
-  const contacts = (contactsData as any)?.data || (Array.isArray(contactsData) ? contactsData : []);
-  const companies = (companiesData as any)?.data || (Array.isArray(companiesData) ? companiesData : []);
+  const contacts = Array.isArray(contactsData) ? contactsData : (contactsData as any)?.data || [];
+  const companies = Array.isArray(companiesData) ? companiesData : (companiesData as any)?.data || [];
   
   const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();

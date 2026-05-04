@@ -48,9 +48,11 @@ export function TargetsClient({
   const queryClient = useQueryClient();
   
   // 1. Data Hooks
-  const { data: contacts = [] } = useContacts(initialTargets);
+  const { data: contactsData } = useContacts(initialTargets);
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
+
+  const contacts = Array.isArray(contactsData) ? contactsData : (contactsData as any)?.data || [];
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);

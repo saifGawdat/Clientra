@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ContactFormDialog } from "@/components/contacts/contact-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
-import { formatDate } from "@/lib/utils";
+import { formatDate, cn } from "@/lib/utils";
 import { Contact as CRMContact } from "@/types/crm-types";
+import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/crm-hooks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const sourceLabels: Record<string, string> = {
   WEBSITE: "Website",
@@ -30,12 +32,21 @@ interface LeadsClientProps {
 export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
   const router = useRouter();
   const confirm = useConfirm();
-  const [leads, setLeads] = useState<CRMContact[]>(initialLeads);
+  const queryClient = useQueryClient();
+
+  // 1. Data Hooks
+  const { data: contactsData } = useContacts(initialLeads);
+  const updateContact = useUpdateContact();
+  const deleteContact = useDeleteContact();
+
+  const leads = Array.isArray(contactsData) ? contactsData : (contactsData as any)?.data || [];
+
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingLead, setEditingLead] = useState<CRMContact | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const filtered = leads.filter((l) => {
+  const filtered = leads.filter((l: CRMContact) => {
     const q = search.toLowerCase();
     return (
       `${l.firstName} ${l.lastName}`.toLowerCase().includes(q) ||
@@ -45,8 +56,8 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
     );
   });
 
-  const totalLeads = leads.filter((l) => l.status === "LEAD").length;
-  const totalProspects = leads.filter((l) => l.status === "PROSPECT").length;
+  const totalLeads = leads.filter((l: CRMContact) => l.status === "LEAD").length;
+  const totalProspects = leads.filter((l: CRMContact) => l.status === "PROSPECT").length;
 
   const handleDelete = async (id: string) => {
     if (
@@ -57,37 +68,39 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
       }))
     )
       return;
-    await fetch(`/api/contacts/${id}`, { method: "DELETE" });
-    setLeads((prev) => prev.filter((l) => l.id !== id));
+
+    deleteContact.mutate(id, {
+      onSuccess: () => {
+        setToast({ message: "Lead deleted successfully", type: "success" });
+        setTimeout(() => setToast(null), 3000);
+      }
+    });
   };
 
-  const handleConvert = async (id: string) => {
-    const res = await fetch(`/api/contacts/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "CUSTOMER" }),
-    });
-    if (res.ok) {
-      setLeads((prev) => prev.filter((l) => l.id !== id));
-      router.refresh();
-    }
+  const handleConvert = (id: string) => {
+    updateContact.mutate(
+      { id, data: { status: "CUSTOMER" } },
+      {
+        onSuccess: () => {
+          setToast({ 
+            message: "Lead converted to Customer", 
+            type: "success" 
+          });
+          setTimeout(() => setToast(null), 3000);
+          router.refresh();
+        },
+        onError: () => {
+          setToast({ message: "Failed to convert lead", type: "error" });
+          setTimeout(() => setToast(null), 3000);
+        }
+      }
+    );
   };
 
-  const handleSave = (contact: CRMContact) => {
-    setLeads((prev) => {
-      if (!["LEAD", "PROSPECT"].includes(contact.status)) {
-        return prev.filter((l) => l.id !== contact.id);
-      }
-      const idx = prev.findIndex((l) => l.id === contact.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = contact;
-        return next;
-      }
-      return [contact, ...prev];
-    });
+  const handleSave = () => {
     setShowForm(false);
     setEditingLead(null);
+    queryClient.invalidateQueries({ queryKey: ["contacts"] });
   };
 
   return (
@@ -214,10 +227,14 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
                       variant="ghost"
                       size="sm"
                       className="h-7 text-xs text-accent hover:text-accent hover:bg-accent/10 gap-1"
+                      disabled={updateContact.isPending && updateContact.variables?.id === lead.id}
                       onClick={() => handleConvert(lead.id)}
                     >
-                      <UserCheck className="h-3.5 w-3.5" />
-                      Convert
+                      <UserCheck className={cn(
+                        "h-3.5 w-3.5",
+                        updateContact.isPending && updateContact.variables?.id === lead.id && "animate-spin"
+                      )} />
+                      {updateContact.isPending && updateContact.variables?.id === lead.id ? "Converting..." : "Convert"}
                     </Button>
                     <Button
                       variant="ghost"
@@ -245,6 +262,25 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
           </tbody>
         </table>
       </div>
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={cn(
+            "px-4 py-3 rounded-xl shadow-2xl border flex items-center gap-3 min-w-[300px]",
+            toast.type === "success" 
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+              : "bg-red-500/10 border-red-500/20 text-red-400"
+          )}>
+            <div className={cn(
+              "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
+              toast.type === "success" ? "bg-emerald-500/20" : "bg-red-500/20"
+            )}>
+              <UserCheck className="h-4 w-4" />
+            </div>
+            <p className="text-sm font-medium">{toast.message}</p>
+          </div>
+        </div>
+      )}
 
       <ContactFormDialog
         open={showForm}
