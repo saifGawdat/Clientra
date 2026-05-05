@@ -9,7 +9,7 @@ import { useConfirm } from "@/components/ui/confirm-modal"
 import { SquareCheck } from "lucide-react"
 import { formatDate, cn } from "@/lib/utils"
 import { CRMActivity } from "@/types/crm-types"
-import { useActivities, useCreateActivity, useUpdateActivity, useDeleteActivity, keys } from "@/hooks/crm-hooks"
+import { useActivities, useUpdateActivity, useDeleteActivity, keys } from "@/hooks/crm-hooks"
 import { useQueryClient } from "@tanstack/react-query"
 
 const typeIcon: Record<string, React.ElementType> = {
@@ -48,7 +48,6 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   // 1. Data Hooks
   const { data: activitiesData } = useActivities(initialActivities)
   const activities = Array.isArray(activitiesData) ? activitiesData : activitiesData?.data || [];
-  const createActivity = useCreateActivity()
   const updateActivity = useUpdateActivity()
   const deleteActivity = useDeleteActivity()
 

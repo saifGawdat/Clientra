@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { invoiceSchema } from "@/lib/validations"
 
 export async function GET(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth()
@@ -78,7 +78,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth()

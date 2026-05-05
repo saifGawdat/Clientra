@@ -5,7 +5,7 @@ export function usePaginatedQuery<T>(
   queryKey: readonly unknown[],
   url: string,
   params: Record<string, unknown> = {}
-) {
+): ReturnType<typeof useQuery<PaginatedResponse<T>>> {
   return useQuery({
     queryKey: [...queryKey, params],
     queryFn: async () => {

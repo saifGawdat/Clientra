@@ -9,7 +9,7 @@ import { formatCurrency } from "@/lib/utils"
 import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
 import { useQueryClient } from "@tanstack/react-query"
 import { usePaginatedQuery } from "@/hooks/use-paginated-query"
-import { useDeals, useCreateDeal, useUpdateDeal, useDeleteDeal, keys, useContacts, useCompanies } from "@/hooks/crm-hooks"
+import { useUpdateDeal, useDeleteDeal, keys, useContacts, useCompanies } from "@/hooks/crm-hooks"
 
 export function DealsClient() {
   const queryClient = useQueryClient();

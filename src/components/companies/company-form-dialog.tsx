@@ -48,17 +48,17 @@ export function CompanyFormDialog({ open, onClose, onSave, company }: CompanyFor
     }
   }, [company, reset])
 
-  const onSubmit = async (data: CompanyInput) => {
+  const onSubmit = async (data: CompanyInput): Promise<void> => {
     const payload = {
       ...data,
       size: data.size === "" ? undefined : data.size
     }
     if (company) {
-      updateCompany.mutate({ id: company.id, data: payload as any }, {
+      updateCompany.mutate({ id: company.id, data: payload as Partial<Company> }, {
         onSuccess: (saved) => onSave(saved as Company)
       });
     } else {
-      createCompany.mutate(payload as any, {
+      createCompany.mutate(payload as Partial<Company>, {
         onSuccess: (saved) => onSave(saved as Company)
       });
     }

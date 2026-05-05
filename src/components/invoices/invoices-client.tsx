@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   Plus,
   Search,
@@ -24,7 +23,7 @@ import { Invoice, InvoiceStatus } from "@/types/crm-types";
 import { InvoiceStatusBadge } from "./invoice-status-badge";
 import { InvoiceFormDialog } from "./invoice-form-dialog";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
-import { useInvoices, useCreateInvoice, useUpdateInvoice, useDeleteInvoice, keys } from "@/hooks/crm-hooks";
+import { useDeleteInvoice, keys } from "@/hooks/crm-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
 const ALL_STATUSES: InvoiceStatus[] = [

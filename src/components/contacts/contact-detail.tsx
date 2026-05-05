@@ -25,7 +25,7 @@ import { useConfirm } from "@/components/ui/confirm-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { Contact, Company, Note, CRMActivity, Deal, Invoice } from "@/types/crm-types";
+import { Contact, Note, CRMActivity, Deal, Invoice } from "@/types/crm-types";
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { Receipt } from "lucide-react";
 

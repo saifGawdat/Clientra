@@ -137,7 +137,13 @@ export interface PaginatedResponse<T> {
     totalPages: number;
     hasMore: boolean;
   };
-  [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  contacts?: Contact[];
+  companies?: Company[];
+  deals?: Deal[];
+  leads?: Contact[];
+  targets?: Contact[];
+  activities?: CRMActivity[];
+  invoices?: Invoice[];
 }
 
 export type MaybePaginated<T> = T[] | PaginatedResponse<T>;

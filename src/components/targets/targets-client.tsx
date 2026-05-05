@@ -12,28 +12,6 @@ import { Contact as CRMContact } from "@/types/crm-types";
 import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/crm-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
-const ALL_STATUSES = [
-  "TARGET",
-  "LEAD",
-  "PROSPECT",
-] as const;
-type ConvertStatus = (typeof ALL_STATUSES)[number];
-
-const statusColors: Record<string, string> = {
-  TARGET: "text-amber-400 hover:bg-amber-950/30",
-  LEAD: "text-muted hover:bg-surface-raised",
-  PROSPECT: "text-blue-400 hover:bg-blue-950/40",
-};
-
-const sourceLabels: Record<string, string> = {
-  WEBSITE: "Website",
-  REFERRAL: "Referral",
-  SOCIAL: "Social",
-  EMAIL: "Email",
-  COLD_CALL: "Cold Call",
-  EVENT: "Event",
-  OTHER: "Other",
-};
 
 interface TargetsClientProps {
   initialTargets: CRMContact[];

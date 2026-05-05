@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { invoiceSchema, type InvoiceInput } from "@/lib/validations"
 import { Invoice } from "@/types/crm-types"
 import { useCreateInvoice, useUpdateInvoice } from "@/hooks/crm-hooks"
-import { cn } from "@/lib/utils"
+
 
 interface InvoiceFormDialogProps {
   open: boolean
@@ -137,13 +137,13 @@ export function InvoiceFormDialog({
     }
   }, [invoice, reset, today, defaultDueDate])
 
-  const onSubmit = async (data: InvoiceInput) => {
+  const onSubmit = async (data: InvoiceInput): Promise<void> => {
     if (invoice) {
-      updateInvoice.mutate({ id: invoice.id, data: data as any }, {
+      updateInvoice.mutate({ id: invoice.id, data: data as Partial<Invoice> }, {
         onSuccess: (saved) => onSave(saved as Invoice)
       });
     } else {
-      createInvoice.mutate(data as any, {
+      createInvoice.mutate(data as Partial<Invoice>, {
         onSuccess: (saved) => onSave(saved as Invoice)
       });
     }

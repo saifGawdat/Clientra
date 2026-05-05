@@ -21,9 +21,9 @@ import { ContactFormDialog } from "@/components/contacts/contact-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { Contact as CRMContact, ContactStatus } from "@/types/crm-types";
+import { Contact as CRMContact } from "@/types/crm-types";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
-import { useContacts, useCreateContact, useUpdateContact, useDeleteContact, keys, useCompanies } from "@/hooks/crm-hooks";
+import { useDeleteContact, keys, useCompanies } from "@/hooks/crm-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
 const STATUS_CONFIG: Record<

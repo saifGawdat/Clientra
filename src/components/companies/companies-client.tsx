@@ -19,10 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CompanyFormDialog } from "@/components/companies/company-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
-import { formatDate, cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { Company as CRMCompany } from "@/types/crm-types";
 import { usePaginatedQuery } from "@/hooks/use-paginated-query";
-import { useCreateCompany, useUpdateCompany, useDeleteCompany, keys } from "@/hooks/crm-hooks";
+import { useDeleteCompany, keys } from "@/hooks/crm-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
 export function CompaniesClient() {

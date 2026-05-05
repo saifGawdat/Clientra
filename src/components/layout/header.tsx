@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Menu, Search, Moon, Sun, ChevronDown } from "lucide-react";
+import { Menu, Moon, Sun, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/theme-provider";
 

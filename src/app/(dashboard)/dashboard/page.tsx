@@ -5,8 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ActivityTypeIcon } from "@/components/activities/activity-type-icon"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import Link from "next/link"
-import { Suspense } from "react"
-import { Loader2 } from "lucide-react"
 
 const statusColors: Record<string, string> = {
   PLANNED: "text-blue-400",

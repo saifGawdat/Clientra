@@ -32,11 +32,11 @@ export const keys = {
 };
 
 // --- GENERIC MUTATION FACTORY ---
-function useOptimisticMutation<T extends { id: string }, TVariables = any>( // eslint-disable-line @typescript-eslint/no-explicit-any
+function useOptimisticMutation<T extends { id: string }, TVariables = void>(
   queryKey: readonly unknown[],
   mutationFn: (variables: TVariables) => Promise<T | string>,
   updateFn?: (old: T[], variables: TVariables) => T[]
-) {
+): ReturnType<typeof useMutation<T | string, Error, TVariables, { queries: [readonly unknown[], MaybePaginated<T> | undefined][] }>> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -67,7 +67,7 @@ function useOptimisticMutation<T extends { id: string }, TVariables = any>( // e
 
       return { queries };
     },
-    onError: (err, newData, context) => {
+    onError: (_err, _newData, context) => {
       if (context?.queries) {
         context.queries.forEach(([key, value]) => {
           queryClient.setQueryData(key, value);
@@ -81,7 +81,7 @@ function useOptimisticMutation<T extends { id: string }, TVariables = any>( // e
 }
 
 // --- CONTACT HOOKS ---
-export const useContacts = (initial?: Contact[]) => useQuery({ 
+export const useContacts = (initial?: Contact[]): ReturnType<typeof useQuery<MaybePaginated<Contact>>> => useQuery({ 
   queryKey: keys.contacts.lists(), 
   queryFn: () => fetch("/api/contacts").then(r => r.json() as Promise<MaybePaginated<Contact>>), 
   initialData: initial,
@@ -91,7 +91,7 @@ export const useContacts = (initial?: Contact[]) => useQuery({
 export const useCreateContact = () => useOptimisticMutation<Contact, Partial<Contact>>(
   keys.contacts.lists(),
   (data) => fetch("/api/contacts", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as Contact, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date().toISOString() } as Contact, ...old]
 );
 
 export const useUpdateContact = () => useOptimisticMutation<Contact, { id: string, data: Partial<Contact> }>(
@@ -107,7 +107,7 @@ export const useDeleteContact = () => useOptimisticMutation<Contact, string>(
 );
 
 // --- COMPANY HOOKS ---
-export const useCompanies = (initial?: Company[]) => useQuery({ 
+export const useCompanies = (initial?: Company[]): ReturnType<typeof useQuery<MaybePaginated<Company>>> => useQuery({ 
   queryKey: keys.companies.lists(), 
   queryFn: () => fetch("/api/companies").then(r => r.json() as Promise<MaybePaginated<Company>>), 
   initialData: initial 
@@ -116,7 +116,7 @@ export const useCompanies = (initial?: Company[]) => useQuery({
 export const useCreateCompany = () => useOptimisticMutation<Company, Partial<Company>>(
   keys.companies.lists(),
   (data) => fetch("/api/companies", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString() } as Company, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Company, ...old]
 );
 
 export const useUpdateCompany = () => useOptimisticMutation<Company, { id: string, data: Partial<Company> }>(
@@ -132,7 +132,7 @@ export const useDeleteCompany = () => useOptimisticMutation<Company, string>(
 );
 
 // --- DEAL HOOKS ---
-export const useDeals = (initial?: Deal[]) => useQuery({ 
+export const useDeals = (initial?: Deal[]): ReturnType<typeof useQuery<MaybePaginated<Deal>>> => useQuery({ 
   queryKey: keys.deals.lists(), 
   queryFn: () => fetch("/api/deals").then(r => r.json() as Promise<MaybePaginated<Deal>>), 
   initialData: initial 
@@ -141,7 +141,7 @@ export const useDeals = (initial?: Deal[]) => useQuery({
 export const useCreateDeal = () => useOptimisticMutation<Deal, Partial<Deal>>(
   keys.deals.lists(),
   (data) => fetch("/api/deals", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as Deal, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Deal, ...old]
 );
 
 export const useUpdateDeal = () => useOptimisticMutation<Deal, { id: string, data: Partial<Deal> }>(
@@ -157,7 +157,7 @@ export const useDeleteDeal = () => useOptimisticMutation<Deal, string>(
 );
 
 // --- ACTIVITY HOOKS ---
-export const useActivities = (initial?: CRMActivity[]) => useQuery({ 
+export const useActivities = (initial?: CRMActivity[]): ReturnType<typeof useQuery<MaybePaginated<CRMActivity>>> => useQuery({ 
   queryKey: keys.activities.lists(), 
   queryFn: () => fetch("/api/activities").then(r => r.json() as Promise<MaybePaginated<CRMActivity>>), 
   initialData: initial 
@@ -166,7 +166,7 @@ export const useActivities = (initial?: CRMActivity[]) => useQuery({
 export const useCreateActivity = () => useOptimisticMutation<CRMActivity, Partial<CRMActivity>>(
   keys.activities.lists(),
   (data) => fetch("/api/activities", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as CRMActivity, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as CRMActivity, ...old]
 );
 
 export const useUpdateActivity = () => useOptimisticMutation<CRMActivity, { id: string, data: Partial<CRMActivity> }>(
@@ -182,7 +182,7 @@ export const useDeleteActivity = () => useOptimisticMutation<CRMActivity, string
 );
 
 // --- INVOICE HOOKS ---
-export const useInvoices = (initial?: Invoice[]) => useQuery({ 
+export const useInvoices = (initial?: Invoice[]): ReturnType<typeof useQuery<MaybePaginated<Invoice>>> => useQuery({ 
   queryKey: keys.invoices.lists(), 
   queryFn: () => fetch("/api/invoices").then(r => r.json() as Promise<MaybePaginated<Invoice>>), 
   initialData: initial 
@@ -191,7 +191,7 @@ export const useInvoices = (initial?: Invoice[]) => useQuery({
 export const useCreateInvoice = () => useOptimisticMutation<Invoice, Partial<Invoice>>(
   keys.invoices.lists(),
   (data) => fetch("/api/invoices", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as Invoice, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } as Invoice, ...old]
 );
 
 export const useUpdateInvoice = () => useOptimisticMutation<Invoice, { id: string, data: Partial<Invoice> }>(

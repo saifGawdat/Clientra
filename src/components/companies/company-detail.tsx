@@ -13,7 +13,6 @@ import {
   MapPin,
   Building2,
   Send,
-  Receipt,
   Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
