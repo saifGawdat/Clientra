@@ -72,7 +72,8 @@ export function ContactsClient() {
     { page, limit, search, status: filterStatus }
   );
 
-  const { data: companies = [] } = useCompanies();
+  const { data: companiesData } = useCompanies();
+  const companies = Array.isArray(companiesData) ? companiesData : companiesData?.data || [];
   const deleteContact = useDeleteContact();
 
   const handleDelete = async (id: string) => {

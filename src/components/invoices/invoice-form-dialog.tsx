@@ -139,11 +139,11 @@ export function InvoiceFormDialog({
 
   const onSubmit = async (data: InvoiceInput) => {
     if (invoice) {
-      updateInvoice.mutate({ id: invoice.id, data }, {
+      updateInvoice.mutate({ id: invoice.id, data: data as any }, {
         onSuccess: (saved) => onSave(saved as Invoice)
       });
     } else {
-      createInvoice.mutate(data, {
+      createInvoice.mutate(data as any, {
         onSuccess: (saved) => onSave(saved as Invoice)
       });
     }

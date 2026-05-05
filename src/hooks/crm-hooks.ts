@@ -32,7 +32,7 @@ export const keys = {
 };
 
 // --- GENERIC MUTATION FACTORY ---
-function useOptimisticMutation<T extends { id: string }, TVariables = unknown>(
+function useOptimisticMutation<T extends { id: string }, TVariables = any>( // eslint-disable-line @typescript-eslint/no-explicit-any
   queryKey: readonly unknown[],
   mutationFn: (variables: TVariables) => Promise<T | string>,
   updateFn?: (old: T[], variables: TVariables) => T[]
@@ -88,19 +88,19 @@ export const useContacts = (initial?: Contact[]) => useQuery({
   staleTime: 60000 
 });
 
-export const useCreateContact = () => useOptimisticMutation<Contact>(
+export const useCreateContact = () => useOptimisticMutation<Contact, Partial<Contact>>(
   keys.contacts.lists(),
   (data) => fetch("/api/contacts", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() }, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as Contact, ...old]
 );
 
-export const useUpdateContact = () => useOptimisticMutation<Contact>(
+export const useUpdateContact = () => useOptimisticMutation<Contact, { id: string, data: Partial<Contact> }>(
   keys.contacts.lists(),
   ({ id, data }) => fetch(`/api/contacts/${id}`, { method: "PATCH", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
   (old, { id, data }) => old.map(i => i.id === id ? { ...i, ...data } : i)
 );
 
-export const useDeleteContact = () => useOptimisticMutation<Contact>(
+export const useDeleteContact = () => useOptimisticMutation<Contact, string>(
   keys.contacts.lists(),
   (id) => fetch(`/api/contacts/${id}`, { method: "DELETE" }).then(() => id),
   (old, id) => old.filter(i => i.id !== id)
@@ -113,19 +113,19 @@ export const useCompanies = (initial?: Company[]) => useQuery({
   initialData: initial 
 });
 
-export const useCreateCompany = () => useOptimisticMutation<Company>(
+export const useCreateCompany = () => useOptimisticMutation<Company, Partial<Company>>(
   keys.companies.lists(),
   (data) => fetch("/api/companies", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString() }, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString() } as Company, ...old]
 );
 
-export const useUpdateCompany = () => useOptimisticMutation<Company>(
+export const useUpdateCompany = () => useOptimisticMutation<Company, { id: string, data: Partial<Company> }>(
   keys.companies.lists(),
   ({ id, data }) => fetch(`/api/companies/${id}`, { method: "PATCH", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
   (old, { id, data }) => old.map(i => i.id === id ? { ...i, ...data } : i)
 );
 
-export const useDeleteCompany = () => useOptimisticMutation<Company>(
+export const useDeleteCompany = () => useOptimisticMutation<Company, string>(
   keys.companies.lists(),
   (id) => fetch(`/api/companies/${id}`, { method: "DELETE" }).then(() => id),
   (old, id) => old.filter(i => i.id !== id)
@@ -138,19 +138,19 @@ export const useDeals = (initial?: Deal[]) => useQuery({
   initialData: initial 
 });
 
-export const useCreateDeal = () => useOptimisticMutation<Deal>(
+export const useCreateDeal = () => useOptimisticMutation<Deal, Partial<Deal>>(
   keys.deals.lists(),
   (data) => fetch("/api/deals", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() }, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as Deal, ...old]
 );
 
-export const useUpdateDeal = () => useOptimisticMutation<Deal>(
+export const useUpdateDeal = () => useOptimisticMutation<Deal, { id: string, data: Partial<Deal> }>(
   keys.deals.lists(),
   ({ id, data }) => fetch(`/api/deals/${id}`, { method: "PATCH", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
   (old, { id, data }) => old.map(i => i.id === id ? { ...i, ...data } : i)
 );
 
-export const useDeleteDeal = () => useOptimisticMutation<Deal>(
+export const useDeleteDeal = () => useOptimisticMutation<Deal, string>(
   keys.deals.lists(),
   (id) => fetch(`/api/deals/${id}`, { method: "DELETE" }).then(() => id),
   (old, id) => old.filter(i => i.id !== id)
@@ -163,19 +163,19 @@ export const useActivities = (initial?: CRMActivity[]) => useQuery({
   initialData: initial 
 });
 
-export const useCreateActivity = () => useOptimisticMutation<CRMActivity>(
+export const useCreateActivity = () => useOptimisticMutation<CRMActivity, Partial<CRMActivity>>(
   keys.activities.lists(),
   (data) => fetch("/api/activities", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() }, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as CRMActivity, ...old]
 );
 
-export const useUpdateActivity = () => useOptimisticMutation<CRMActivity>(
+export const useUpdateActivity = () => useOptimisticMutation<CRMActivity, { id: string, data: Partial<CRMActivity> }>(
   keys.activities.lists(),
   ({ id, data }) => fetch(`/api/activities/${id}`, { method: "PATCH", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
   (old, { id, data }) => old.map(i => i.id === id ? { ...i, ...data } : i)
 );
 
-export const useDeleteActivity = () => useOptimisticMutation<CRMActivity>(
+export const useDeleteActivity = () => useOptimisticMutation<CRMActivity, string>(
   keys.activities.lists(),
   (id) => fetch(`/api/activities/${id}`, { method: "DELETE" }).then(() => id),
   (old, id) => old.filter(i => i.id !== id)
@@ -188,19 +188,19 @@ export const useInvoices = (initial?: Invoice[]) => useQuery({
   initialData: initial 
 });
 
-export const useCreateInvoice = () => useOptimisticMutation<Invoice>(
+export const useCreateInvoice = () => useOptimisticMutation<Invoice, Partial<Invoice>>(
   keys.invoices.lists(),
   (data) => fetch("/api/invoices", { method: "POST", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
-  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() }, ...old]
+  (old, newData) => [{ ...newData, id: Math.random().toString(), createdAt: new Date() } as Invoice, ...old]
 );
 
-export const useUpdateInvoice = () => useOptimisticMutation<Invoice>(
+export const useUpdateInvoice = () => useOptimisticMutation<Invoice, { id: string, data: Partial<Invoice> }>(
   keys.invoices.lists(),
   ({ id, data }) => fetch(`/api/invoices/${id}`, { method: "PATCH", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } }).then(r => r.json()),
   (old, { id, data }) => old.map(i => i.id === id ? { ...i, ...data } : i)
 );
 
-export const useDeleteInvoice = () => useOptimisticMutation<Invoice>(
+export const useDeleteInvoice = () => useOptimisticMutation<Invoice, string>(
   keys.invoices.lists(),
   (id) => fetch(`/api/invoices/${id}`, { method: "DELETE" }).then(() => id),
   (old, id) => old.filter(i => i.id !== id)

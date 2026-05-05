@@ -46,7 +46,8 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   const queryClient = useQueryClient()
   
   // 1. Data Hooks
-  const { data: activities = [] } = useActivities(initialActivities)
+  const { data: activitiesData } = useActivities(initialActivities)
+  const activities = Array.isArray(activitiesData) ? activitiesData : activitiesData?.data || [];
   const createActivity = useCreateActivity()
   const updateActivity = useUpdateActivity()
   const deleteActivity = useDeleteActivity()
