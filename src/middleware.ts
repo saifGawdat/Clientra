@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { decrypt } from "@/lib/auth";
 
-export default async function middleware(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/register");
@@ -9,18 +8,9 @@ export default async function middleware(request: NextRequest) {
 
   if (isApiAuth) return NextResponse.next();
 
-  const sessionCookie = request.cookies.get("session")?.value;
-  let session = null;
-
-  if (sessionCookie) {
-    try {
-      session = await decrypt(sessionCookie);
-    } catch {
-      // Invalid session
-    }
-  }
-
-  const isLoggedIn = !!session;
+  // Keep middleware cheap for fast client-side navigation.
+  // Full JWT verification still happens in server components via auth().
+  const isLoggedIn = !!request.cookies.get("session")?.value;
 
   if (!isLoggedIn && !isAuthPage) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
