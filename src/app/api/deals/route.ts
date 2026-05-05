@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { dealSchema } from "@/lib/validations"
+import { DealStage } from "@/types/crm-types"
 import { getPaginationParams, getPaginatedResponse } from "@/lib/pagination"
 
 export async function GET(req: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   const where = {
     ownerId: session.user.id,
-    ...(stage && { stage: stage as any }),
+    ...(stage && { stage: stage as DealStage }),
     ...(search && { title: { contains: search, mode: "insensitive" as const } }),
   }
 

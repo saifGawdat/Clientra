@@ -52,7 +52,7 @@ export function TargetsClient({
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
 
-  const contacts = Array.isArray(contactsData) ? contactsData : (contactsData as any)?.data || [];
+  const contacts = Array.isArray(contactsData) ? contactsData : contactsData?.data || [];
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);

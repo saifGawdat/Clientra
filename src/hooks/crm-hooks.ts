@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Contact, Company, Deal, CRMActivity, Invoice } from "@/types/crm-types";
+import { Contact, Company, Deal, CRMActivity, Invoice, MaybePaginated } from "@/types/crm-types";
 
 // --- QUERY KEYS ---
 export const keys = {
@@ -32,10 +32,10 @@ export const keys = {
 };
 
 // --- GENERIC MUTATION FACTORY ---
-function useOptimisticMutation<T extends { id: string }>(
+function useOptimisticMutation<T extends { id: string }, TVariables = unknown>(
   queryKey: readonly unknown[],
-  mutationFn: (data: any) => Promise<T | string>,
-  updateFn?: (old: T[], newData: any) => T[]
+  mutationFn: (variables: TVariables) => Promise<T | string>,
+  updateFn?: (old: T[], variables: TVariables) => T[]
 ) {
   const queryClient = useQueryClient();
 
@@ -45,13 +45,13 @@ function useOptimisticMutation<T extends { id: string }>(
       await queryClient.cancelQueries({ queryKey });
       
       // Snapshot previous values for all matching queries
-      const queries = queryClient.getQueriesData<any>({ queryKey });
+      const queries = queryClient.getQueriesData<MaybePaginated<T>>({ queryKey });
       
       if (updateFn) {
-        queryClient.setQueriesData<any>({ queryKey }, (old: any) => {
+        queryClient.setQueriesData<MaybePaginated<T>>({ queryKey }, (old) => {
           if (!old) return old;
           // Handle paginated object structure { data: T[], ... }
-          if (old.data && Array.isArray(old.data)) {
+          if ("data" in old && Array.isArray(old.data)) {
             return {
               ...old,
               data: updateFn(old.data, newData)
@@ -83,7 +83,7 @@ function useOptimisticMutation<T extends { id: string }>(
 // --- CONTACT HOOKS ---
 export const useContacts = (initial?: Contact[]) => useQuery({ 
   queryKey: keys.contacts.lists(), 
-  queryFn: () => fetch("/api/contacts").then(r => r.json()), 
+  queryFn: () => fetch("/api/contacts").then(r => r.json() as Promise<MaybePaginated<Contact>>), 
   initialData: initial,
   staleTime: 60000 
 });
@@ -109,7 +109,7 @@ export const useDeleteContact = () => useOptimisticMutation<Contact>(
 // --- COMPANY HOOKS ---
 export const useCompanies = (initial?: Company[]) => useQuery({ 
   queryKey: keys.companies.lists(), 
-  queryFn: () => fetch("/api/companies").then(r => r.json()), 
+  queryFn: () => fetch("/api/companies").then(r => r.json() as Promise<MaybePaginated<Company>>), 
   initialData: initial 
 });
 
@@ -134,7 +134,7 @@ export const useDeleteCompany = () => useOptimisticMutation<Company>(
 // --- DEAL HOOKS ---
 export const useDeals = (initial?: Deal[]) => useQuery({ 
   queryKey: keys.deals.lists(), 
-  queryFn: () => fetch("/api/deals").then(r => r.json()), 
+  queryFn: () => fetch("/api/deals").then(r => r.json() as Promise<MaybePaginated<Deal>>), 
   initialData: initial 
 });
 
@@ -159,7 +159,7 @@ export const useDeleteDeal = () => useOptimisticMutation<Deal>(
 // --- ACTIVITY HOOKS ---
 export const useActivities = (initial?: CRMActivity[]) => useQuery({ 
   queryKey: keys.activities.lists(), 
-  queryFn: () => fetch("/api/activities").then(r => r.json()), 
+  queryFn: () => fetch("/api/activities").then(r => r.json() as Promise<MaybePaginated<CRMActivity>>), 
   initialData: initial 
 });
 
@@ -184,7 +184,7 @@ export const useDeleteActivity = () => useOptimisticMutation<CRMActivity>(
 // --- INVOICE HOOKS ---
 export const useInvoices = (initial?: Invoice[]) => useQuery({ 
   queryKey: keys.invoices.lists(), 
-  queryFn: () => fetch("/api/invoices").then(r => r.json()), 
+  queryFn: () => fetch("/api/invoices").then(r => r.json() as Promise<MaybePaginated<Invoice>>), 
   initialData: initial 
 });
 

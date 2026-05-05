@@ -39,7 +39,7 @@ export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
 
-  const leads = Array.isArray(contactsData) ? contactsData : (contactsData as any)?.data || [];
+  const leads = Array.isArray(contactsData) ? contactsData : contactsData?.data || [];
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);

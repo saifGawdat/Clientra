@@ -15,14 +15,17 @@ const ThemeContext = createContext<ThemeContextType>({
 })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark")
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("theme") as Theme | null
+      return stored ?? "dark"
+    }
+    return "dark"
+  })
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme") as Theme | null
-    const initial = stored ?? "dark"
-    setTheme(initial)
-    document.documentElement.setAttribute("data-theme", initial)
-  }, [])
+    document.documentElement.setAttribute("data-theme", theme)
+  }, [theme])
 
   const toggleTheme = () => {
     setTheme((prev) => {

@@ -1,21 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-
-interface PaginatedResponse<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasMore: boolean;
-  };
-  [key: string]: any; // For secondary data like contacts, companies, etc.
-}
+import { PaginatedResponse } from "@/types/crm-types";
 
 export function usePaginatedQuery<T>(
-  queryKey: readonly any[],
+  queryKey: readonly unknown[],
   url: string,
-  params: Record<string, any> = {}
+  params: Record<string, unknown> = {}
 ) {
   return useQuery({
     queryKey: [...queryKey, params],

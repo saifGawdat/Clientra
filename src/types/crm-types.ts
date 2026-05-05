@@ -127,3 +127,17 @@ export interface InvoiceItem {
   price: number;
   invoiceId: string;
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
+  [key: string]: unknown; // For secondary data like contacts, companies, etc.
+}
+
+export type MaybePaginated<T> = T[] | PaginatedResponse<T>;

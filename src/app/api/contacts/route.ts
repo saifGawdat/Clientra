@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { contactSchema } from "@/lib/validations"
+import { ContactStatus } from "@/types/crm-types"
 import { getPaginationParams, getPaginatedResponse } from "@/lib/pagination"
 
 export async function GET(req: NextRequest) {
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
         { email: { contains: search, mode: "insensitive" as const } },
       ],
     }),
-    ...(status && { status: status as any }),
+    ...(status && { status: status as ContactStatus }),
   }
 
   const [contacts, total] = await Promise.all([
