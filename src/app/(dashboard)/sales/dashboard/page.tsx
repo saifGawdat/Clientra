@@ -8,11 +8,10 @@ import Link from "next/link"
 const DashboardChart = dynamic(
   () => import("@/components/dashboard/dashboard-chart").then((m) => m.DashboardChart),
   {
-    ssr: false,
     loading: () => (
       <div className="h-64 rounded-xl border border-border bg-surface/30 animate-pulse" aria-hidden />
     ),
-  }
+  },
 )
 
 const STAGE_ORDER = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"] as const
