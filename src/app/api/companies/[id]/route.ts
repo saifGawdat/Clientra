@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     include: {
       contacts: { take: 10, orderBy: { createdAt: "desc" } },
       deals: { take: 10, orderBy: { createdAt: "desc" } },
-      notes: { orderBy: { createdAt: "desc" } },
+      notes: { orderBy: { createdAt: "desc" }, take: 50 },
     },
   })
 

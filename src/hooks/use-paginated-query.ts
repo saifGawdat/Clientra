@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { PaginatedResponse } from "@/types/crm-types";
 
 export function usePaginatedQuery<T>(
@@ -23,5 +23,7 @@ export function usePaginatedQuery<T>(
       }
       return res.json() as Promise<PaginatedResponse<T>>;
     },
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
   });
 }

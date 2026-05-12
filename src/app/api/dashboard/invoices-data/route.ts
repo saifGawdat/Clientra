@@ -19,7 +19,6 @@ export async function GET(req: NextRequest) {
         include: {
           contact: { select: { id: true, firstName: true, lastName: true } },
           company: { select: { id: true, name: true } },
-          items: true,
         },
         orderBy: { createdAt: "desc" },
         skip: pagination.skip,

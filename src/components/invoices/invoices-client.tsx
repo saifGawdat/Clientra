@@ -307,6 +307,7 @@ export function InvoicesClient() {
       )}
 
       <InvoiceFormDialog
+        key={showForm ? editingInvoice?.id ?? "create" : "closed"}
         open={showForm}
         onClose={() => {
           setShowForm(false);

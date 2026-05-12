@@ -12,9 +12,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     where: { id, ownerId: session.user.id },
     include: {
       company: true,
-      deals: { orderBy: { createdAt: "desc" } },
+      deals: { orderBy: { createdAt: "desc" }, take: 50 },
       activities: { orderBy: { createdAt: "desc" }, take: 10 },
-      notes: { orderBy: { createdAt: "desc" } },
+      notes: { orderBy: { createdAt: "desc" }, take: 50 },
     },
   })
 

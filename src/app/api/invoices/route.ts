@@ -14,6 +14,7 @@ export async function GET(req: Request) {
   const status = searchParams.get("status") ?? ""
   const contactId = searchParams.get("contactId") ?? ""
   const companyId = searchParams.get("companyId") ?? ""
+  const includeItems = searchParams.get("includeItems") === "1"
   const page = parseInt(searchParams.get("page") ?? "1")
   const limit = parseInt(searchParams.get("limit") ?? "20")
 
@@ -38,7 +39,7 @@ export async function GET(req: Request) {
       include: {
         contact: { select: { id: true, firstName: true, lastName: true } },
         company: { select: { id: true, name: true } },
-        items: true,
+        ...(includeItems ? { items: true } : {}),
       },
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * limit,

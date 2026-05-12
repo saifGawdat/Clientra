@@ -1,9 +1,19 @@
+import dynamic from "next/dynamic"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { DashboardChart } from "@/components/dashboard/dashboard-chart"
 import { ActivityTypeIcon } from "@/components/activities/activity-type-icon"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
+
+const DashboardChart = dynamic(
+  () => import("@/components/dashboard/dashboard-chart").then((m) => m.DashboardChart),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 rounded-xl border border-border bg-surface/30 animate-pulse" aria-hidden />
+    ),
+  }
+)
 
 const STAGE_ORDER = ["LEAD", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "WON", "LOST"] as const
 

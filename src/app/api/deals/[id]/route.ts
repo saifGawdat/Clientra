@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       contact: true,
       company: true,
       activities: { orderBy: { createdAt: "desc" }, take: 10 },
-      notes: { orderBy: { createdAt: "desc" } },
+      notes: { orderBy: { createdAt: "desc" }, take: 50 },
     },
   })
 

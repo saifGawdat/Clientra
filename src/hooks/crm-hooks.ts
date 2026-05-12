@@ -184,7 +184,7 @@ export const useDeleteActivity = () => useOptimisticMutation<CRMActivity, string
 // --- INVOICE HOOKS ---
 export const useInvoices = (initial?: Invoice[]): ReturnType<typeof useQuery<MaybePaginated<Invoice>>> => useQuery({ 
   queryKey: keys.invoices.lists(), 
-  queryFn: () => fetch("/api/invoices").then(r => r.json() as Promise<MaybePaginated<Invoice>>), 
+  queryFn: () => fetch("/api/invoices?includeItems=1").then(r => r.json() as Promise<MaybePaginated<Invoice>>), 
   initialData: initial 
 });
 

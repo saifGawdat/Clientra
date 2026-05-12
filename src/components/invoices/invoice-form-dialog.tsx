@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { 
   Plus, 
   Trash2, 
@@ -12,7 +13,8 @@ import {
   Building2, 
   Briefcase,
   AlertCircle,
-  FileText
+  FileText,
+  Loader2,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -49,6 +51,25 @@ export function InvoiceFormDialog({
   const [today] = useState(() => new Date().toISOString().split('T')[0])
   const [defaultDueDate] = useState(() => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
   const [defaultInvoiceNumber] = useState(() => `INV-${Math.floor(1000 + Math.random() * 9000)}`)
+
+  const invoiceDetailQuery = useQuery({
+    queryKey: ["invoice-form-detail", invoice?.id] as const,
+    queryFn: async ({ signal }) => {
+      const r = await fetch(`/api/invoices/${invoice!.id}`, { signal })
+      if (!r.ok) throw new Error("Failed to load invoice")
+      return r.json() as Promise<Invoice>
+    },
+    enabled: Boolean(open && invoice?.id),
+    staleTime: 30 * 1000,
+  })
+
+  const editInvoiceDetail = invoiceDetailQuery.data ?? null
+  const editInvoiceLoading = invoiceDetailQuery.isPending || invoiceDetailQuery.isFetching
+  const editInvoiceError = invoiceDetailQuery.isError
+    ? invoiceDetailQuery.error instanceof Error
+      ? invoiceDetailQuery.error.message
+      : "Failed to load invoice"
+    : null
 
   const { register, handleSubmit, control, reset, setValue, getValues, formState: { errors } } = useForm<InvoiceInput>({
     resolver: zodResolver(invoiceSchema),
@@ -113,29 +134,36 @@ export function InvoiceFormDialog({
   }, [dealId])
 
   useEffect(() => {
-    if (invoice) {
-      reset({
-        invoiceNumber: invoice.invoiceNumber,
-        amount: invoice.amount,
-        status: invoice.status,
-        dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : "",
-        issueDate: invoice.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : "",
-        contactId: invoice.contactId ?? "",
-        companyId: invoice.companyId ?? "",
-        dealId: invoice.dealId ?? "",
-        items: invoice.items?.map(item => ({ service: item.service, price: item.price })) ?? [{ service: "", price: 0 }],
-      })
-    } else {
-      reset({ 
-        status: "DRAFT", 
-        amount: 0, 
-        issueDate: today,
-        dueDate: defaultDueDate,
-        items: [{ service: "", price: 0 }],
-        invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`
-      })
-    }
-  }, [invoice, reset, today, defaultDueDate])
+    if (!open || invoice?.id) return
+    reset({
+      status: "DRAFT",
+      amount: 0,
+      issueDate: today,
+      dueDate: defaultDueDate,
+      items: [{ service: "", price: 0 }],
+      invoiceNumber: `INV-${Math.floor(1000 + Math.random() * 9000)}`,
+    })
+  }, [open, invoice?.id, reset, today, defaultDueDate])
+
+  useEffect(() => {
+    if (!open || !invoice?.id) return
+    if (editInvoiceLoading || !editInvoiceDetail) return
+    const inv = editInvoiceDetail
+    reset({
+      invoiceNumber: inv.invoiceNumber,
+      amount: inv.amount,
+      status: inv.status,
+      dueDate: inv.dueDate ? new Date(inv.dueDate).toISOString().split("T")[0] : "",
+      issueDate: inv.issueDate ? new Date(inv.issueDate).toISOString().split("T")[0] : "",
+      contactId: inv.contactId ?? "",
+      companyId: inv.companyId ?? "",
+      dealId: inv.dealId ?? "",
+      items:
+        inv.items?.map((item) => ({ service: item.service, price: item.price })) ?? [
+          { service: "", price: 0 },
+        ],
+    })
+  }, [open, invoice?.id, editInvoiceDetail, editInvoiceLoading, reset])
 
   const onSubmit = async (data: InvoiceInput): Promise<void> => {
     if (invoice) {
@@ -149,7 +177,11 @@ export function InvoiceFormDialog({
     }
   }
 
-  const isSaving = createInvoice.isPending || updateInvoice.isPending;
+  const isSaving = createInvoice.isPending || updateInvoice.isPending
+  const editBlocked = Boolean(
+    invoice?.id &&
+      (editInvoiceLoading || invoiceDetailQuery.isError || !editInvoiceDetail),
+  )
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -170,6 +202,27 @@ export function InvoiceFormDialog({
           </div>
         </DialogHeader>
 
+        {invoice?.id && editInvoiceLoading && (
+          <div className="flex flex-1 min-h-[280px] items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-accent" aria-label="Loading invoice" />
+          </div>
+        )}
+
+        {invoice?.id && invoiceDetailQuery.isError && !editInvoiceLoading && (
+          <div className="px-6 py-12 text-center text-sm text-red-400 flex flex-col gap-3 items-center">
+            <p>{editInvoiceError}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void invoiceDetailQuery.refetch()}
+            >
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {(!invoice?.id || (editInvoiceDetail && !editInvoiceLoading && !invoiceDetailQuery.isError)) && (
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
           {/* Section 1: Basic Info */}
           <div className="space-y-4">
@@ -376,6 +429,7 @@ export function InvoiceFormDialog({
             </div>
           </div>
         </form>
+        )}
 
         <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t border-border bg-overlay/30">
           <Button 
@@ -388,7 +442,7 @@ export function InvoiceFormDialog({
           </Button>
           <Button 
             type="submit" 
-            disabled={isSaving}
+            disabled={isSaving || editBlocked}
             onClick={handleSubmit(onSubmit)}
             className="px-8 bg-accent hover:bg-accent/90 text-white font-bold"
           >

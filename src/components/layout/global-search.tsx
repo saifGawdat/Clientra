@@ -56,23 +56,32 @@ export function GlobalSearch() {
   useEffect(() => {
     if (query.length < 2) return;
 
-    const timer = setTimeout(async () => {
+    const ac = new AbortController();
+    const timer = setTimeout(() => {
       setIsLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data);
-          setIsOpen(true);
+      (async () => {
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+            signal: ac.signal,
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setResults(data);
+            setIsOpen(true);
+          }
+        } catch (error) {
+          if ((error as Error).name === "AbortError") return;
+          console.error("Search failed:", error);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error("Search failed:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      })();
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      ac.abort();
+    };
   }, [query]);
 
   const hasResults = results && (
