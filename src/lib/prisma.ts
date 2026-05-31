@@ -27,4 +27,5 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+// Always persist — prevents new Pool + PrismaClient on every cold-start invocation
+globalForPrisma.prisma = prisma

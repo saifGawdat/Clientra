@@ -1,5 +1,5 @@
 import { PipelinePageSkeleton } from "@/components/ui/page-loading-skeleton";
 
-export default function PipelineLoading() {
+export default function Loading() {
   return <PipelinePageSkeleton />;
 }

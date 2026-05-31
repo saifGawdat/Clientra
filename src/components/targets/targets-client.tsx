@@ -9,28 +9,22 @@ import { TargetFormDialog } from "./target-form-dialog";
 import { useConfirm } from "@/components/ui/confirm-modal";
 import { formatDate, cn } from "@/lib/utils";
 import { Contact as CRMContact } from "@/types/crm-types";
-import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/crm-hooks";
+import { useContacts, useUpdateContact, useDeleteContact, useCompanies } from "@/hooks/crm-hooks";
 import { useQueryClient } from "@tanstack/react-query";
 
 
-interface TargetsClientProps {
-  initialTargets: CRMContact[];
-  companies: { id: string; name: string }[];
-}
-
-export function TargetsClient({
-  initialTargets,
-  companies,
-}: TargetsClientProps) {
+export function TargetsClient() {
   const confirm = useConfirm();
   const queryClient = useQueryClient();
   
-  // 1. Data Hooks
-  const { data: contactsData } = useContacts(initialTargets);
+  // 1. Data Hooks — fully client-driven
+  const { data: contactsData } = useContacts();
+  const { data: companiesData } = useCompanies();
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
 
   const contacts = Array.isArray(contactsData) ? contactsData : contactsData?.data || [];
+  const companies = Array.isArray(companiesData) ? companiesData : companiesData?.data || [];
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);

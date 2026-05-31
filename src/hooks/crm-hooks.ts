@@ -85,7 +85,8 @@ export const useContacts = (initial?: Contact[]): ReturnType<typeof useQuery<May
   queryKey: keys.contacts.lists(), 
   queryFn: () => fetch("/api/contacts").then(r => r.json() as Promise<MaybePaginated<Contact>>), 
   initialData: initial,
-  staleTime: 60000 
+  staleTime: 5 * 60 * 1000,  // 5 min
+  gcTime: 10 * 60 * 1000,
 });
 
 export const useCreateContact = () => useOptimisticMutation<Contact, Partial<Contact>>(
@@ -110,7 +111,9 @@ export const useDeleteContact = () => useOptimisticMutation<Contact, string>(
 export const useCompanies = (initial?: Company[]): ReturnType<typeof useQuery<MaybePaginated<Company>>> => useQuery({ 
   queryKey: keys.companies.lists(), 
   queryFn: () => fetch("/api/companies").then(r => r.json() as Promise<MaybePaginated<Company>>), 
-  initialData: initial 
+  initialData: initial,
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
 });
 
 export const useCreateCompany = () => useOptimisticMutation<Company, Partial<Company>>(
@@ -135,7 +138,9 @@ export const useDeleteCompany = () => useOptimisticMutation<Company, string>(
 export const useDeals = (initial?: Deal[]): ReturnType<typeof useQuery<MaybePaginated<Deal>>> => useQuery({ 
   queryKey: keys.deals.lists(), 
   queryFn: () => fetch("/api/deals").then(r => r.json() as Promise<MaybePaginated<Deal>>), 
-  initialData: initial 
+  initialData: initial,
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
 });
 
 export const useCreateDeal = () => useOptimisticMutation<Deal, Partial<Deal>>(
@@ -160,7 +165,9 @@ export const useDeleteDeal = () => useOptimisticMutation<Deal, string>(
 export const useActivities = (initial?: CRMActivity[]): ReturnType<typeof useQuery<MaybePaginated<CRMActivity>>> => useQuery({ 
   queryKey: keys.activities.lists(), 
   queryFn: () => fetch("/api/activities").then(r => r.json() as Promise<MaybePaginated<CRMActivity>>), 
-  initialData: initial 
+  initialData: initial,
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
 });
 
 export const useCreateActivity = () => useOptimisticMutation<CRMActivity, Partial<CRMActivity>>(
@@ -185,7 +192,9 @@ export const useDeleteActivity = () => useOptimisticMutation<CRMActivity, string
 export const useInvoices = (initial?: Invoice[]): ReturnType<typeof useQuery<MaybePaginated<Invoice>>> => useQuery({ 
   queryKey: keys.invoices.lists(), 
   queryFn: () => fetch("/api/invoices?includeItems=1").then(r => r.json() as Promise<MaybePaginated<Invoice>>), 
-  initialData: initial 
+  initialData: initial,
+  staleTime: 5 * 60 * 1000,
+  gcTime: 10 * 60 * 1000,
 });
 
 export const useCreateInvoice = () => useOptimisticMutation<Invoice, Partial<Invoice>>(

@@ -8,7 +8,7 @@ export function AppLoader() {
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 1600)
+    const t = setTimeout(() => setVisible(false), 600) // reduced from 1600ms
     return () => clearTimeout(t)
   }, [])
 

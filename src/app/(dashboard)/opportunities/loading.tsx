@@ -1,5 +1,5 @@
 import { ListPageSkeleton } from "@/components/ui/page-loading-skeleton";
 
-export default function OpportunitiesLoading() {
+export default function Loading() {
   return <ListPageSkeleton />;
 }

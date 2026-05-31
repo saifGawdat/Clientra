@@ -13,6 +13,7 @@ import { formatDate, cn } from "@/lib/utils";
 import { Contact as CRMContact } from "@/types/crm-types";
 import { useContacts, useUpdateContact, useDeleteContact } from "@/hooks/crm-hooks";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCompanies } from "@/hooks/crm-hooks";
 
 const sourceLabels: Record<string, string> = {
   WEBSITE: "Website",
@@ -24,22 +25,19 @@ const sourceLabels: Record<string, string> = {
   OTHER: "Other",
 };
 
-interface LeadsClientProps {
-  initialLeads: CRMContact[];
-  companies: { id: string; name: string }[];
-}
-
-export function LeadsClient({ initialLeads, companies }: LeadsClientProps) {
+export function LeadsClient() {
   const router = useRouter();
   const confirm = useConfirm();
   const queryClient = useQueryClient();
 
-  // 1. Data Hooks
-  const { data: contactsData } = useContacts(initialLeads);
+  // 1. Data Hooks — fully client-driven, no server props needed
+  const { data: contactsData } = useContacts();
+  const { data: companiesData } = useCompanies();
   const updateContact = useUpdateContact();
   const deleteContact = useDeleteContact();
 
   const leads = Array.isArray(contactsData) ? contactsData : contactsData?.data || [];
+  const companies = Array.isArray(companiesData) ? companiesData : companiesData?.data || [];
 
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);

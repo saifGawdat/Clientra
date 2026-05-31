@@ -1,6 +1,7 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose"
 import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
+import { cache } from "react"
 
 const secretKey = process.env.AUTH_SECRET || "default-secret-key-change-me"
 const key = new TextEncoder().encode(secretKey)
@@ -28,7 +29,9 @@ export interface SessionUser {
   role?: string;
 }
 
-export async function getSession(): Promise<{ user: SessionUser } | null> {
+// React.cache() deduplicates this per-request: if layout + page both call auth(),
+// JWT decryption only runs once instead of twice per navigation.
+export const getSession = cache(async (): Promise<{ user: SessionUser } | null> => {
   try {
     const session = (await cookies()).get("session")?.value
     if (!session) return null
@@ -37,7 +40,7 @@ export async function getSession(): Promise<{ user: SessionUser } | null> {
   } catch {
     return null
   }
-}
+})
 
 export async function updateSession(request: NextRequest) {
   const session = request.cookies.get("session")?.value
@@ -57,3 +60,4 @@ export async function updateSession(request: NextRequest) {
 }
 
 export const auth = getSession
+

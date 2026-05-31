@@ -9,7 +9,7 @@ import { useConfirm } from "@/components/ui/confirm-modal"
 import { SquareCheck } from "lucide-react"
 import { formatDate, cn } from "@/lib/utils"
 import { CRMActivity } from "@/types/crm-types"
-import { useActivities, useUpdateActivity, useDeleteActivity, keys } from "@/hooks/crm-hooks"
+import { useActivities, useUpdateActivity, useDeleteActivity, useContacts, useDeals, keys } from "@/hooks/crm-hooks"
 import { useQueryClient } from "@tanstack/react-query"
 
 const typeIcon: Record<string, React.ElementType> = {
@@ -37,11 +37,9 @@ const statusVariant: Record<string, "default" | "secondary" | "destructive" | "o
 
 interface ActivitiesClientProps {
   initialActivities: CRMActivity[]
-  contacts: { id: string; firstName: string; lastName: string }[]
-  deals: { id: string; title: string }[]
 }
 
-export function ActivitiesClient({ initialActivities, contacts, deals }: ActivitiesClientProps) {
+export function ActivitiesClient({ initialActivities }: ActivitiesClientProps) {
   const confirm = useConfirm()
   const queryClient = useQueryClient()
   
@@ -50,6 +48,12 @@ export function ActivitiesClient({ initialActivities, contacts, deals }: Activit
   const activities = Array.isArray(activitiesData) ? activitiesData : activitiesData?.data || [];
   const updateActivity = useUpdateActivity()
   const deleteActivity = useDeleteActivity()
+
+  // Fetch contacts and deals lazily from React Query cache (shared with other pages)
+  const { data: contactsRaw } = useContacts()
+  const { data: dealsRaw } = useDeals()
+  const contacts = Array.isArray(contactsRaw) ? contactsRaw : contactsRaw?.data || []
+  const deals = Array.isArray(dealsRaw) ? dealsRaw : dealsRaw?.data || []
 
   const [showForm, setShowForm] = useState(false)
   const [editingActivity, setEditingActivity] = useState<CRMActivity | null>(null)
