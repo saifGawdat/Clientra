@@ -17,11 +17,35 @@ export default async function MyDashboardPage() {
   const userId = session.user.id
   const userName = session.user.name ?? "You"
 
-  const [deals, activities, contacts] = await Promise.all([
-    prisma.deal.findMany({
-      where: { ownerId: userId },
-      include: { company: { select: { id: true, name: true } } },
-      orderBy: { updatedAt: "desc" },
+  // Parallelize and optimize queries (use aggregations instead of JS filtering)
+  const [
+    openDealsAgg,
+    wonDealsAgg,
+    contactsCount,
+    completedActivitiesCount,
+    upcomingActivities,
+    recentActivities,
+    openDealsList,
+  ] = await Promise.all([
+    prisma.deal.aggregate({
+      where: { ownerId: userId, stage: { notIn: ["WON", "LOST"] } },
+      _sum: { value: true },
+      _count: { id: true },
+    }),
+    prisma.deal.aggregate({
+      where: { ownerId: userId, stage: "WON" },
+      _sum: { value: true },
+      _count: { id: true },
+    }),
+    prisma.contact.count({ where: { ownerId: userId } }),
+    prisma.activity.count({ where: { userId, status: "COMPLETED" } }),
+    prisma.activity.findMany({
+      where: { userId, status: "PLANNED", scheduledAt: { not: null } },
+      include: {
+        contact: { select: { id: true, firstName: true, lastName: true } },
+      },
+      orderBy: { scheduledAt: "asc" },
+      take: 5,
     }),
     prisma.activity.findMany({
       where: { userId },
@@ -30,23 +54,20 @@ export default async function MyDashboardPage() {
         deal: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: 8,
     }),
-    prisma.contact.count({ where: { ownerId: userId } }),
+    prisma.deal.findMany({
+      where: { ownerId: userId, stage: { notIn: ["WON", "LOST"] } },
+      include: { company: { select: { id: true, name: true } } },
+      orderBy: { updatedAt: "desc" },
+      take: 6,
+    }),
   ])
 
-  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
-  const wonDeals = deals.filter((d) => d.stage === "WON")
-  const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-  const wonRevenue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-
-  const completedActivities = activities.filter((a) => a.status === "COMPLETED")
-  const upcomingActivities = activities
-    .filter((a) => a.status === "PLANNED" && a.scheduledAt)
-    .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime())
-    .slice(0, 5)
-
-  const recentActivities = activities.slice(0, 8)
+  const pipelineValue = openDealsAgg._sum.value ?? 0
+  const wonRevenue = wonDealsAgg._sum.value ?? 0
+  const openDealsCount = openDealsAgg._count.id
+  const wonDealsCount = wonDealsAgg._count.id
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5 min-h-full">
@@ -65,10 +86,10 @@ export default async function MyDashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "My Pipeline", value: formatCurrency(pipelineValue), sub: `${openDeals.length} open deals` },
-          { label: "Won Revenue", value: formatCurrency(wonRevenue), sub: `${wonDeals.length} deals closed` },
-          { label: "My Contacts", value: contacts.toString(), sub: "total contacts owned" },
-          { label: "Activities Done", value: completedActivities.length.toString(), sub: "completed activities" },
+          { label: "My Pipeline", value: formatCurrency(pipelineValue), sub: `${openDealsCount} open deals` },
+          { label: "Won Revenue", value: formatCurrency(wonRevenue), sub: `${wonDealsCount} deals closed` },
+          { label: "My Contacts", value: contactsCount.toString(), sub: "total contacts owned" },
+          { label: "Activities Done", value: completedActivitiesCount.toString(), sub: "completed activities" },
         ].map((kpi) => (
           <div key={kpi.label} className="oled-card">
             <p className="text-subtle text-xs uppercase tracking-widest mb-2">{kpi.label}</p>
@@ -107,11 +128,11 @@ export default async function MyDashboardPage() {
 
         <div className="oled-card space-y-3">
           <p className="text-xs font-bold uppercase tracking-widest text-subtle">My Open Deals</p>
-          {openDeals.length === 0 ? (
+          {openDealsList.length === 0 ? (
             <p className="text-subtle text-sm py-4 text-center">No open deals</p>
           ) : (
             <div className="space-y-2">
-              {openDeals.slice(0, 6).map((deal) => (
+              {openDealsList.map((deal) => (
                 <div key={deal.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                   <div className="min-w-0">
                     <p className="text-sm text-foreground font-medium truncate">{deal.title}</p>

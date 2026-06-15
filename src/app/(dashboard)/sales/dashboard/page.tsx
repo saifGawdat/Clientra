@@ -21,7 +21,13 @@ export default async function SalesDashboardPage() {
   if (!session?.user) return null
   const userId = session.user.id
 
-  const [deals, recentActivities] = await Promise.all([
+  const [dealStats, recentDeals, recentActivities] = await Promise.all([
+    prisma.deal.groupBy({
+      by: ['stage'],
+      where: { ownerId: userId },
+      _count: { id: true },
+      _sum: { value: true },
+    }),
     prisma.deal.findMany({
       where: { ownerId: userId },
       include: {
@@ -29,6 +35,7 @@ export default async function SalesDashboardPage() {
         company: { select: { id: true, name: true } },
       },
       orderBy: { updatedAt: "desc" },
+      take: 6,
     }),
     prisma.activity.findMany({
       where: { userId },
@@ -41,28 +48,40 @@ export default async function SalesDashboardPage() {
     }),
   ])
 
-  const wonDeals = deals.filter((d) => d.stage === "WON")
-  const lostDeals = deals.filter((d) => d.stage === "LOST")
-  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
+  let openDealsCount = 0
+  let pipelineValue = 0
+  let wonDealsCount = 0
+  let wonRevenue = 0
+  let lostDealsCount = 0
 
-  const pipelineValue = openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-  const wonRevenue = wonDeals.reduce((sum, d) => sum + (d.value ?? 0), 0)
-  const closedCount = wonDeals.length + lostDeals.length
-  const winRate = closedCount > 0 ? Math.round((wonDeals.length / closedCount) * 100) : 0
-  const avgDealSize = openDeals.length > 0
-    ? openDeals.reduce((sum, d) => sum + (d.value ?? 0), 0) / openDeals.length
-    : 0
+  const chartDataMap: Record<string, { count: number; value: number }> = {}
 
-  const chartData = STAGE_ORDER.map((stage) => {
-    const stageDeals = deals.filter((d) => d.stage === stage)
-    return {
-      stage,
-      count: stageDeals.length,
-      value: stageDeals.reduce((sum, d) => sum + (d.value ?? 0), 0),
+  for (const stat of dealStats) {
+    const count = stat._count.id
+    const value = stat._sum.value ?? 0
+
+    chartDataMap[stat.stage] = { count, value }
+
+    if (stat.stage === "WON") {
+      wonDealsCount += count
+      wonRevenue += value
+    } else if (stat.stage === "LOST") {
+      lostDealsCount += count
+    } else {
+      openDealsCount += count
+      pipelineValue += value
     }
-  })
+  }
 
-  const recentDeals = deals.slice(0, 6)
+  const closedCount = wonDealsCount + lostDealsCount
+  const winRate = closedCount > 0 ? Math.round((wonDealsCount / closedCount) * 100) : 0
+  const avgDealSize = openDealsCount > 0 ? pipelineValue / openDealsCount : 0
+
+  const chartData = STAGE_ORDER.map((stage) => ({
+    stage,
+    count: chartDataMap[stage]?.count ?? 0,
+    value: chartDataMap[stage]?.value ?? 0,
+  }))
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5 min-h-full">
@@ -73,8 +92,8 @@ export default async function SalesDashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Pipeline Value", value: formatCurrency(pipelineValue), sub: `${openDeals.length} open deals` },
-          { label: "Won Revenue", value: formatCurrency(wonRevenue), sub: `${wonDeals.length} deals won` },
+          { label: "Pipeline Value", value: formatCurrency(pipelineValue), sub: `${openDealsCount} open deals` },
+          { label: "Won Revenue", value: formatCurrency(wonRevenue), sub: `${wonDealsCount} deals won` },
           { label: "Win Rate", value: `${winRate}%`, sub: `${closedCount} deals closed` },
           { label: "Avg Deal Size", value: formatCurrency(avgDealSize), sub: "open pipeline" },
         ].map((kpi) => (

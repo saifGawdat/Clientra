@@ -20,8 +20,19 @@ export default async function DashboardPage() {
   const userId = session.user.id
   const userName = session.user.name ?? "there"
 
-  // Optimized KPI fetching using aggregations instead of full findMany
-  const [pipelineAgg, wonAgg, totalContacts, totalCompanies, completedActivitiesCount] = await Promise.all([
+  // Parallelize all data fetching to eliminate waterfalls
+  const [
+    pipelineAgg,
+    wonAgg,
+    totalContacts,
+    totalCompanies,
+    completedActivitiesCount,
+    upcomingActivities,
+    recentInvoices,
+    recentActivities,
+    openDeals
+  ] = await Promise.all([
+    // KPIs
     prisma.deal.aggregate({
       where: { ownerId: userId, stage: { notIn: ["WON", "LOST"] } },
       _sum: { value: true },
@@ -35,10 +46,7 @@ export default async function DashboardPage() {
     prisma.contact.count({ where: { ownerId: userId } }),
     prisma.company.count({ where: { ownerId: userId } }),
     prisma.activity.count({ where: { userId, status: "COMPLETED" } }),
-  ])
-
-  // Fetch only what's needed for the feed
-  const [upcomingActivities, recentInvoices, recentActivities, openDeals] = await Promise.all([
+    // Feeds
     prisma.activity.findMany({
       where: { userId, status: "PLANNED", scheduledAt: { not: null } },
       include: {

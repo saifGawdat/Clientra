@@ -26,41 +26,64 @@ export default async function SalesOverviewPage() {
   if (!session?.user) return null
   const userId = session.user.id
 
-  const [deals, contacts] = await Promise.all([
-    prisma.deal.findMany({ where: { ownerId: userId } }),
-    prisma.contact.findMany({ where: { ownerId: userId } }),
+  const [dealStats, contactSourceStats, totalContacts, customerContacts] = await Promise.all([
+    prisma.deal.groupBy({
+      by: ['stage'],
+      where: { ownerId: userId },
+      _count: { id: true },
+      _sum: { value: true },
+    }),
+    prisma.contact.groupBy({
+      by: ['source'],
+      where: { ownerId: userId },
+      _count: { id: true },
+    }),
+    prisma.contact.count({ where: { ownerId: userId } }),
+    prisma.contact.count({ where: { ownerId: userId, status: "CUSTOMER" } }),
   ])
 
-  const totalDeals = deals.length
-  const maxCount = Math.max(...STAGES.map((s) => deals.filter((d) => d.stage === s.key).length), 1)
+  let totalDeals = 0
+  let openPipelineValue = 0
+  let wonDealsCount = 0
+  let lostDealsCount = 0
+
+  const stageMap: Record<string, { count: number; value: number }> = {}
+
+  for (const stat of dealStats) {
+    const count = stat._count.id
+    const value = stat._sum.value ?? 0
+    stageMap[stat.stage] = { count, value }
+    totalDeals += count
+
+    if (stat.stage === "WON") {
+      wonDealsCount += count
+    } else if (stat.stage === "LOST") {
+      lostDealsCount += count
+    } else {
+      openPipelineValue += value
+    }
+  }
+
+  const maxCount = Math.max(...STAGES.map((s) => stageMap[s.key]?.count ?? 0), 1)
 
   const stageStats = STAGES.map((stage) => {
-    const stageDeals = deals.filter((d) => d.stage === stage.key)
+    const count = stageMap[stage.key]?.count ?? 0
+    const value = stageMap[stage.key]?.value ?? 0
     return {
       ...stage,
-      count: stageDeals.length,
-      value: stageDeals.reduce((sum, d) => sum + (d.value ?? 0), 0),
-      pct: totalDeals > 0 ? Math.round((stageDeals.length / totalDeals) * 100) : 0,
-      barPct: maxCount > 0 ? Math.round((stageDeals.length / maxCount) * 100) : 0,
+      count,
+      value,
+      pct: totalDeals > 0 ? Math.round((count / totalDeals) * 100) : 0,
+      barPct: maxCount > 0 ? Math.round((count / maxCount) * 100) : 0,
     }
   })
 
-  const wonDeals = deals.filter((d) => d.stage === "WON")
-  const lostDeals = deals.filter((d) => d.stage === "LOST")
-  const openDeals = deals.filter((d) => !(["WON", "LOST"] as string[]).includes(d.stage))
-  const closedCount = wonDeals.length + lostDeals.length
-  const winRate = closedCount > 0 ? Math.round((wonDeals.length / closedCount) * 100) : 0
-  const conversionRate =
-    contacts.length > 0
-      ? Math.round((contacts.filter((c) => c.status === "CUSTOMER").length / contacts.length) * 100)
-      : 0
+  const closedCount = wonDealsCount + lostDealsCount
+  const winRate = closedCount > 0 ? Math.round((wonDealsCount / closedCount) * 100) : 0
+  const conversionRate = totalContacts > 0 ? Math.round((customerContacts / totalContacts) * 100) : 0
 
-  const sourceBreakdown = Object.entries(
-    contacts.reduce<Record<string, number>>((acc, c) => {
-      acc[c.source] = (acc[c.source] ?? 0) + 1
-      return acc
-    }, {}),
-  )
+  const sourceBreakdown = contactSourceStats
+    .map((stat) => [stat.source, stat._count.id] as [string, number])
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6)
 
@@ -76,7 +99,7 @@ export default async function SalesOverviewPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: "Total Deals", value: totalDeals.toString() },
-          { label: "Open Pipeline", value: formatCurrency(openDeals.reduce((s, d) => s + (d.value ?? 0), 0)) },
+          { label: "Open Pipeline", value: formatCurrency(openPipelineValue) },
           { label: "Win Rate", value: `${winRate}%` },
           { label: "Contact Conversion", value: `${conversionRate}%` },
         ].map((s) => (
@@ -126,7 +149,7 @@ export default async function SalesOverviewPage() {
                     <span className="text-muted">{SOURCE_LABELS[source] ?? source}</span>
                     <div className="flex items-center gap-3">
                       <span className="text-subtle text-xs">
-                        {contacts.length > 0 ? Math.round((count / contacts.length) * 100) : 0}%
+                        {totalContacts > 0 ? Math.round((count / totalContacts) * 100) : 0}%
                       </span>
                       <span className="text-foreground text-xs w-8 text-right">{count}</span>
                     </div>
