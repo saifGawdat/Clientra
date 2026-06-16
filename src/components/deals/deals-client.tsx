@@ -1,10 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { DealFormDialog } from "@/components/deals/deal-form-dialog"
 import { PipelineBoard } from "@/components/deals/pipeline-board"
+
+const DealFormDialog = dynamic(
+  () => import("@/components/deals/deal-form-dialog").then((m) => m.DealFormDialog),
+  { ssr: false }
+)
 import { formatCurrency } from "@/lib/utils"
 import { Deal as CRMDeal, DealStage } from "@/types/crm-types"
 import { useQueryClient } from "@tanstack/react-query"
@@ -20,11 +25,11 @@ export function DealsClient() {
   const { data: dealsData, isLoading } = usePaginatedQuery<CRMDeal>(
     keys.deals.lists(),
     "/api/deals",
-    { limit: 500 }
+    { limit: 20 }
   );
 
-  const { data: contactsData } = useContacts();
-  const { data: companiesData } = useCompanies();
+  const { data: contactsData } = useContacts(undefined, showForm);
+  const { data: companiesData } = useCompanies(undefined, showForm);
   
   const contacts = Array.isArray(contactsData) ? contactsData : contactsData?.data || [];
   const companies = Array.isArray(companiesData) ? companiesData : companiesData?.data || [];

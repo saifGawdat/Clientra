@@ -81,12 +81,13 @@ function useOptimisticMutation<T extends { id: string }, TVariables = void>(
 }
 
 // --- CONTACT HOOKS ---
-export const useContacts = (initial?: Contact[]): ReturnType<typeof useQuery<MaybePaginated<Contact>>> => useQuery({ 
+export const useContacts = (initial?: Contact[], enabled: boolean = true): ReturnType<typeof useQuery<MaybePaginated<Contact>>> => useQuery({ 
   queryKey: keys.contacts.lists(), 
   queryFn: () => fetch("/api/contacts").then(r => r.json() as Promise<MaybePaginated<Contact>>), 
   initialData: initial,
   staleTime: 5 * 60 * 1000,  // 5 min
   gcTime: 10 * 60 * 1000,
+  enabled,
 });
 
 export const useCreateContact = () => useOptimisticMutation<Contact, Partial<Contact>>(
@@ -108,12 +109,13 @@ export const useDeleteContact = () => useOptimisticMutation<Contact, string>(
 );
 
 // --- COMPANY HOOKS ---
-export const useCompanies = (initial?: Company[]): ReturnType<typeof useQuery<MaybePaginated<Company>>> => useQuery({ 
+export const useCompanies = (initial?: Company[], enabled: boolean = true): ReturnType<typeof useQuery<MaybePaginated<Company>>> => useQuery({ 
   queryKey: keys.companies.lists(), 
   queryFn: () => fetch("/api/companies").then(r => r.json() as Promise<MaybePaginated<Company>>), 
   initialData: initial,
   staleTime: 5 * 60 * 1000,
   gcTime: 10 * 60 * 1000,
+  enabled,
 });
 
 export const useCreateCompany = () => useOptimisticMutation<Company, Partial<Company>>(
