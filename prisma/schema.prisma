@@ -1,10 +1,11 @@
 generator client {
   provider        = "prisma-client-js"
-
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [pg_trgm]
 }
 
 model User {
@@ -49,8 +50,18 @@ model Contact {
   notes      Note[]
   invoices   Invoice[]
 
+  // Single-column (kept for backward compat)
   @@index([ownerId])
   @@index([createdAt])
+
+  // Composite: covers (ownerId + filter) list queries
+  @@index([ownerId, status])
+  @@index([ownerId, createdAt])
+
+  // GIN trigram: makes ILIKE '%q%' fast (requires pg_trgm extension)
+  @@index([firstName(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([lastName(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([email(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model Company {
@@ -77,6 +88,10 @@ model Company {
 
   @@index([ownerId])
   @@index([createdAt])
+  @@index([ownerId, createdAt])
+
+  // GIN trigram: covers global search ILIKE on company name
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model Deal {
@@ -103,6 +118,14 @@ model Deal {
 
   @@index([ownerId])
   @@index([createdAt])
+
+  // Composite: covers stage filter + updatedAt sort (updatedAt had NO index before)
+  @@index([ownerId, stage])
+  @@index([ownerId, updatedAt])
+  @@index([ownerId, createdAt])
+
+  // GIN trigram: covers global search ILIKE on deal title
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model Activity {
@@ -125,6 +148,14 @@ model Activity {
 
   @@index([userId])
   @@index([createdAt])
+
+  // Composite: covers (userId + type/status) filter combos
+  @@index([userId, type])
+  @@index([userId, status])
+  @@index([userId, createdAt])
+
+  // Calendar/upcoming tasks queries on scheduledAt
+  @@index([userId, scheduledAt])
 }
 
 model Note {
@@ -224,11 +255,20 @@ model Invoice {
 
   @@index([ownerId])
   @@index([createdAt])
+
+  // Composite: covers status filter + FK filter combos
+  @@index([ownerId, status])
+  @@index([ownerId, createdAt])
+
+  // FK indexes: covers invoice search JOINs on contact/company
+  @@index([ownerId, contactId])
+  @@index([ownerId, companyId])
 }
 
 model InvoiceItem {
   id        String  @id @default(cuid())
   service   String
+  quantity  Int     @default(1)
   price     Float
   invoiceId String
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
