@@ -6,8 +6,8 @@ import { Plus, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PipelineBoard } from "@/components/deals/pipeline-board"
 
-const DealFormDialog = dynamic(
-  () => import("@/components/deals/deal-form-dialog").then((m) => m.DealFormDialog),
+const DealForm = dynamic(
+  () => import("@/components/deals/deal-form").then((m) => m.DealForm),
   { ssr: false }
 )
 import { formatCurrency } from "@/lib/utils"
@@ -62,6 +62,18 @@ export function DealsClient() {
     0
   )
 
+  if (showForm) {
+    return (
+      <DealForm
+        onClose={() => { setShowForm(false); setEditingDeal(null) }}
+        onSave={handleSave}
+        deal={editingDeal}
+        contacts={contacts}
+        companies={companies}
+      />
+    )
+  }
+
   return (
     <div className="p-6 flex flex-col h-full gap-5 relative">
       {isLoading && (
@@ -103,14 +115,6 @@ export function DealsClient() {
         onDelete={handleDelete}
       />
 
-      <DealFormDialog
-        open={showForm}
-        onClose={() => { setShowForm(false); setEditingDeal(null) }}
-        onSave={handleSave}
-        deal={editingDeal}
-        contacts={contacts}
-        companies={companies}
-      />
     </div>
   )
 }

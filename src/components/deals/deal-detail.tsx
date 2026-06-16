@@ -10,8 +10,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { DealFormDialog } from "@/components/deals/deal-form-dialog"
+import dynamic from "next/dynamic"
 import { useConfirm } from "@/components/ui/confirm-modal"
+
+const DealForm = dynamic(
+  () => import("@/components/deals/deal-form").then((m) => m.DealForm),
+  { ssr: false }
+)
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"
 import { Deal, Note, CRMActivity } from "@/types/crm-types"
@@ -89,6 +94,18 @@ export function DealDetail({
 
   const stageBarColor = STAGE_BAR[deal.stage] ?? "bg-zinc-600"
   const stageColor = STAGE_COLORS[deal.stage] ?? STAGE_COLORS.LEAD
+
+  if (showEdit) {
+    return (
+      <DealForm
+        onClose={() => setShowEdit(false)}
+        onSave={(updated: Partial<Deal>) => { setDeal((prev) => ({ ...prev, ...updated })); setShowEdit(false) }}
+        deal={deal}
+        contacts={contacts}
+        companies={companies}
+      />
+    )
+  }
 
   return (
     <div className="p-3 sm:p-4 lg:p-5 space-y-4 min-h-full">
@@ -308,15 +325,6 @@ export function DealDetail({
           </Tabs>
         </div>
       </div>
-
-      <DealFormDialog
-        open={showEdit}
-        onClose={() => setShowEdit(false)}
-        onSave={(updated: Partial<Deal>) => { setDeal((prev) => ({ ...prev, ...updated })); setShowEdit(false) }}
-        deal={deal}
-        contacts={contacts}
-        companies={companies}
-      />
     </div>
   )
 }
