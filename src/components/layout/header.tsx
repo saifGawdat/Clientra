@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ClientraIcon } from "@/components/ui/clientra-icon";
 import { Menu, Moon, Sun, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/providers/theme-provider";
@@ -32,7 +32,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
       {/* Center: logo — mobile only */}
       <div className="absolute left-1/2 -translate-x-1/2 md:hidden flex items-center gap-2 pointer-events-none select-none">
-        <Image src="/clientra-icon-dark.svg" alt="Clientra" width={24} height={24} />
+        <ClientraIcon size={24} />
         <span className="font-bold text-lg tracking-tight text-foreground">Clientra</span>
       </div>
 

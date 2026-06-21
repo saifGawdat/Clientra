@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import Image from "next/image";
+import { ClientraIcon } from "@/components/ui/clientra-icon";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,12 +101,7 @@ export default function RegisterPage() {
           }}
         />
         <div className="relative z-10 flex items-center gap-3">
-          <Image
-            src="/clientra-icon-dark.svg"
-            alt="Clientra"
-            width={36}
-            height={36}
-          />
+          <ClientraIcon size={36} />
           <span className="font-bold text-xl text-foreground">Clientra</span>
         </div>
 
@@ -177,12 +172,7 @@ export default function RegisterPage() {
             variants={item}
             className="lg:hidden flex items-center gap-3"
           >
-            <Image
-              src="/clientra-icon-dark.svg"
-              alt="Clientra"
-              width={36}
-              height={36}
-            />
+            <ClientraIcon size={36} />
             <span className="font-bold text-xl text-foreground">Clientra</span>
           </motion.div>
 

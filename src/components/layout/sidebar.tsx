@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ClientraIcon } from "@/components/ui/clientra-icon";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -79,13 +79,7 @@ export function Sidebar({ user, mobileOpen = false, onMobileClose }: SidebarProp
     >
       <div className="flex items-center gap-2 px-4 py-4">
         <div className="h-6 w-6 shrink-0 flex items-center justify-center">
-          <Image
-            src="/clientra-icon-dark.svg"
-            alt="Clientra"
-            width={24}
-            height={24}
-            className="h-6 w-6"
-          />
+          <ClientraIcon size={24} className="h-6 w-6" />
         </div>
         {!collapsed && (
           <span className="font-bold text-base tracking-tight text-foreground flex-1">

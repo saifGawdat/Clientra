@@ -62,6 +62,7 @@ model Contact {
   @@index([firstName(ops: raw("gin_trgm_ops"))], type: Gin)
   @@index([lastName(ops: raw("gin_trgm_ops"))], type: Gin)
   @@index([email(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([ownerId, firstName, lastName, email])
 }
 
 model Company {
@@ -92,6 +93,7 @@ model Company {
 
   // GIN trigram: covers global search ILIKE on company name
   @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([ownerId, name])
 }
 
 model Deal {
@@ -126,6 +128,7 @@ model Deal {
 
   // GIN trigram: covers global search ILIKE on deal title
   @@index([title(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([ownerId, title])
 }
 
 model Activity {
@@ -263,6 +266,7 @@ model Invoice {
   // FK indexes: covers invoice search JOINs on contact/company
   @@index([ownerId, contactId])
   @@index([ownerId, companyId])
+  @@index([ownerId, invoiceNumber])
 }
 
 model InvoiceItem {

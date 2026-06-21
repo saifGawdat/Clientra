@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft, Check, ChevronDown, Search } from "lucide-react"
@@ -35,7 +35,7 @@ export function DealForm({ onClose, onSave, deal, contacts, companies }: DealFor
 
   const selectedCompanyId = watch("companyId")
   const selectedContactId = watch("contactId")
-  const contactList = Array.isArray(contacts) ? contacts : [];
+  const contactList = useMemo(() => Array.isArray(contacts) ? contacts : [], [contacts]);
 
   useEffect(() => {
     if (selectedContactId && selectedContactId !== "none") {

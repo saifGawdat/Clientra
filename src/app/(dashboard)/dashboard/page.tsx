@@ -6,6 +6,8 @@ import { ActivityTypeIcon } from "@/components/activities/activity-type-icon"
 import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge"
 import Link from "next/link"
 
+export const revalidate = 60
+
 const statusColors: Record<string, string> = {
   PLANNED: "text-blue-400",
   IN_PROGRESS: "text-amber-400",

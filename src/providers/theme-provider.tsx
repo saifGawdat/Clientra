@@ -21,12 +21,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null
     if (stored === "dark" || stored === "light") {
-      setTheme(stored)
+      setTimeout(() => setTheme(stored), 0)
       document.documentElement.setAttribute("data-theme", stored)
     } else {
       document.documentElement.setAttribute("data-theme", "dark")
     }
-    setMounted(true)
+    setTimeout(() => setMounted(true), 0)
   }, [])
 
   useEffect(() => {

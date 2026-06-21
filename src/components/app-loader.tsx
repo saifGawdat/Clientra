@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-import Image from "next/image"
+import { ClientraIcon } from "@/components/ui/clientra-icon"
 
 export function AppLoader() {
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 600) // reduced from 1600ms
+    if (sessionStorage.getItem("app-loaded")) {
+      setTimeout(() => setVisible(false), 0)
+      return
+    }
+    const t = setTimeout(() => {
+      setVisible(false)
+      sessionStorage.setItem("app-loaded", "1")
+    }, 600)
     return () => clearTimeout(t)
   }, [])
 
@@ -31,13 +38,7 @@ export function AppLoader() {
               animate={{ opacity: [1, 0.6, 1] }}
               transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <Image
-                src="/clientra-icon-dark.svg"
-                alt="Clientra"
-                width={64}
-                height={64}
-                priority
-              />
+              <ClientraIcon size={64} />
             </motion.div>
 
             <motion.span

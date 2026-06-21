@@ -1,7 +1,11 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AppLoader } from "@/components/app-loader";
+import dynamic from "next/dynamic";
+const AppLoader = dynamic(
+  () => import("@/components/app-loader").then((m) => ({ default: m.AppLoader })),
+  { ssr: false }
+);
 import { ConfirmProvider } from "@/components/ui/confirm-modal";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { useState } from "react";
